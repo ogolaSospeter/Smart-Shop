@@ -10,39 +10,6 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Smart Shop",
-          textAlign: TextAlign.center,
-        ),
-        elevation: 0,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  _boxLogin.clear();
-                  _boxLogin.put("loginStatus", false);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return const Login();
-                      },
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.logout_rounded),
-              ),
-            ),
-          )
-        ],
-      ),
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: Center(
         child: Column(
