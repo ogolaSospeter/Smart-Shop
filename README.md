@@ -33,7 +33,10 @@ Contributions are welcome! If you have any suggestions or find issues, feel free
 
 ## Fork the project
 
--Create your feature branch (git checkout -b feature/YourFeature)
--Commit your changes (git commit -m 'Add Your Feature')
--Push to the branch (git push origin feature/YourFeature)
--Open a pull request
+- Create your feature branch (git checkout -b feature/YourFeature)
+- Commit your changes (git commit -m 'Add Your Feature')
+- Push to the branch (git push origin feature/YourFeature)
+- Open a pull request
+
+## Product Screens
+ * Coming Soon
