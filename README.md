@@ -21,17 +21,17 @@ Welcome to **Smart Shop**, an all-in-one e-commerce app for clothing. This Flutt
 - Dart SDK installed
 - Android Studio or Visual Studio Code for IDE
 
-###Future Improvements
+### Future Improvements
 
 - **Payment Integration**: Add payment gateway integration for seamless transactions.
 - **Social Login**: Allow users to log in using social accounts like Google and Facebook.
 - **Reviews and Ratings**: Enable customers to leave reviews and rate products.
 
-###Contributing
+### Contributing
 Contributions are welcome! If you have any suggestions or find issues, feel free to open an issue or submit a pull request.
 
 
-###Fork the project
+## Fork the project
 
 -Create your feature branch (git checkout -b feature/YourFeature)
 -Commit your changes (git commit -m 'Add Your Feature')
