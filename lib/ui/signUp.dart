@@ -26,14 +26,20 @@ class _SignupState extends State<Signup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Column(
             children: [
-              const SizedBox(height: 100),
+              const SizedBox(height: 70),
+              //add an image illustration from the web
+              Image.network(
+                "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+                height: 150,
+              ),
+
+              const SizedBox(height: 4),
               Text(
                 "Register",
                 style: Theme.of(context).textTheme.headlineLarge,
@@ -109,8 +115,8 @@ class _SignupState extends State<Signup> {
                         });
                       },
                       icon: _obscurePassword
-                          ? const Icon(Icons.visibility_outlined)
-                          : const Icon(Icons.visibility_off_outlined)),
+                          ? const Icon(Icons.visibility_off_outlined)
+                          : const Icon(Icons.visibility_outlined)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -122,7 +128,9 @@ class _SignupState extends State<Signup> {
                   if (value == null || value.isEmpty) {
                     return "Please enter password.";
                   } else if (value.length < 8) {
+                    _controllerPassword.clear();
                     return "Password must be at least 8 character.";
+                    //reset the password field
                   }
                   return null;
                 },
@@ -145,8 +153,8 @@ class _SignupState extends State<Signup> {
                         });
                       },
                       icon: _obscurePassword
-                          ? const Icon(Icons.visibility_outlined)
-                          : const Icon(Icons.visibility_off_outlined)),
+                          ? const Icon(Icons.visibility_off_outlined)
+                          : const Icon(Icons.visibility_outlined)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -158,6 +166,7 @@ class _SignupState extends State<Signup> {
                   if (value == null || value.isEmpty) {
                     return "Please enter password.";
                   } else if (value != _controllerPassword.text) {
+                    _controllerConFirmPassword.clear();
                     return "Password doesn't match.";
                   }
                   return null;

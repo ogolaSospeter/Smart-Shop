@@ -31,14 +31,18 @@ class _LoginState extends State<Login> {
     }
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(30.0),
           child: Column(
             children: [
-              const SizedBox(height: 150),
+              const SizedBox(height: 70),
+              Image.network(
+                "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+                height: 150,
+              ),
+              const SizedBox(height: 2),
               Text(
                 "Welcome back",
                 style: Theme.of(context).textTheme.headlineLarge,
@@ -89,8 +93,8 @@ class _LoginState extends State<Login> {
                         });
                       },
                       icon: _obscurePassword
-                          ? const Icon(Icons.visibility_outlined)
-                          : const Icon(Icons.visibility_off_outlined)),
+                          ? const Icon(Icons.visibility_off_outlined)
+                          : const Icon(Icons.visibility_outlined)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
