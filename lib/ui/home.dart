@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smartshop/ui/profile.dart';
 import 'package:smartshop/ui/signIn.dart';
 
 class Home extends StatelessWidget {
@@ -41,8 +42,18 @@ class Home extends StatelessWidget {
           PopupMenuButton(
             itemBuilder: (BuildContext context) {
               return [
-                const PopupMenuItem(
-                  child: Text("Profile"),
+                PopupMenuItem(
+                  child: ListTile(
+                    title: const Text("Profile"),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
                 PopupMenuItem(
                   child: ListTile(

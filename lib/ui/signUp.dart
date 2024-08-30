@@ -201,7 +201,8 @@ class _SignupState extends State<Signup> {
                             content: const Text("Registered Successfully"),
                           ),
                         );
-
+                        _boxAccounts.put("userEmail", _controllerEmail.text);
+                        _boxAccounts.put("userName", _controllerUsername.text);
                         _formKey.currentState?.reset();
 
                         Navigator.pop(context);
