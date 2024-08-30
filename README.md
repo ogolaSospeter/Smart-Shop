@@ -1,6 +1,6 @@
 # Smart Shop - Your Personal Shopping Mall😉
 
-Welcome to **Smart Shop**, an all-in-one e-commerce app for clothing. Whether you're looking for the latest fashion trends or classic pieces, Smart Shop has it all. This Flutter-based app provides a seamless shopping experience with a beautiful UI, easy navigation, and secure transactions.
+Welcome to **Smart Shop**, an all-in-one e-commerce app for clothing. This Flutter-based app provides a seamless shopping experience with a beautiful UI, easy navigation, and secure transactions.
 
 ## Features
 
@@ -22,14 +22,17 @@ Welcome to **Smart Shop**, an all-in-one e-commerce app for clothing. Whether yo
 - Android Studio or Visual Studio Code for IDE
 
 **Future Improvements**
-Payment Integration: Add payment gateway integration for seamless transactions.
-Social Login: Allow users to log in using social accounts like Google and Facebook.
-Reviews and Ratings: Enable customers to leave reviews and rate products.
-Contributing
+
+-**Payment Integration**: Add payment gateway integration for seamless transactions.
+-**Social Login**: Allow users to log in using social accounts like Google and Facebook.
+-**Reviews and Ratings**: Enable customers to leave reviews and rate products.
+
+**Contributing**
 Contributions are welcome! If you have any suggestions or find issues, feel free to open an issue or submit a pull request.
 
 **Fork the project**
-Create your feature branch (git checkout -b feature/YourFeature)
-Commit your changes (git commit -m 'Add Your Feature')
-Push to the branch (git push origin feature/YourFeature)
-Open a pull request
+
+-Create your feature branch (git checkout -b feature/YourFeature)
+-Commit your changes (git commit -m 'Add Your Feature')
+-Push to the branch (git push origin feature/YourFeature)
+-Open a pull request
