@@ -20,14 +20,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final String username = _boxAccounts.get("userName") ?? "Ogola SosPeter";
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.blueAccent,
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const CircleAvatar(
                 radius: 50.0,
-                backgroundImage: AssetImage('images/fadcrepin.jpg'),
+                backgroundImage: AssetImage('assets/profile.jpg'),
               ),
               Text(
                 username,
@@ -130,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: const Text('Back to Home'),
+                child: const Text('Home'),
               ),
             ],
           ),
