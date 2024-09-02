@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartshop/ui/product_page.dart';
 import 'package:smartshop/ui/profile.dart';
+import 'package:smartshop/ui/shopping_cart.dart';
 import 'package:smartshop/ui/signIn.dart';
 
 class Home extends StatelessWidget {
@@ -69,6 +70,20 @@ class Home extends StatelessWidget {
               const SizedBox(
                 height: 20.0,
               ),
+              //Shoppping cart
+              ListTile(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) {
+                        return const ShoppingCartPage();
+                      },
+                    ),
+                  );
+                },
+                leading: const Icon(Icons.shopping_cart),
+                title: const Text("Shopping Cart"),
+              ),
               ListTile(
                 onTap: () {
                   Navigator.of(context).push(
@@ -103,18 +118,29 @@ class Home extends StatelessWidget {
           ),
         ),
       ),
-      body: MainBody(),
+      body: const MainBody(),
     );
   }
 }
 
-class MainBody extends StatelessWidget {
+class MainBody extends StatefulWidget {
+  const MainBody({super.key});
+
+  @override
+  State<MainBody> createState() => _MainBodyState();
+}
+
+class _MainBodyState extends State<MainBody> {
   final List<Map<String, String>> possibleNamesofProductsandIcons = [
     {'name': 'Hat', 'icon': 'assets/images/hat.png'},
     //skirt
     {'name': 'Skirt', 'icon': 'assets/images/skirt.png'},
-    //sneaakers
+    //sneaakersr
     {'name': 'Sneakers', 'icon': 'assets/images/sneakers.png'},
+    //Shorts
+    {'name': 'Shorts', 'icon': 'assets/categories/kidswear.png'},
+    //Shoes
+    {'name': 'Shoes', 'icon': 'assets/categories/shoes.png'},
     // {'name': 'Shirt', 'icon': 'https://img.icons8.com/ios/50/shirt.png'},
     // {'name': 'Trousers', 'icon': 'https://img.icons8.com/ios/50/trousers.png'},
     // {'name': 'Shoes', 'icon': 'https://img.icons8.com/ios/50/shoes.png'},
@@ -143,7 +169,35 @@ class MainBody extends StatelessWidget {
     // {'name': 'Scarves', 'icon': 'https://img.icons8.com/ios/50/scarf.png'},
   ];
 
-  MainBody({super.key});
+  //categories list
+  final List<Map<String, String>> categories = [
+    {
+      'name': "Men Wear",
+      'icon': 'assets/categories/menwear.png',
+    },
+    {
+      'name': "Ladies Wear",
+      'icon': 'assets/categories/womenwear.png',
+    },
+    {
+      'name': "Kids Wear",
+      'icon': 'assets/categories/kidswear.png',
+    },
+    {
+      'name': "Shoes",
+      'icon': 'assets/categories/shoes.png',
+    },
+    {
+      'name': "Bags",
+      'icon': 'assets/categories/bags.png',
+    },
+    {
+      'name': "Accessories",
+      'icon': 'assets/categories/accessories.png',
+    },
+  ];
+
+  String selectedCategory = "";
 
   @override
   Widget build(BuildContext context) {
@@ -233,28 +287,24 @@ class MainBody extends StatelessWidget {
               reverse: true,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  categoryWidget("Shirts", Icons.shopping_bag),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Trousers", Icons.fastfood),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Shoes", Icons.local_drink),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Hats", Icons.shopping_bag),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Sneakers", Icons.fastfood),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Suits", Icons.local_drink),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Dresses", Icons.shopping_bag),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Skirts", Icons.fastfood),
-                  const SizedBox(width: 20), // Spacing between boxes
-                  categoryWidget("Accessories", Icons.local_drink),
-                ],
+                children: categories.map((category) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: categoryWidget(category['name']!, category['icon']!),
+                  );
+                }).toList(),
               ),
             ),
             const SizedBox(height: 30),
+            const Text(
+              "Featured ",
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
             Wrap(
               alignment: WrapAlignment.start,
               children: [
@@ -276,7 +326,7 @@ class MainBody extends StatelessWidget {
 }
 
 //create a reusable widget for the categories
-Widget categoryWidget(String category, IconData icon) {
+Widget categoryWidget(String category, String icon) {
   return Column(
     children: [
       Container(
@@ -292,10 +342,10 @@ Widget categoryWidget(String category, IconData icon) {
           shape: BoxShape.rectangle,
         ),
         child: ListTile(
-          leading: Icon(
+          leading: Image.asset(
             icon,
-            size: 25,
-            color: Colors.blue,
+            height: 25,
+            width: 25,
           ),
           title: Text(category),
         ),

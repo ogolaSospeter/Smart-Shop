@@ -1,4 +1,6 @@
 //Modelling the product data
+import 'package:flutter/material.dart';
+
 class Product {
   int id;
   String name;
@@ -6,7 +8,7 @@ class Product {
   String image;
   double price;
   List<String> sizes;
-  List<String> colors;
+  List<Color> colors;
   double rating;
   bool isliked;
   bool isSelected;
