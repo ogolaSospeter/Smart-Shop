@@ -38,9 +38,10 @@ class _LoginState extends State<Login> {
           child: Column(
             children: [
               const SizedBox(height: 70),
-              Image.network(
-                "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
-                height: 150,
+              //add the login.gif file in the assets folder
+              Image.asset(
+                "assets/login.gif",
+                height: 200,
               ),
               const SizedBox(height: 2),
               Text(

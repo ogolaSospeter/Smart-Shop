@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smartshop/ui/product_page.dart';
 import 'package:smartshop/ui/profile.dart';
 import 'package:smartshop/ui/signIn.dart';
 
@@ -105,13 +107,42 @@ class Home extends StatelessWidget {
           ),
         ),
       ),
-      body: const MainBody(),
+      body: MainBody(),
     );
   }
 }
 
 class MainBody extends StatelessWidget {
-  const MainBody({super.key});
+  final List<Map<String, String>> possibleNamesofProductsandIcons = [
+    {'name': 'Shirt', 'icon': 'https://img.icons8.com/ios/50/shirt.png'},
+    {'name': 'Trousers', 'icon': 'https://img.icons8.com/ios/50/trousers.png'},
+    {'name': 'Shoes', 'icon': 'https://img.icons8.com/ios/50/shoes.png'},
+    {'name': 'Hats', 'icon': 'https://img.icons8.com/ios/50/hat.png'},
+    {'name': 'Sneakers', 'icon': 'https://img.icons8.com/ios/50/sneakers.png'},
+    {'name': 'Suits', 'icon': 'https://img.icons8.com/ios/50/suit.png'},
+    {'name': 'Dresses', 'icon': 'https://img.icons8.com/ios/50/dress.png'},
+    {'name': 'Skirts', 'icon': 'https://img.icons8.com/ios/50/skirt.png'},
+    {
+      'name': 'Accessories',
+      'icon': 'https://img.icons8.com/ios/50/jewelry.png'
+    },
+    {'name': 'Bags', 'icon': 'https://img.icons8.com/ios/50/handbag.png'},
+    {'name': 'Socks', 'icon': 'https://img.icons8.com/ios/50/socks.png'},
+    {'name': 'Gloves', 'icon': 'https://img.icons8.com/ios/50/gloves.png'},
+    {'name': 'Belts', 'icon': 'https://img.icons8.com/ios/50/belt.png'},
+    {'name': 'Watches', 'icon': 'https://img.icons8.com/ios/50/watch.png'},
+    {
+      'name': 'Sunglasses',
+      'icon': 'https://img.icons8.com/ios/50/sunglasses.png'
+    },
+    {'name': 'Wallets', 'icon': 'https://img.icons8.com/ios/50/wallet.png'},
+    {'name': 'Ties', 'icon': 'https://img.icons8.com/ios/50/tie.png'},
+    {'name': 'Swimwear', 'icon': 'https://img.icons8.com/ios/50/swimwear.png'},
+    {'name': 'Jackets', 'icon': 'https://img.icons8.com/ios/50/jacket.png'},
+    {'name': 'Scarves', 'icon': 'https://img.icons8.com/ios/50/scarf.png'},
+  ];
+
+  MainBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +254,19 @@ class MainBody extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-            const ProductCards()
+            Wrap(
+              alignment: WrapAlignment.start,
+              children: [
+                Wrap(
+                  children: possibleNamesofProductsandIcons.map((product) {
+                    return ProductCards(
+                      name: product['name']!,
+                      image: product['icon']!,
+                    );
+                  }).toList(),
+                ),
+              ],
+            )
           ],
         ),
       ),
@@ -262,29 +305,52 @@ Widget categoryWidget(String category, IconData icon) {
 }
 
 class ProductCards extends StatelessWidget {
-  const ProductCards({super.key});
+  const ProductCards({super.key, required this.name, required this.image});
+
+  final String name;
+  final String image;
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-        height: 140,
-        width: 130,
+    return SizedBox(
+      height: 190,
+      width: 160,
+      child: GestureDetector(
+        onTap: () => {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (BuildContext context) {
+            //return the product page with the name as the title
+            return ProductPage(title: name, image: image);
+          }))
+        },
         child: Card(
           child: Column(
             children: [
-              SizedBox(height: 5),
-              Padding(
-                padding: EdgeInsets.only(left: 0.0, top: 5.0),
-                child: Icon(Icons.favorite_sharp, color: Colors.red, size: 25),
+              const SizedBox(height: 5),
+              const Padding(
+                padding: EdgeInsets.only(left: 75.0, top: 5.0),
+                child: Icon(Icons.favorite_outline_outlined,
+                    color: Colors.red, size: 30),
               ),
-              SizedBox(height: 15),
-              Icon(Icons.festival_outlined, color: Colors.blue),
-              SizedBox(height: 15),
-              Text("Shoes"),
-              SizedBox(height: 10)
+              const SizedBox(height: 5),
+              Image.network(
+                image,
+                height: 80,
+                width: 80,
+                color: Colors.blueAccent,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10)
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
