@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:smartshop/config/routes.dart';
+import 'package:smartshop/themes/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await _initHive();
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,12 +21,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final ThemeNotifier themeNotifier = Provider.of<ThemeNotifier>(context);
     return MaterialApp(
       title: 'My Smart One Stop Shop',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      themeMode: themeNotifier.currentTheme,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
       routes: Routes.getRoute(),
       initialRoute: "/",
       debugShowCheckedModeBanner: false,

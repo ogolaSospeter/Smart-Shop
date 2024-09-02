@@ -27,7 +27,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     if (_boxLogin.get("loginStatus") ?? false) {
-      return const Home();
+      return Home();
     }
 
     return Scaffold(
@@ -132,7 +132,7 @@ class _LoginState extends State<Login> {
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              return const Home();
+                              return Home();
                             },
                           ),
                         );

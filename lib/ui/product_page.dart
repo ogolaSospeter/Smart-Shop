@@ -39,7 +39,7 @@ class _ProductPageState extends State<ProductPage> {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return const Home();
+                  return Home();
                 },
               ),
             );
@@ -67,7 +67,10 @@ class _ProductPageState extends State<ProductPage> {
                   ),
           ),
         ],
+        scrolledUnderElevation: 1.2,
+        backgroundColor: Colors.white,
       ),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
         child: Center(
@@ -136,9 +139,13 @@ class _ProductPageState extends State<ProductPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      widget.title.toUpperCase(),
-                      style: Theme.of(context).textTheme.headlineMedium,
+                    Wrap(
+                      children: [
+                        Text(
+                          widget.title.toUpperCase(),
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ],
                     ),
                     Container(
                       height: 60,

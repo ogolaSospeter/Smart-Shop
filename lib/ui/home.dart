@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:smartshop/themes/theme.dart';
 import 'package:smartshop/ui/product_page.dart';
 import 'package:smartshop/ui/profile.dart';
 import 'package:smartshop/ui/shopping_cart.dart';
 import 'package:smartshop/ui/signIn.dart';
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  Home({super.key});
+
+  //fetch the user name from the Hive box
+  final _userAccount = Hive.box("accounts");
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +41,10 @@ class Home extends StatelessWidget {
             ),
           ),
         ],
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 10,
       ),
+      backgroundColor: Colors.white,
       drawer: SafeArea(
         child: Drawer(
           width: 230.0,
@@ -97,23 +106,79 @@ class Home extends StatelessWidget {
                 leading: const Icon(Icons.person),
                 title: const Text("Profile"),
               ),
-              const ListTile(
-                leading: Icon(Icons.color_lens),
-                title: Text("Themes"),
-              ),
               ListTile(
                 onTap: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return const Login();
-                      },
-                    ),
-                  );
+                  //Toggling the light and dark theme
+                  Provider.of<ThemeNotifier>(context, listen: false)
+                      .toggleTheme();
                 },
-                leading: const Icon(Icons.logout),
-                title: const Text("Logout"),
-              )
+                leading: const Icon(Icons.color_lens),
+                title: const Text("Themes"),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 230.0),
+                child: ListTile(
+                  onTap: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return const Login();
+                        },
+                      ),
+                    );
+                  },
+                  leading: const Icon(Icons.logout),
+                  title: const Text("Logout"),
+                ),
+              ),
+              //add a profile circle avatar and the user's name in a row
+              Column(
+                children: [
+                  const SizedBox(width: 20.0),
+                  const CircleAvatar(
+                    radius: 20.0,
+                    backgroundImage: AssetImage('assets/profile.jpg'),
+                  ),
+                  const SizedBox(width: 20.0),
+                  Text(
+                    "Hello, ${_userAccount.get("userName")}",
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              //An arrow-down icon that when clicked pops up the logout button
+              const SizedBox(height: 1.0),
+              PopupMenuButton(
+                icon: const Icon(Icons.arrow_drop_down),
+                onSelected: (value) {
+                  // if (value == 'logout') {
+                  //   Navigator.of(context).pushReplacement(
+                  //     MaterialPageRoute(
+                  //       builder: (BuildContext context) {
+                  //         return const Login();
+                  //       },
+                  //     ),
+                  //   );
+                  // }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    const PopupMenuItem(
+                      value: 'logout',
+                      height: 10.0,
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.logout,
+                        ),
+                        title: Text("Logout"),
+                      ),
+                    ),
+                  ];
+                },
+              ),
             ],
           ),
         ),
@@ -139,8 +204,15 @@ class _MainBodyState extends State<MainBody> {
     {'name': 'Sneakers', 'icon': 'assets/images/sneakers.png'},
     //Shorts
     {'name': 'Shorts', 'icon': 'assets/categories/kidswear.png'},
+    //Sports Rubber Shoes
+    {'name': 'Sports Rubber Shoes', 'icon': 'assets/small_tilt_shoe_1.png'},
+    // Rubber Shoes
+    {'name': 'Rubber Shoes', 'icon': 'assets/small_tilt_shoe_2.png'},
+
     //Shoes
-    {'name': 'Shoes', 'icon': 'assets/categories/shoes.png'},
+    {'name': 'Shoes', 'icon': 'assets/small_tilt_shoe_3.png'},
+    //Watch
+    {'name': 'Watch', 'icon': 'assets/watch.png'},
     // {'name': 'Shirt', 'icon': 'https://img.icons8.com/ios/50/shirt.png'},
     // {'name': 'Trousers', 'icon': 'https://img.icons8.com/ios/50/trousers.png'},
     // {'name': 'Shoes', 'icon': 'https://img.icons8.com/ios/50/shoes.png'},
@@ -290,7 +362,10 @@ class _MainBodyState extends State<MainBody> {
                 children: categories.map((category) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: categoryWidget(category['name']!, category['icon']!),
+                    child: CategoryWidget(
+                      category: category['name']!,
+                      icon: category['icon']!,
+                    ),
                   );
                 }).toList(),
               ),
@@ -325,35 +400,96 @@ class _MainBodyState extends State<MainBody> {
   }
 }
 
-//create a reusable widget for the categories
-Widget categoryWidget(String category, String icon) {
-  return Column(
-    children: [
-      Container(
-        width: 150,
-        height: 50,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: Colors.blue,
-            width: 1,
-          ),
-          shape: BoxShape.rectangle,
-        ),
-        child: ListTile(
-          leading: Image.asset(
-            icon,
-            height: 25,
-            width: 25,
-          ),
-          title: Text(category),
-        ),
-      ),
-      const SizedBox(height: 5),
-    ],
-  );
+//reusable widget for the categories
+// Create a reusable stateful widget for the categories
+class CategoryWidget extends StatefulWidget {
+  final String category;
+  final String icon;
+
+  const CategoryWidget({super.key, required this.category, required this.icon});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _CategoryWidgetState createState() => _CategoryWidgetState();
 }
+
+class _CategoryWidgetState extends State<CategoryWidget> {
+  bool isSelected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        IntrinsicWidth(
+          child: GestureDetector(
+            onTap: () {
+              setState(() {
+                isSelected = !isSelected;
+              });
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: isSelected ? Colors.blue : Colors.grey[200]!,
+                  width: 2,
+                ),
+                shape: BoxShape.rectangle,
+              ),
+              child: ListTile(
+                leading: Image.asset(
+                  widget.icon,
+                  height: 25,
+                  width: 25,
+                ),
+                title: Text(widget.category),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 5),
+      ],
+    );
+  }
+}
+
+// Widget categoryWidget(String category, String icon) {
+//   bool isSelected = false;
+//   return Column(
+//     children: [
+//       IntrinsicWidth(
+//         child: GestureDetector(
+//           onTap: () {
+//             isSelected = !isSelected;
+//           },
+//           child: Container(
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               borderRadius: BorderRadius.circular(10),
+//               border: Border.all(
+//                 color:
+//                     // ignore: dead_code
+//                     isSelected ? Colors.blue : Colors.grey[200]!,
+//                 width: 2,
+//               ),
+//               shape: BoxShape.rectangle,
+//             ),
+//             child: ListTile(
+//               leading: Image.asset(
+//                 icon,
+//                 height: 25,
+//                 width: 25,
+//               ),
+//               title: Text(category),
+//             ),
+//           ),
+//         ),
+//       ),
+//       const SizedBox(height: 5),
+//     ],
+//   );
+// }
 
 class ProductCards extends StatelessWidget {
   const ProductCards({super.key, required this.name, required this.image});
@@ -363,18 +499,19 @@ class ProductCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 190,
-      width: 160,
-      child: GestureDetector(
-        onTap: () => {
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            //return the product page with the name as the title
-            return ProductPage(title: name, image: image);
-          }))
-        },
+    return GestureDetector(
+      onTap: () => {
+        Navigator.of(context)
+            .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+          //return the product page with the name as the title
+          return ProductPage(title: name, image: image);
+        }))
+      },
+      child: SizedBox(
+        height: 200,
+        width: 160,
         child: Card(
+          color: Colors.white,
           child: Column(
             children: [
               const SizedBox(height: 5),
@@ -384,10 +521,13 @@ class ProductCards extends StatelessWidget {
                     color: Colors.red, size: 30),
               ),
               const SizedBox(height: 5),
-              Image.asset(
-                image,
-                height: 80,
-                width: 80,
+              AspectRatio(
+                aspectRatio: 1.6,
+                child: Image.asset(
+                  image,
+                  height: 150,
+                  width: 150,
+                ),
               ),
               const SizedBox(height: 15),
               Text(
