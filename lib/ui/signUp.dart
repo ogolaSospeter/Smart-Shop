@@ -34,11 +34,10 @@ class _SignupState extends State<Signup> {
             children: [
               const SizedBox(height: 70),
               //add an image illustration from the web
-              Image.network(
-                "https://www.pngitem.com/pimgs/m/146-1468479_my-profile-icon-blank-profile-picture-circle-hd.png",
+              Image.asset(
+                "assets/signup.png",
                 height: 150,
               ),
-
               const SizedBox(height: 4),
               Text(
                 "Register",

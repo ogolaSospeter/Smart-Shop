@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:smartshop/ui/product_page.dart';
 import 'package:smartshop/ui/profile.dart';
 import 'package:smartshop/ui/signIn.dart';
 
 class Home extends StatelessWidget {
-  Home({super.key});
-
-  final Box _boxLogin = Hive.box("login");
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +88,7 @@ class Home extends StatelessWidget {
               ),
               ListTile(
                 onTap: () {
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (BuildContext context) {
                         return const Login();
@@ -114,32 +110,37 @@ class Home extends StatelessWidget {
 
 class MainBody extends StatelessWidget {
   final List<Map<String, String>> possibleNamesofProductsandIcons = [
-    {'name': 'Shirt', 'icon': 'https://img.icons8.com/ios/50/shirt.png'},
-    {'name': 'Trousers', 'icon': 'https://img.icons8.com/ios/50/trousers.png'},
-    {'name': 'Shoes', 'icon': 'https://img.icons8.com/ios/50/shoes.png'},
-    {'name': 'Hats', 'icon': 'https://img.icons8.com/ios/50/hat.png'},
-    {'name': 'Sneakers', 'icon': 'https://img.icons8.com/ios/50/sneakers.png'},
-    {'name': 'Suits', 'icon': 'https://img.icons8.com/ios/50/suit.png'},
-    {'name': 'Dresses', 'icon': 'https://img.icons8.com/ios/50/dress.png'},
-    {'name': 'Skirts', 'icon': 'https://img.icons8.com/ios/50/skirt.png'},
-    {
-      'name': 'Accessories',
-      'icon': 'https://img.icons8.com/ios/50/jewelry.png'
-    },
-    {'name': 'Bags', 'icon': 'https://img.icons8.com/ios/50/handbag.png'},
-    {'name': 'Socks', 'icon': 'https://img.icons8.com/ios/50/socks.png'},
-    {'name': 'Gloves', 'icon': 'https://img.icons8.com/ios/50/gloves.png'},
-    {'name': 'Belts', 'icon': 'https://img.icons8.com/ios/50/belt.png'},
-    {'name': 'Watches', 'icon': 'https://img.icons8.com/ios/50/watch.png'},
-    {
-      'name': 'Sunglasses',
-      'icon': 'https://img.icons8.com/ios/50/sunglasses.png'
-    },
-    {'name': 'Wallets', 'icon': 'https://img.icons8.com/ios/50/wallet.png'},
-    {'name': 'Ties', 'icon': 'https://img.icons8.com/ios/50/tie.png'},
-    {'name': 'Swimwear', 'icon': 'https://img.icons8.com/ios/50/swimwear.png'},
-    {'name': 'Jackets', 'icon': 'https://img.icons8.com/ios/50/jacket.png'},
-    {'name': 'Scarves', 'icon': 'https://img.icons8.com/ios/50/scarf.png'},
+    {'name': 'Hat', 'icon': 'assets/images/hat.png'},
+    //skirt
+    {'name': 'Skirt', 'icon': 'assets/images/skirt.png'},
+    //sneaakers
+    {'name': 'Sneakers', 'icon': 'assets/images/sneakers.png'},
+    // {'name': 'Shirt', 'icon': 'https://img.icons8.com/ios/50/shirt.png'},
+    // {'name': 'Trousers', 'icon': 'https://img.icons8.com/ios/50/trousers.png'},
+    // {'name': 'Shoes', 'icon': 'https://img.icons8.com/ios/50/shoes.png'},
+    // {'name': 'Hats', 'icon': 'https://img.icons8.com/ios/50/hat.png'},
+    // {'name': 'Sneakers', 'icon': 'https://img.icons8.com/ios/50/sneakers.png'},
+    // {'name': 'Suits', 'icon': 'https://img.icons8.com/ios/50/suit.png'},
+    // {'name': 'Dresses', 'icon': 'https://img.icons8.com/ios/50/dress.png'},
+    // {'name': 'Skirts', 'icon': 'https://img.icons8.com/ios/50/skirt.png'},
+    // {
+    //   'name': 'Accessories',
+    //   'icon': 'https://img.icons8.com/ios/50/jewelry.png'
+    // },
+    // {'name': 'Bags', 'icon': 'https://img.icons8.com/ios/50/handbag.png'},
+    // {'name': 'Socks', 'icon': 'https://img.icons8.com/ios/50/socks.png'},
+    // {'name': 'Gloves', 'icon': 'https://img.icons8.com/ios/50/gloves.png'},
+    // {'name': 'Belts', 'icon': 'https://img.icons8.com/ios/50/belt.png'},
+    // {'name': 'Watches', 'icon': 'https://img.icons8.com/ios/50/watch.png'},
+    // {
+    //   'name': 'Sunglasses',
+    //   'icon': 'https://img.icons8.com/ios/50/sunglasses.png'
+    // },
+    // {'name': 'Wallets', 'icon': 'https://img.icons8.com/ios/50/wallet.png'},
+    // {'name': 'Ties', 'icon': 'https://img.icons8.com/ios/50/tie.png'},
+    // {'name': 'Swimwear', 'icon': 'https://img.icons8.com/ios/50/swimwear.png'},
+    // {'name': 'Jackets', 'icon': 'https://img.icons8.com/ios/50/jacket.png'},
+    // {'name': 'Scarves', 'icon': 'https://img.icons8.com/ios/50/scarf.png'},
   ];
 
   MainBody({super.key});
@@ -333,11 +334,10 @@ class ProductCards extends StatelessWidget {
                     color: Colors.red, size: 30),
               ),
               const SizedBox(height: 5),
-              Image.network(
+              Image.asset(
                 image,
                 height: 80,
                 width: 80,
-                color: Colors.blueAccent,
               ),
               const SizedBox(height: 15),
               Text(
