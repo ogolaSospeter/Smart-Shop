@@ -17,18 +17,18 @@ class ShoppingCartPage extends StatelessWidget {
     return SizedBox(
       height: 80,
       child: Row(
-        children: <Widget>[
+        children: [
           AspectRatio(
             aspectRatio: 1.2,
             child: Stack(
-              children: <Widget>[
+              children: [
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: SizedBox(
                     height: 70,
                     width: 70,
                     child: Stack(
-                      children: <Widget>[
+                      children: [
                         Align(
                           alignment: Alignment.bottomLeft,
                           child: Container(
@@ -50,37 +50,39 @@ class ShoppingCartPage extends StatelessWidget {
             ),
           ),
           Expanded(
-              child: ListTile(
-                  title: TitleText(
-                    text: model.name,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  subtitle: Row(
-                    children: <Widget>[
-                      const TitleText(
-                        text: '\$ ',
-                        color: LightColor.red,
-                        fontSize: 12,
-                      ),
-                      TitleText(
-                        text: model.price.toString(),
-                        fontSize: 14,
-                      ),
-                    ],
-                  ),
-                  trailing: Container(
-                    width: 35,
-                    height: 35,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        color: LightColor.lightGrey.withAlpha(150),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: TitleText(
-                      text: 'x${model.id}',
+              child: Material(
+            child: ListTile(
+                title: TitleText(
+                  text: model.name,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+                subtitle: Row(
+                  children: [
+                    const TitleText(
+                      text: '\$ ',
+                      color: LightColor.red,
                       fontSize: 12,
                     ),
-                  )))
+                    TitleText(
+                      text: model.price.toString(),
+                      fontSize: 14,
+                    ),
+                  ],
+                ),
+                trailing: Container(
+                  width: 35,
+                  height: 35,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      color: LightColor.lightGrey.withAlpha(150),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: TitleText(
+                    text: 'x${model.id}',
+                    fontSize: 12,
+                  ),
+                )),
+          ))
         ],
       ),
     );
@@ -89,7 +91,7 @@ class ShoppingCartPage extends StatelessWidget {
   Widget _price() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
+      children: [
         TitleText(
           text: '${AppData.cartList.length} Items',
           color: LightColor.grey,
@@ -136,20 +138,27 @@ class ShoppingCartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: AppTheme.padding,
-      child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            _cartItems(),
-            const Divider(
-              thickness: 1,
-              height: 70,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Shopping Cart'),
+      ),
+      body: Material(
+        child: Container(
+          padding: AppTheme.padding,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _cartItems(),
+                const Divider(
+                  thickness: 1,
+                  height: 70,
+                ),
+                _price(),
+                const SizedBox(height: 30),
+                _submitButton(context),
+              ],
             ),
-            _price(),
-            const SizedBox(height: 30),
-            _submitButton(context),
-          ],
+          ),
         ),
       ),
     );
