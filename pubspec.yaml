@@ -43,7 +43,7 @@ dependencies:
   provider: ^6.1.2
   animated_visibility: ^0.0.4
   path: ^1.9.0
-  sqflite: ^2.3.3+1
+  sqflite: ^2.3.3
 
 dev_dependencies:
   flutter_test:

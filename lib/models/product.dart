@@ -10,7 +10,7 @@ class Product {
   List<String> sizes;
   List<Color> colors;
   double rating;
-  bool isliked;
+  bool isLiked;
   bool isSelected;
 
   Product(
@@ -22,6 +22,6 @@ class Product {
       required this.sizes,
       required this.colors,
       required this.rating,
-      required this.isliked,
+      required this.isLiked,
       required this.isSelected});
 }

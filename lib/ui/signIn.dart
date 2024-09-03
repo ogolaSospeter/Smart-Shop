@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/ui/signUp.dart';
 
 import 'home.dart';
@@ -21,15 +21,10 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _controllerPassword = TextEditingController();
 
   bool _obscurePassword = false;
-  final Box _boxLogin = Hive.box("login");
-  final Box _boxAccounts = Hive.box("accounts");
+  final DatabaseHelper databaseHelper = DatabaseHelper();
 
   @override
   Widget build(BuildContext context) {
-    if (_boxLogin.get("loginStatus") ?? false) {
-      return const Home();
-    }
-
     return Scaffold(
       body: Form(
         key: _formKey,
@@ -70,10 +65,7 @@ class _SignInState extends State<SignIn> {
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter username.";
-                  } else if (!_boxAccounts.containsKey(value)) {
-                    return "Username is not registered.";
                   }
-
                   return null;
                 },
               ),
@@ -105,11 +97,7 @@ class _SignInState extends State<SignIn> {
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter password.";
-                  } else if (value !=
-                      _boxAccounts.get(_controllerUsername.text)) {
-                    return "Wrong password.";
                   }
-
                   return null;
                 },
               ),
@@ -123,19 +111,89 @@ class _SignInState extends State<SignIn> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState?.validate() ?? false) {
-                        _boxLogin.put("loginStatus", true);
-                        _boxLogin.put("userName", _controllerUsername.text);
+                        final user = await databaseHelper
+                            .getUserByUserName(_controllerUsername.text);
 
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return const Home();
-                            },
-                          ),
-                        );
+                        if (user != null &&
+                            user.password == _controllerPassword.text) {
+                          await databaseHelper.loginUser(user.username);
+                          AlertDialog(
+                            icon: const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 50,
+                            ),
+                            title: const Text("Login Successful"),
+                            content:
+                                const Text("You have successfully logged in."),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  color: Colors.green,
+                                  padding: const EdgeInsets.all(14),
+                                  child: const Text("okay"),
+                                ),
+                              ),
+                            ],
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                  const Text('Login Successful. Welcome back'),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 4),
+                              elevation: 10,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              animation: CurvedAnimation(
+                                parent: const AlwaysStoppedAnimation(1.0),
+                                curve: Curves.easeInOutBack,
+                              ),
+                            ),
+                          );
+                          //delay the route for 2 seconds
+                          Future.delayed(const Duration(seconds: 4), () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return Home();
+                                },
+                              ),
+                            );
+                          });
+                        } else if (user == null) {
+                          // User not found
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('User not found. Please signup')),
+                          );
+                          //Delay and transition to the signup page
+                          Future.delayed(const Duration(seconds: 2), () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return const Signup();
+                                },
+                              ),
+                            );
+                          });
+                        } else {
+                          // Incorrect username or password
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Incorrect username or password')),
+                          );
+                        }
                       }
                     },
                     child: const Text("Login"),
@@ -170,10 +228,11 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  // @override
-  // void dispose() {
-  //   _focusNodePassword.dispose();
-  //   _controllerUsername.dispose();
-  //   _controllerPassword.dispose();
-  // }
+  @override
+  void dispose() {
+    super.dispose();
+    _focusNodePassword.dispose();
+    _controllerUsername.dispose();
+    _controllerPassword.dispose();
+  }
 }

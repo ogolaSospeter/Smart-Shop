@@ -1,8 +1,9 @@
-import 'package:animated_visibility/animated_visibility.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/models/user.dart';
 import 'package:smartshop/themes/theme.dart';
+import 'package:smartshop/ui/bottomnavigation.dart';
 import 'package:smartshop/ui/product_page.dart';
 import 'package:smartshop/ui/profile.dart';
 import 'package:smartshop/ui/shopping_cart.dart';
@@ -16,9 +17,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  //fetch the user name from the Hive box
-  final _userAccount = Hive.box("accounts");
-  final _boxLogin = Hive.box("login");
+  //fetch the user name from the database
+  final DatabaseHelper dbHelper = DatabaseHelper();
+
+  //fetch the user data for the logged in user
+  Future<User?> _getUserData() async {
+    return await dbHelper.getLoggedInUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,9 +129,6 @@ class _HomeState extends State<Home> {
               ),
               ListTile(
                 onTap: () {
-                  _boxLogin.put(
-                      "loginStatus", false); // Update login status to false
-
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => const SignIn(),
@@ -137,9 +139,9 @@ class _HomeState extends State<Home> {
                 title: const Text("Logout"),
               ),
               //add a profile circle avatar and the user's name in a row
-              Padding(
+              const Padding(
                 padding: const EdgeInsets.only(top: 270.0),
-                child: Column(
+                child: Row(
                   children: [
                     const SizedBox(width: 20.0),
                     const CircleAvatar(
@@ -148,7 +150,7 @@ class _HomeState extends State<Home> {
                     ),
                     const SizedBox(width: 20.0),
                     Text(
-                      "Hello, ${_userAccount.get("userName")}.",
+                      "Hello, \$",
                       style: const TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.bold,
@@ -157,6 +159,7 @@ class _HomeState extends State<Home> {
                   ],
                 ),
               ),
+              const SizedBox(height: 1.0),
               //An arrow-down icon that when clicked pops up the logout button
               const SizedBox(height: 1.0),
             ],
@@ -164,6 +167,7 @@ class _HomeState extends State<Home> {
         ),
       ),
       body: const MainBody(),
+      // bottomNavigationBar: const BottomAppNavigation(),
     );
   }
 }

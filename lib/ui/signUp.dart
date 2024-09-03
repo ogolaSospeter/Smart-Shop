@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/models/user.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -20,8 +21,8 @@ class _SignupState extends State<Signup> {
   final TextEditingController _controllerConFirmPassword =
       TextEditingController();
 
-  final Box _boxAccounts = Hive.box("accounts");
   bool _obscurePassword = true;
+  final DatabaseHelper databaseHelper = DatabaseHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +66,9 @@ class _SignupState extends State<Signup> {
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter username.";
-                  } else if (_boxAccounts.containsKey(value)) {
-                    return "Username is already registered.";
+                  } else if (value.length < 3) {
+                    return "Username must be at least 3 characters.";
                   }
-
                   return null;
                 },
                 onEditingComplete: () => _focusNodeEmail.requestFocus(),
@@ -181,13 +181,22 @@ class _SignupState extends State<Signup> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState?.validate() ?? false) {
-                        _boxAccounts.put(
-                          _controllerUsername.text,
-                          _controllerConFirmPassword.text,
+                        final username = _controllerUsername.text;
+                        final email = _controllerEmail.text;
+                        final password = _controllerPassword.text;
+                        final user = User(
+                          id: 0, // auto-incremented id
+                          username: username,
+                          email: email,
+                          password: password,
+                          image: " ",
+                          isLogged: false,
                         );
 
+                        // Insert user into the database
+                        await databaseHelper.insertUser(user);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             width: 200,
@@ -200,8 +209,7 @@ class _SignupState extends State<Signup> {
                             content: const Text("Registered Successfully"),
                           ),
                         );
-                        _boxAccounts.put("userEmail", _controllerEmail.text);
-                        _boxAccounts.put("userName", _controllerUsername.text);
+
                         _formKey.currentState?.reset();
 
                         Navigator.pop(context);
