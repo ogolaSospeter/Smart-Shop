@@ -27,7 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: <Widget>[
               const CircleAvatar(
                 radius: 50.0,
-                backgroundImage: AssetImage('assets/profile.jpg'),
+                backgroundImage: AssetImage('assets/jacket.png'),
               ),
               Text(
                 username,

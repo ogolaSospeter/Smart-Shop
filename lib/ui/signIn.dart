@@ -4,16 +4,16 @@ import 'package:smartshop/ui/signUp.dart';
 
 import 'home.dart';
 
-class Login extends StatefulWidget {
-  const Login({
+class SignIn extends StatefulWidget {
+  const SignIn({
     super.key,
   });
 
   @override
-  State<Login> createState() => _LoginState();
+  State<SignIn> createState() => _SignInState();
 }
 
-class _LoginState extends State<Login> {
+class _SignInState extends State<SignIn> {
   final GlobalKey<FormState> _formKey = GlobalKey();
 
   final FocusNode _focusNodePassword = FocusNode();
@@ -27,7 +27,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     if (_boxLogin.get("loginStatus") ?? false) {
-      return Home();
+      return const Home();
     }
 
     return Scaffold(
@@ -49,7 +49,7 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(height: 10),
               Text(
-                "Login to your account",
+                "SignIn to your account",
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 60),
@@ -132,7 +132,7 @@ class _LoginState extends State<Login> {
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              return Home();
+                              return const Home();
                             },
                           ),
                         );
@@ -170,11 +170,10 @@ class _LoginState extends State<Login> {
     );
   }
 
-  @override
-  void dispose() {
-    _focusNodePassword.dispose();
-    _controllerUsername.dispose();
-    _controllerPassword.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _focusNodePassword.dispose();
+  //   _controllerUsername.dispose();
+  //   _controllerPassword.dispose();
+  // }
 }

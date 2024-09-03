@@ -1,3 +1,4 @@
+import 'package:animated_visibility/animated_visibility.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -7,11 +8,17 @@ import 'package:smartshop/ui/profile.dart';
 import 'package:smartshop/ui/shopping_cart.dart';
 import 'package:smartshop/ui/signIn.dart';
 
-class Home extends StatelessWidget {
-  Home({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   //fetch the user name from the Hive box
   final _userAccount = Hive.box("accounts");
+  final _boxLogin = Hive.box("login");
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +40,7 @@ class Home extends StatelessWidget {
                   ],
                 ),
                 child: Image.asset(
-                  'assets/profile.jpg',
+                  'assets/jacket.png',
                   width: 40,
                   height: 40,
                 ),
@@ -115,70 +122,43 @@ class Home extends StatelessWidget {
                 leading: const Icon(Icons.color_lens),
                 title: const Text("Themes"),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 230.0),
-                child: ListTile(
-                  onTap: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return const Login();
-                        },
-                      ),
-                    );
-                  },
-                  leading: const Icon(Icons.logout),
-                  title: const Text("Logout"),
-                ),
+              ListTile(
+                onTap: () {
+                  _boxLogin.put(
+                      "loginStatus", false); // Update login status to false
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const SignIn(),
+                    ),
+                  );
+                },
+                leading: const Icon(Icons.logout),
+                title: const Text("Logout"),
               ),
               //add a profile circle avatar and the user's name in a row
-              Column(
-                children: [
-                  const SizedBox(width: 20.0),
-                  const CircleAvatar(
-                    radius: 20.0,
-                    backgroundImage: AssetImage('assets/profile.jpg'),
-                  ),
-                  const SizedBox(width: 20.0),
-                  Text(
-                    "Hello, ${_userAccount.get("userName")}",
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.only(top: 270.0),
+                child: Column(
+                  children: [
+                    const SizedBox(width: 20.0),
+                    const CircleAvatar(
+                      radius: 20.0,
+                      backgroundImage: AssetImage('assets/jacket.png'),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 20.0),
+                    Text(
+                      "Hello, ${_userAccount.get("userName")}.",
+                      style: const TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               //An arrow-down icon that when clicked pops up the logout button
               const SizedBox(height: 1.0),
-              PopupMenuButton(
-                icon: const Icon(Icons.arrow_drop_down),
-                onSelected: (value) {
-                  // if (value == 'logout') {
-                  //   Navigator.of(context).pushReplacement(
-                  //     MaterialPageRoute(
-                  //       builder: (BuildContext context) {
-                  //         return const Login();
-                  //       },
-                  //     ),
-                  //   );
-                  // }
-                },
-                itemBuilder: (BuildContext context) {
-                  return [
-                    const PopupMenuItem(
-                      value: 'logout',
-                      height: 10.0,
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.logout,
-                        ),
-                        title: Text("Logout"),
-                      ),
-                    ),
-                  ];
-                },
-              ),
             ],
           ),
         ),
@@ -314,9 +294,7 @@ class _MainBodyState extends State<MainBody> {
                               onTap: () => {
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return const Login();
-                                    },
+                                    builder: (context) => const SignIn(),
                                   ),
                                 ),
                               },
@@ -454,6 +432,148 @@ class _CategoryWidgetState extends State<CategoryWidget> {
   }
 }
 
+class ProductCards extends StatelessWidget {
+  const ProductCards({super.key, required this.name, required this.image});
+
+  final String name;
+  final String image;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return ProductPage(title: name, image: image);
+            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const curve = Curves.easeIn;
+              final curvedAnimation =
+                  CurvedAnimation(parent: animation, curve: curve);
+
+              return ScaleTransition(
+                scale: Tween<double>(begin: 0.0, end: 1.0)
+                    .animate(curvedAnimation),
+                child: child,
+              );
+            },
+            transitionDuration:
+                const Duration(milliseconds: 400), // Slow down the animation
+          ),
+        );
+      },
+      child: SizedBox(
+        height: 200,
+        width: 160,
+        child: Card(
+          color: Colors.white,
+          child: Column(
+            children: [
+              const SizedBox(height: 5),
+              const Padding(
+                padding: EdgeInsets.only(left: 75.0, top: 5.0),
+                child: Icon(Icons.favorite_outline_outlined,
+                    color: Colors.red, size: 30),
+              ),
+              const SizedBox(height: 5),
+              AspectRatio(
+                aspectRatio: 1.6,
+                child: Image.asset(
+                  image,
+                  height: 150,
+                  width: 150,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Text(
+                name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// class ProductCards extends StatelessWidget {
+//   const ProductCards({super.key, required this.name, required this.image});
+
+//   final String name;
+//   final String image;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: () {
+//         Navigator.of(context).push(
+//           PageRouteBuilder(
+//             pageBuilder: (context, animation, secondaryAnimation) {
+//               return ProductPage(title: name, image: image);
+//             },
+//             transitionsBuilder:
+//                 (context, animation, secondaryAnimation, child) {
+//               const begin = Offset(0.0, 1.0);
+//               const end = Offset.zero;
+//               const curve = Curves.easeInOutCirc;
+
+//               final tween =
+//                   Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+//               final offsetAnimation = animation.drive(tween);
+
+//               return SlideTransition(
+//                 position: offsetAnimation,
+//                 child: child,
+//               );
+//             },
+//           ),
+//         );
+//       },
+//       child: SizedBox(
+//         height: 200,
+//         width: 160,
+//         child: Card(
+//           color: Colors.white,
+//           child: Column(
+//             children: [
+//               const SizedBox(height: 5),
+//               const Padding(
+//                 padding: EdgeInsets.only(left: 75.0, top: 5.0),
+//                 child: Icon(Icons.favorite_outline_outlined,
+//                     color: Colors.red, size: 30),
+//               ),
+//               const SizedBox(height: 5),
+//               AspectRatio(
+//                 aspectRatio: 1.6,
+//                 child: Image.asset(
+//                   image,
+//                   height: 150,
+//                   width: 150,
+//                   fit: BoxFit.contain,
+//                 ),
+//               ),
+//               const SizedBox(height: 15),
+//               Text(
+//                 name,
+//                 textAlign: TextAlign.center,
+//                 style: const TextStyle(fontWeight: FontWeight.bold),
+//               ),
+//               const SizedBox(height: 10),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
 // Widget categoryWidget(String category, String icon) {
 //   bool isSelected = false;
 //   return Column(
@@ -491,67 +611,109 @@ class _CategoryWidgetState extends State<CategoryWidget> {
 //   );
 // }
 
-class ProductCards extends StatelessWidget {
-  const ProductCards({super.key, required this.name, required this.image});
+// class ProductCards extends StatelessWidget {
+//   const ProductCards({super.key, required this.name, required this.image});
 
-  final String name;
-  final String image;
+//   final String name;
+//   final String image;
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => {
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
-          //return the product page with the name as the title
-          return ProductPage(title: name, image: image);
-        }))
-      },
-      child: SizedBox(
-        height: 200,
-        width: 160,
-        child: Card(
-          color: Colors.white,
-          child: Column(
-            children: [
-              const SizedBox(height: 5),
-              const Padding(
-                padding: EdgeInsets.only(left: 75.0, top: 5.0),
-                child: Icon(Icons.favorite_outline_outlined,
-                    color: Colors.red, size: 30),
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: () => {
+//         AnimatedTransition(
+//           animation: AnimationController(vsync: this),
+//           enterTransition: expandVertically(curve: Curves.easeInOutCirc),
+//           exitTransition: shrinkVertically(curve: Curves.easeInOutCirc),
+//           child: ProductPage(title: name, image: image),
+//         ),
+//         Navigator.of(context)
+//             .pushReplacement(MaterialPageRoute(builder: (BuildContext context) {
+//           //return the product page with the name as the title
+//           return ProductPage(title: name, image: image);
+//         }))
+//       },
+//       child: SizedBox(
+//         height: 200,
+//         width: 160,
+//         child: Card(
+//           color: Colors.white,
+//           child: Column(
+//             children: [
+//               const SizedBox(height: 5),
+//               const Padding(
+//                 padding: EdgeInsets.only(left: 75.0, top: 5.0),
+//                 child: Icon(Icons.favorite_outline_outlined,
+//                     color: Colors.red, size: 30),
+//               ),
+//               const SizedBox(height: 5),
+//               AnimatedVisibility(
+//                 visible: true,
+//                 enter: fadeIn() + slideIn(),
+//                 exit: fadeOut() + slideOutHorizontally(),
+//                 enterDuration: const Duration(milliseconds: 500),
+//                 exitDuration: const Duration(milliseconds: 500),
+//                 child: AspectRatio(
+//                   aspectRatio: 1.6,
+//                   child: Image.asset(
+//                     image,
+//                     height: 150,
+//                     width: 10,
+//                   ),
+//                 ),
+//               ),
+//               const SizedBox(height: 15),
+//               Text(
+//                 name,
+//                 textAlign: TextAlign.center,
+//                 style: const TextStyle(fontWeight: FontWeight.bold),
+//               ),
+//               const SizedBox(height: 10)
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+
+
+
+
+
+
+
+/*
+ PopupMenuButton(
+                icon: const Icon(Icons.arrow_drop_down),
+                onSelected: (value) {
+                  if (value == 'logout') {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) {
+                          return const Login();
+                        },
+                      ),
+                    );
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return [
+                    const PopupMenuItem(
+                      value: 'logout',
+                      height: 10.0,
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.logout,
+                        ),
+                        title: Text("Logout"),
+                      ),
+                    ),
+                  ];
+                },
               ),
-              const SizedBox(height: 5),
-              AspectRatio(
-                aspectRatio: 1.6,
-                child: Image.asset(
-                  image,
-                  height: 150,
-                  width: 150,
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10)
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-
-
-
-
-
+              */
 
 
 
