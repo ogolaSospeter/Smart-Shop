@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/models/user.dart';
 import 'package:smartshop/themes/theme.dart';
-import 'package:smartshop/ui/bottomnavigation.dart';
 import 'package:smartshop/ui/product_page.dart';
 import 'package:smartshop/ui/profile.dart';
 import 'package:smartshop/ui/shopping_cart.dart';

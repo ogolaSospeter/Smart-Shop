@@ -201,9 +201,9 @@ class _SignupState extends State<Signup> {
                           SnackBar(
                             width: 200,
                             backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
+                                Colors.greenAccent.shade700.withOpacity(0.8),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(15),
                             ),
                             behavior: SnackBarBehavior.floating,
                             content: const Text("Registered Successfully"),
