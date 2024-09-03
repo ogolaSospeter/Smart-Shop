@@ -126,20 +126,23 @@ class _HomeState extends State<Home> {
                 leading: const Icon(Icons.color_lens),
                 title: const Text("Themes"),
               ),
-              ListTile(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const SignIn(),
-                    ),
-                  );
-                },
-                leading: const Icon(Icons.logout),
-                title: const Text("Logout"),
+              Padding(
+                padding: const EdgeInsets.only(top: 270.0),
+                child: ListTile(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const SignIn(),
+                      ),
+                    );
+                  },
+                  leading: const Icon(Icons.logout),
+                  title: const Text("Logout"),
+                ),
               ),
               //add a profile circle avatar and the user's name in a row
-              const Padding(
-                padding: const EdgeInsets.only(top: 270.0),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
                 child: Row(
                   children: [
                     const SizedBox(width: 20.0),
@@ -148,12 +151,27 @@ class _HomeState extends State<Home> {
                       backgroundImage: AssetImage('assets/jacket.png'),
                     ),
                     const SizedBox(width: 20.0),
-                    Text(
-                      "Hello, \$",
-                      style: const TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    FutureBuilder<User?>(
+                      future: _getUserData(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Text(
+                            "Hello ${snapshot.data!.username}",
+                            style: const TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        } else {
+                          return const Text(
+                            "Hello User",
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
