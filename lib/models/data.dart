@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:smartshop/models/category.dart';
 import 'package:smartshop/models/product.dart';
 
 class AppData {
@@ -20,6 +19,8 @@ class AppData {
           Colors.yellow,
           Colors.purple,
         ],
+        description:
+            'Nike Air Max 200 is the latest model of the Air Max series. It is a versatile and timeless shoe that is perfect for any occasion. The shoe features the iconic Waffle sole, stitched overlays, and classic TPU accents that you have come to love. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 200 is a classic shoe that will never go out of style. It is the perfect shoe for any occasion, whether you are going for a run or just hanging out with friends. The shoe is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The Nike Air Max 200 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 200 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead.',
         rating: 4.8),
     Product(
         id: 2,
@@ -37,6 +38,8 @@ class AppData {
           Colors.yellow,
           Colors.purple,
         ],
+        description:
+            'This Nike Air Max 97 is a classic shoe that will never go out of style. It is the perfect shoe for any occasion, whether you are going for a run or just hanging out with friends. The shoe is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The Nike Air Max 97 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 97 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead.',
         rating: 4.8),
   ];
   static List<Product> cartList = [
@@ -56,8 +59,9 @@ class AppData {
           Colors.yellow,
           Colors.purple,
         ],
+        description:
+            'Clean lines, versatile and timeless—the people shoe returns with the Nike Air Max 90. Featuring the same iconic Waffle sole, stitched overlays and classic TPU accents you come to love, it lets you walk among the pantheon of Air. ßNothing as fly, nothing as comfortable, nothing as proven. The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
         rating: 4.8),
-
     Product(
         id: 2,
         name: 'Nike Air Max 97',
@@ -74,6 +78,8 @@ class AppData {
           Colors.yellow,
           Colors.purple,
         ],
+        description:
+            'Clean lines, versatile and timeless—the people shoe returns with the Nike Air Max 90. Featuring the same iconic Waffle sole, stitched overlays and classic TPU accents you come to love, it lets you walk among the pantheon of Air. ßNothing as fly, nothing as comfortable, nothing as proven. The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
         rating: 4.8),
     Product(
         id: 1,
@@ -91,6 +97,8 @@ class AppData {
           Colors.yellow,
           Colors.purple,
         ],
+        description:
+            'The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
         rating: 4.8),
     Product(
         id: 2,
@@ -108,28 +116,11 @@ class AppData {
           Colors.yellow,
           Colors.purple,
         ],
+        description:
+            'The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
         rating: 4.8),
-    // Product(
-    //     id:1,
-    //     name: 'Nike Air Max 97',
-    //     price: 190.00,
-    //     isLiked: false,
-    //     image: 'assets/small_tilt_shoe_2.png',
-    //     category: "Trending Now"),
   ];
-  static List<Category> categoryList = [
-    Category(
-        id: 1,
-        name: "Sneakers",
-        image: 'assets/shoe_thumb_2.png',
-        isSelected: true),
-    Category(
-        id: 2, name: "Jacket", image: 'assets/jacket.png', isSelected: false),
-    Category(
-        id: 3, name: "Watch", image: 'assets/watch.png', isSelected: false),
-    Category(
-        id: 4, name: "Watch", image: 'assets/watch.png', isSelected: false),
-  ];
+
   static List<String> showThumbnailList = [
     "assets/shoe_thumb_5.png",
     "assets/shoe_thumb_1.png",

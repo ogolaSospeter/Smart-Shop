@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/models/user.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -11,13 +12,15 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   //get the email, username  from the hive box
-  final Box _boxAccounts = Hive.box("accounts");
+  final DatabaseHelper databaseHelper = DatabaseHelper();
+
+  //fetch the user data for the logged in user
+  Future<User?> _getUserData() async {
+    return await databaseHelper.getLoggedInUser();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final String email =
-        _boxAccounts.get("userEmail") ?? "ogolasospeter62@gmail.com";
-    final String username = _boxAccounts.get("userName") ?? "Ogola SosPeter";
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.blueAccent,
@@ -29,14 +32,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 radius: 50.0,
                 backgroundImage: AssetImage('assets/jacket.png'),
               ),
-              Text(
-                username,
-                style: const TextStyle(
-                  fontSize: 30.0,
-                  fontFamily: 'Pacifico',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              FutureBuilder<User?>(
+                future: _getUserData(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                      snapshot.data!.username,
+                      style: const TextStyle(
+                        fontSize: 30.0,
+                        fontFamily: 'Pacifico',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    );
+                  }
+                  return const Text("No user");
+                },
               ),
               Text(
                 'Flutter Developer'.toUpperCase(),
@@ -85,18 +96,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icons.email,
                       color: Colors.teal,
                     ),
-                    title: Text(
-                      email,
-                      style: TextStyle(
-                          fontFamily: 'SourceSansPro',
-                          fontSize: 18,
-                          color: Colors.teal.shade900),
+                    title: FutureBuilder<User?>(
+                      future: _getUserData(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return Text(
+                            snapshot.data!.email,
+                            style: TextStyle(
+                                fontFamily: 'SourceSansPro',
+                                fontSize: 18,
+                                color: Colors.teal.shade900),
+                          );
+                        }
+                        return Text(snapshot.data!.email);
+                      },
                     ),
                   ),
                 ),
                 onTap: () {
-                  _launchURL(
-                      'mailto:$email?subject=Need Flutter developer&body=Please contact me');
+                  FutureBuilder<User?>(
+                    future: _getUserData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return _launchURL(
+                          'mailto:${snapshot.data!.email}?subject=Need Flutter developer&body=Please contact me',
+                        );
+                      }
+                      return Text(snapshot.data!.email);
+                    },
+                  );
                 },
               ),
               //Add a card for the github account

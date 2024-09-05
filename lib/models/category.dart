@@ -1,10 +1,10 @@
-class Category {
+class Categories {
   int id;
   String name;
   String image;
   bool isSelected;
 
-  Category(
+  Categories(
       {required this.id,
       required this.name,
       required this.image,

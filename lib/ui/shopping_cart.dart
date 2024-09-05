@@ -1,16 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:smartshop/models/data.dart';
+import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/themes/light_color.dart';
 import 'package:smartshop/themes/theme.dart';
 
-class ShoppingCartPage extends StatelessWidget {
+class ShoppingCartPage extends StatefulWidget {
   // ignore: use_super_parameters
-  const ShoppingCartPage({key}) : super(key: key);
+  ShoppingCartPage({key}) : super(key: key);
+  final DatabaseHelper db = DatabaseHelper();
 
+  //Get the shopping cart items
+  Future<List<Product>> getCartItems() async {
+    return await db.getShoppingCartItems();
+  }
+
+  @override
+  State<ShoppingCartPage> createState() => _ShoppingCartPageState();
+}
+
+class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Widget _cartItems() {
-    return Column(children: AppData.cartList.map((x) => _item(x)).toList());
+    return Column(children: [
+      FutureBuilder<List<Product>>(
+        future: widget.getCartItems(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              shrinkWrap: true,
+              primary: false,
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return _item(snapshot.data![index]);
+              },
+            );
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
+      )
+    ]);
   }
 
   Widget _item(Product model) {
@@ -44,7 +73,7 @@ class ShoppingCartPage extends StatelessWidget {
                 Positioned(
                   left: -20,
                   bottom: -20,
-                  child: Image.asset(model.image),
+                  child: Image.network(model.image),
                 )
               ],
             ),
@@ -93,7 +122,7 @@ class ShoppingCartPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TitleText(
-          text: '${AppData.cartList.length} Items',
+          text: '${widget.getCartItems().then((value) => value.length)} Items',
           color: LightColor.grey,
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -130,9 +159,14 @@ class ShoppingCartPage extends StatelessWidget {
 
   double getPrice() {
     double price = 0;
-    for (var x in AppData.cartList) {
-      price += x.price * x.id;
-    }
+    //iterate through the price of each product in the cart
+    widget.getCartItems().then(
+      (value) {
+        for (var item in value) {
+          price += item.price;
+        }
+      },
+    );
     return price;
   }
 
@@ -141,6 +175,15 @@ class ShoppingCartPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping Cart'),
+        actions: [
+          IconButton.filled(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.delete_forever,
+              color: Colors.red,
+            ),
+          )
+        ],
       ),
       body: Material(
         child: Container(

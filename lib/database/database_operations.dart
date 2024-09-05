@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:smartshop/models/category.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/models/user.dart';
+import 'package:smartshop/reusables/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -64,8 +65,9 @@ class DatabaseHelper {
         category TEXT NOT NULL,
         image TEXT NOT NULL,
         price REAL NOT NULL,
-        sizes TEXT, -- Store as a comma-separated string
-        colors TEXT, -- Store as a comma-separated string of hex colors
+        sizes TEXT, 
+        colors TEXT, 
+        description TEXT,
         rating REAL NOT NULL,
         isLiked INTEGER NOT NULL,
         isSelected INTEGER NOT NULL
@@ -81,6 +83,29 @@ class DatabaseHelper {
         isSelected INTEGER NOT NULL
       )
     ''');
+
+    //insert products to the database from the database_products list
+    for (var product in database_products) {
+      try {
+        await db.insert('Products', {
+          'name': product.name,
+          'category': product.category,
+          'image': product.image,
+          'price': product.price,
+          'sizes': product.sizes.join(','),
+          'colors': product.colors
+              .map((color) => color.value.toRadixString(16))
+              .join(','),
+          'description': product.description,
+          'rating': product.rating,
+          'isLiked': product.isLiked ? 1 : 0,
+          'isSelected': product.isSelected ? 1 : 0,
+        });
+        print('Product inserted successfully');
+      } catch (e) {
+        print('Error inserting product of name: ${product.name} due to $e');
+      }
+    }
   }
 
   // CRUD operations for UserData
@@ -129,28 +154,6 @@ class DatabaseHelper {
       isLogged: (map['isLogged'] as int) == 1,
     );
   }
-
-  // Future<User?> getUserByUserName(String username) async {
-  //   final db = await database;
-  //   final maps = await db.query(
-  //     'UserData',
-  //     where: 'username = ?',
-  //     whereArgs: [username],
-  //   );
-
-  //   if (maps.isNotEmpty) {
-  //     final map = maps[0];
-  //     return User(
-  //       id: map['id'] as int,
-  //       username: map['username'] as String,
-  //       email: map['email'] as String,
-  //       password: map['password'] as String,
-  //       image: map['image'] as String,
-  //       isLogged: (map['isLogged'] as int) == 1, // Convert INTEGER to bool
-  //     );
-  //   }
-  //   return null;
-  // }
 
   // Fetch the user data of the logged-in user.
   Future<User?> getLoggedInUser() async {
@@ -209,6 +212,7 @@ class DatabaseHelper {
       'colors': product.colors
           .map((color) => color.value.toRadixString(16))
           .join(','), // Convert colors to hex
+      'description': product.description,
       'rating': product.rating,
       'isLiked': product.isLiked ? 1 : 0,
       'isSelected': product.isSelected ? 1 : 0,
@@ -232,6 +236,7 @@ class DatabaseHelper {
             .split(',')
             .map((color) => Color(int.parse(color, radix: 16)))
             .toList(), // Convert hex back to Color
+        description: maps[i]['description'] as String,
         rating: maps[i]['rating'] as double,
         isLiked: maps[i]['isLiked'] == 1,
         isSelected: maps[i]['isSelected'] == 1,
@@ -239,8 +244,39 @@ class DatabaseHelper {
     });
   }
 
+  //Get the product by id
+  Future<Product?> getProductById(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'Products',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      final map = maps[0];
+      return Product(
+        id: map['id'] as int,
+        name: map['name'] as String,
+        category: map['category'] as String,
+        image: map['image'] as String,
+        price: map['price'] as double,
+        sizes: (map['sizes'] as String).split(','),
+        colors: (map['colors'] as String)
+            .split(',')
+            .map((color) => Color(int.parse(color, radix: 16)))
+            .toList(),
+        description: map['description'] as String,
+        rating: map['rating'] as double,
+        isLiked: map['isLiked'] == 1,
+        isSelected: map['isSelected'] == 1,
+      );
+    }
+    return null;
+  }
+
   // CRUD operations for Categories
-  Future<int> insertCategory(Category category) async {
+  Future<int> insertCategory(Categories category) async {
     final db = await database;
     return await db.insert('Categories', {
       'name': category.name,
@@ -249,12 +285,12 @@ class DatabaseHelper {
     });
   }
 
-  Future<List<Category>> getCategories() async {
+  Future<List<Categories>> getCategories() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('Categories');
 
     return List.generate(maps.length, (i) {
-      return Category(
+      return Categories(
         id: maps[i]['id'] as int,
         name: maps[i]['name'] as String,
         image: maps[i]['image'] as String,
@@ -263,5 +299,59 @@ class DatabaseHelper {
     });
   }
 
-  // Additional helper methods for updating and deleting records can be added as needed.
+  //Shopping cart items fetch for all the products with isSelected = 1
+  Future<List<Product>> getShoppingCartItems() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'Products',
+      where: 'isSelected = ?',
+      whereArgs: [1],
+    );
+
+    return List.generate(maps.length, (i) {
+      return Product(
+        id: maps[i]['id'] as int,
+        name: maps[i]['name'] as String,
+        category: maps[i]['category'] as String,
+        image: maps[i]['image'] as String,
+        price: maps[i]['price'] as double,
+        sizes: (maps[i]['sizes'] as String).split(','),
+        colors: (maps[i]['colors'] as String)
+            .split(',')
+            .map((color) => Color(int.parse(color, radix: 16)))
+            .toList(),
+        description: maps[i]['description'] as String,
+        rating: maps[i]['rating'] as double,
+        isLiked: maps[i]['isLiked'] == 1,
+        isSelected: maps[i]['isSelected'] == 1,
+      );
+    });
+  }
+
+  //Update the isSelected field of the product
+  Future<void> updateProductSelection(int id, bool isSelected) async {
+    final db = await database;
+    await db.update(
+      'Products',
+      {'isSelected': isSelected ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  //Update the isLiked field of the product
+  Future<void> updateProductLike(int id, bool isLiked) async {
+    final db = await database;
+    await db.update(
+      'Products',
+      {'isLiked': isLiked ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  //Delete the product from the shopping cart by setting isSelected = 0
+  Future<void> deleteProductFromCart(int id) async {
+    await updateProductSelection(id, false);
+  }
 }

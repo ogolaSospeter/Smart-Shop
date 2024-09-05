@@ -113,85 +113,99 @@ class _SignInState extends State<SignIn> {
                     ),
                     onPressed: () async {
                       if (_formKey.currentState?.validate() ?? false) {
-                        final user = await databaseHelper
-                            .getUserByUserName(_controllerUsername.text);
+                        try {
+                          final user = await databaseHelper
+                              .getUserByUserName(_controllerUsername.text);
 
-                        if (user != null &&
-                            user.password == _controllerPassword.text) {
-                          await databaseHelper.loginUser(user.username);
-                          AlertDialog(
-                            icon: const Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                              size: 50,
-                            ),
-                            title: const Text("Login Successful"),
-                            content:
-                                const Text("You have successfully logged in."),
-                            actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Container(
-                                  color: Colors.green,
-                                  padding: const EdgeInsets.all(14),
-                                  child: const Text("okay"),
+                          if (user != null &&
+                              user.password == _controllerPassword.text) {
+                            await databaseHelper.loginUser(user.username);
+                            AlertDialog(
+                              icon: const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                                size: 50,
+                              ),
+                              title: const Text("Login Successful"),
+                              content: const Text(
+                                  "You have successfully logged in."),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    color: Colors.green,
+                                    padding: const EdgeInsets.all(14),
+                                    child: const Text("okay"),
+                                  ),
+                                ),
+                              ],
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                    'Login Successful. Welcome back'),
+                                backgroundColor: Colors.green,
+                                duration: const Duration(seconds: 2),
+                                elevation: 10,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                animation: CurvedAnimation(
+                                  parent: const AlwaysStoppedAnimation(1.0),
+                                  curve: Curves.easeInOutBack,
                                 ),
                               ),
-                            ],
-                          );
+                            );
+                            //delay the route for 2 seconds
+                            Future.delayed(const Duration(seconds: 2), () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return const Home();
+                                  },
+                                ),
+                              );
+                            });
+                          } else if (user == null) {
+                            // User not found
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('User not found. Please signup')),
+                            );
+                            //Delay and transition to the signup page
+                            Future.delayed(const Duration(seconds: 2), () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return const Signup();
+                                  },
+                                ),
+                              );
+                            });
+                          } else {
+                            // Incorrect username or password
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Incorrect username or password')),
+                            );
+                          }
+                        } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content:
-                                  const Text('Login Successful. Welcome back'),
-                              backgroundColor: Colors.green,
-                              duration: const Duration(seconds: 4),
+                              content: Text(
+                                  'User ${_controllerUsername.text} not registered!'),
+                              backgroundColor: Colors.red,
+                              duration: const Duration(seconds: 2),
                               elevation: 10,
                               behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              animation: CurvedAnimation(
-                                parent: const AlwaysStoppedAnimation(1.0),
-                                curve: Curves.easeInOutBack,
-                              ),
                             ),
-                          );
-                          //delay the route for 2 seconds
-                          Future.delayed(const Duration(seconds: 4), () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return Home();
-                                },
-                              ),
-                            );
-                          });
-                        } else if (user == null) {
-                          // User not found
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('User not found. Please signup')),
-                          );
-                          //Delay and transition to the signup page
-                          Future.delayed(const Duration(seconds: 2), () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return const Signup();
-                                },
-                              ),
-                            );
-                          });
-                        } else {
-                          // Incorrect username or password
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text('Incorrect username or password')),
                           );
                         }
                       }

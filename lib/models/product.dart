@@ -9,6 +9,7 @@ class Product {
   double price;
   List<String> sizes;
   List<Color> colors;
+  String description;
   double rating;
   bool isLiked;
   bool isSelected;
@@ -21,6 +22,7 @@ class Product {
       required this.price,
       required this.sizes,
       required this.colors,
+      required this.description,
       required this.rating,
       required this.isLiked,
       required this.isSelected});
