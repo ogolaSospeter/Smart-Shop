@@ -43,6 +43,11 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                   widget.category.image,
                   height: 25,
                   width: 25,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const CircularProgressIndicator.adaptive(
+                    backgroundColor: Colors.white,
+                    value: 10,
+                  ),
                 ),
                 title: Text(widget.category.name),
               ),

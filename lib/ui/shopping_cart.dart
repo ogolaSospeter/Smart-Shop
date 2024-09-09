@@ -72,6 +72,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           AspectRatio(
             aspectRatio: 1.2,
             child: Stack(
+              fit: StackFit.loose,
+              clipBehavior: Clip.hardEdge,
               children: [
                 Align(
                   alignment: Alignment.bottomLeft,
@@ -79,19 +81,22 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                     height: 70,
                     width: 70,
                     decoration: BoxDecoration(
-                      color: LightColor.lightGrey,
-                      borderRadius: BorderRadius.circular(10),
+                      color: const Color.fromARGB(255, 21, 64, 151),
+                      borderRadius: BorderRadius.circular(
+                        40,
+                      ),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(3),
-                  child: Image.network(
-                    model.image,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.broken_image);
-                    },
+                    child: Image.network(
+                      height: 70,
+                      width: 70,
+                      model.image,
+                      colorBlendMode: BlendMode.modulate,
+                      color: LightColor.lightGrey,
+                      fit: BoxFit.fill,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(Icons.broken_image);
+                      },
+                    ),
                   ),
                 ),
               ],

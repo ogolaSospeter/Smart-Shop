@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:smartshop/models/category.dart';
+import 'package:smartshop/models/orders.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/models/user.dart';
 import 'package:smartshop/reusables/widgets.dart';
@@ -82,6 +83,19 @@ class DatabaseHelper {
         name TEXT NOT NULL,
         image TEXT NOT NULL,
         isSelected INTEGER NOT NULL
+      )
+    ''');
+
+    //Create the Orders table
+    await db.execute('''
+      CREATE TABLE Orders(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        orderDate TEXT NOT NULL,
+        orderStatus TEXT NOT NULL,
+        orderTotal REAL NOT NULL,
+        itemId INTEGER NOT NULL,
+        custId TEXT NOT NULL,
+        quantity INTEGER NOT NULL
       )
     ''');
 
@@ -389,5 +403,41 @@ class DatabaseHelper {
   //Delete the product from the shopping cart by setting isSelected = 0
   Future<void> deleteProductFromCart(int id) async {
     await updateProductSelection(id, false);
+  }
+
+/////////////////////////////////////////////
+//Adding an order to the database
+  Future<int> insertOrder(Order order) async {
+    final db = await database;
+    return await db.insert('Orders', {
+      'orderDate': order.orderDate,
+      'orderStatus': order.orderStatus,
+      'orderTotal': order.orderTotal,
+      'itemId': order.itemId,
+      'custId': order.custId,
+      'quantity': order.quantity,
+    });
+  }
+
+  //Fetch the orders of a particular user
+  Future<List<Order>> getOrdersByUser(String custId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'Orders',
+      where: 'custId = ?',
+      whereArgs: [custId],
+    );
+
+    return List.generate(maps.length, (i) {
+      return Order(
+        orderId: maps[i]['id'] as int,
+        orderDate: maps[i]['orderDate'] as String,
+        orderStatus: maps[i]['orderStatus'] as String,
+        orderTotal: maps[i]['orderTotal'] as double,
+        itemId: maps[i]['itemId'] as int,
+        custId: maps[i]['custId'] as String,
+        quantity: maps[i]['quantity'] as int,
+      );
+    });
   }
 }

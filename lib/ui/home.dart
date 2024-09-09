@@ -5,6 +5,7 @@ import 'package:smartshop/models/user.dart';
 import 'package:smartshop/themes/theme.dart';
 import 'package:smartshop/ui/main_page.dart';
 import 'package:smartshop/ui/profile.dart';
+import 'package:smartshop/ui/recent_orders.dart';
 import 'package:smartshop/ui/shopping_cart.dart';
 import 'package:smartshop/ui/signIn.dart';
 
@@ -196,7 +197,7 @@ class _HomeState extends State<Home> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: "Profile",
+            label: "Recents",
           ),
         ],
         selectedItemColor: Colors.blue,
@@ -224,7 +225,7 @@ class _HomeState extends State<Home> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return const ProfileScreen();
+                  return const RecentOrders();
                 },
               ),
             );

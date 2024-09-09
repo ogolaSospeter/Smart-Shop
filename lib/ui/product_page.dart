@@ -104,11 +104,19 @@ class _ProductPageState extends State<ProductPage> {
           dbHelper.updateProductSelection(widget.product.id, true);
           //show a snackbar with the message that the product has been added to the cart
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Product added to cart successfully!"),
-              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
-              backgroundColor: Colors.greenAccent,
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: const Text('Product added to cart successfully!'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+              elevation: 7,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              animation: CurvedAnimation(
+                parent: const AlwaysStoppedAnimation(1.0),
+                curve: Curves.easeInOutBack,
+              ),
             ),
           );
         },
@@ -198,18 +206,20 @@ class _ProductDetailsState extends State<ProductDetails> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(5.0),
-                        child: Image.network(
-                          widget.product.image,
-                          height: 50,
-                          width: 50,
-                          filterQuality: FilterQuality.high,
-                          loadingBuilder: (context, child, loadingProgress) =>
-                              loadingProgress == null
-                                  ? child
-                                  : const CircularProgressIndicator(
-                                      color: Colors.deepPurple,
-                                    ),
-                        ),
+                        child: Image.network(widget.product.image,
+                            height: 50,
+                            width: 50,
+                            filterQuality: FilterQuality.high,
+                            loadingBuilder: (context, child, loadingProgress) =>
+                                loadingProgress == null
+                                    ? child
+                                    : const CircularProgressIndicator(
+                                        color: Colors.deepPurple,
+                                      ),
+                            errorBuilder: (context, error, stackTrace) {
+                              //display nothing if the image fails to load
+                              return const SizedBox();
+                            }),
                       ),
                     ),
                   ),
