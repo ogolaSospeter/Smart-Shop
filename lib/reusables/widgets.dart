@@ -82,7 +82,7 @@ class ProductCards extends StatelessWidget {
               );
             },
             transitionDuration:
-                const Duration(milliseconds: 400), // Slow down the animation
+                const Duration(milliseconds: 600), // Slow down the animation
           ),
         );
       },
@@ -113,13 +113,21 @@ class ProductCards extends StatelessWidget {
                           : const Center(
                               child: CircularProgressIndicator(),
                             ),
+                  errorBuilder: (context, error, stackTrace) => const Center(
+                    child: RefreshProgressIndicator(
+                      elevation: 5,
+                      indicatorMargin: EdgeInsetsGeometry.infinity,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 15),
-              Text(
-                product.name,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              const SizedBox(height: 10),
+              Expanded(
+                child: Text(
+                  product.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 10),
             ],
@@ -131,7 +139,7 @@ class ProductCards extends StatelessWidget {
 }
 
 class DailyDeals extends StatefulWidget {
-  final List<Deal> deals;
+  final List<Product> deals;
 
   const DailyDeals({super.key, required this.deals});
 
@@ -186,10 +194,12 @@ class _DailyDealsState extends State<DailyDeals> {
     );
   }
 
-  Widget _buildDealCard(Deal deal) {
+  Widget _buildDealCard(Product deal) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 3.0),
-      padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 3),
+      padding: const EdgeInsets.symmetric(
+        vertical: 2,
+        horizontal: 3,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
         gradient: const LinearGradient(
@@ -200,27 +210,52 @@ class _DailyDealsState extends State<DailyDeals> {
       ),
       child: Row(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                deal.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 2,
+                horizontal: 5,
               ),
-              const SizedBox(height: 10),
-              Text(
-                deal.description,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    deal.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: Text(
+                      "${deal.description.substring(0, 100)} + .",
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 3,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    //show the discount price in an elevated button
+                    child: Text(
+                      '${deal.discount} % OFF',
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -228,12 +263,32 @@ class _DailyDealsState extends State<DailyDeals> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.network(
-                  deal.image,
-                  height: 120,
-                  width: 120,
-                  fit: BoxFit.cover,
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.width - (175),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: const [
+                      BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(3, 3),
+                          blurRadius: 5)
+                    ],
+                    image: DecorationImage(
+                      image: NetworkImage(deal.image),
+                      fit: BoxFit.cover,
+                      invertColors: false,
+                    ),
+                  ),
                 ),
+
+                // Image.network(
+                //   deal.image,
+                //   height: 180,
+                //   width: MediaQuery.of(context).size.width,
+                //   fit: BoxFit.fill,
+                // ),
               ],
             ),
           ),
@@ -261,9 +316,11 @@ final List<Product> database_products = [
     category: 'Men',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/340/3407061210393220362/jpeg-600/G03.jpg',
-    price: 99.99,
+    price: 10.99,
+    discount: 2,
     sizes: ['S', 'M', 'L', 'XL'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -290,9 +347,11 @@ It's the perfect piece for the man who demands performance and sophistication. S
     category: 'Men',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/231/2313358342610752832/jpeg-600/G03.jpg',
-    price: 29.99,
+    price: 12.50,
+    discount: 3.5,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -318,9 +377,11 @@ Whether you're heading to the office or a night out with friends, this red shirt
     category: 'Women',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/318/3181442159106594345/jpeg-600/G03.jpg',
-    price: 29.99,
+    price: 13.00,
+    discount: 4.0,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -347,9 +408,11 @@ This blue shirt is perfect for the modern man who values quality and style. Pair
     category: 'Men',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/318/3181442159106594345/jpeg-600/G03.jpg',
-    price: 49.99,
+    price: 15,
+    discount: 0,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -368,9 +431,11 @@ Experience ultimate comfort and style with these versatile Black Pants, a must-h
     category: 'Women',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/318/3181442159106594345/jpeg-600/G03.jpg',
-    price: 59.99,
+    price: 25.00,
+    discount: 7.5,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -393,9 +458,11 @@ Embrace the essence of summer with this versatile piece that can be dressed up w
     category: 'Women',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/338/3383167878768366603/jpeg-600/G03.jpg',
-    price: 79.99,
-    sizes: ['S', 'M', 'L'],
+    price: 100.50,
+    discount: 0.0,
+    sizes: ['S', 'M', 'L', 'XL', 'XXL'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -414,9 +481,11 @@ Elevate your professional wardrobe with our stunning Blue Suit designed for wome
     category: 'Unisex',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/325/3250173346540688913/jpeg-600/G03.jpg',
-    price: 69.99,
+    price: 23.0,
+    discount: 0.0,
     sizes: ['S', 'M', 'L', 'XL'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -435,9 +504,11 @@ Step up your style game with our versatile unisex Hoody, designed to keep you lo
     category: 'Unisex',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/340/3407061210393220362/jpeg-600/G03.jpg',
-    price: 59.99,
+    price: 17.5,
+    discount: 1.2,
     sizes: ['S', 'M', 'L', 'XL'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -456,13 +527,15 @@ Elevate your style and comfort with our versatile unisex jumper, designed to mee
     category: 'Men',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/307/3075578014755460813/jpeg-600/G03.jpg',
-    price: 19.99,
+    price: 10.0,
+    discount: 0.0,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
-      Color.fromARGB(255, 22, 2, 196),
+      const Color.fromARGB(255, 22, 2, 196),
       const Color(0xffd32f2f),
-      Color.fromARGB(255, 86, 104, 36),
+      const Color.fromARGB(255, 86, 104, 36),
     ],
     description: """
 Elevate your style game with these versatile men's shorts that seamlessly transition from office wear to casual outings. Crafted to perfection, these shorts are the epitome of sophisticated comfort, making them a must-have addition to your wardrobe. Whether you're heading to a business meeting or relaxing with friends, these shorts effortlessly blend style and functionality. Designed to offer the perfect fit and unmatched comfort, they are the ideal choice for the modern man on the go. With a focus on quality and style, these shorts are the perfect blend of formal and casual, catering to all your fashion needs. Embrace the versatility and charm of these men's shorts, and make a fashion statement wherever you go. Choose style. Choose comfort. Choose these shorts.
@@ -477,13 +550,15 @@ Elevate your style game with these versatile men's shorts that seamlessly transi
     category: 'Shoes',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/246/2469697482188133857/jpeg-600/G03.jpg',
-    price: 79.99,
+    price: 49.99,
+    discount: 2.5,
     sizes: ['7', '8', '9', '10'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
-      Color.fromARGB(255, 0, 6, 8),
+      const Color.fromARGB(255, 0, 6, 8),
       const Color(0xffd32f2f),
-      Color.fromARGB(255, 129, 143, 2),
+      const Color.fromARGB(255, 129, 143, 2),
     ],
     description: """
 Elevate your formal attire with these sophisticated Men's Official Loafers. Crafted with precision and style in mind, these loafers are the perfect blend of elegance and comfort. Step into any boardroom or event with confidence as these shoes exude a timeless charm that is sure to make a statement. The high-quality materials used ensure durability and long-lasting wear, while the meticulous attention to detail in the design guarantees a polished finish. Whether you're at a meeting or a special occasion, these loafers will be the perfect companion to your professional ensemble. Update your footwear collection with these classic loafers and experience style and sophistication like never before.
@@ -498,9 +573,11 @@ Elevate your formal attire with these sophisticated Men's Official Loafers. Craf
     category: 'Shoes',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/307/3074989205164660312/jpeg-600/G03.jpg',
-    price: 59.99,
+    price: 59.00,
+    discount: 0.0,
     sizes: ['7', '8', '9', '10'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -519,9 +596,11 @@ Step up your shoe game with these sleek men's official sneakers. Crafted with pr
     category: 'Shoes',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/167/1671161248747623846/jpeg-600/G05.jpg',
-    price: 99.99,
+    price: 43.50,
+    discount: 1.5,
     sizes: ['7', '8', '9', '10'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color.fromARGB(255, 213, 235, 152),
       const Color.fromARGB(255, 71, 1, 233),
@@ -540,9 +619,11 @@ Step into the wild with our versatile safari boots, designed to keep you stylish
     category: 'Men',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/329/3292313046533281111/jpeg-600/G03.jpg',
-    price: 19.99,
+    price: 4.50,
+    discount: 0.0,
     sizes: ['S', 'M', 'L', 'XL'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -561,9 +642,11 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     category: 'Men',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/231/2313358342610752832/jpeg-600/G03.jpg',
-    price: 29.99,
+    price: 23.2,
+    discount: 9.6,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -581,9 +664,11 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     category: 'Women',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/307/3072129647899579889/jpeg-600/G03.jpg',
-    price: 29.99,
+    price: 37.98,
+    discount: 0.5,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),
@@ -601,9 +686,11 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     category: 'Women',
     image:
         'https://www.shutterstock.com/pixelsquid/assets_v2/322/3221259227112674598/jpeg-600/G03.jpg',
-    price: 29.99,
+    price: 76.93,
+    discount: 5.3,
     sizes: ['S', 'M', 'L'],
     colors: [
+      const Color(0xFFFFFFFF),
       const Color(0xffe0e0e0),
       const Color(0xff455a64),
       const Color(0xffd32f2f),

@@ -65,6 +65,7 @@ class DatabaseHelper {
         category TEXT NOT NULL,
         image TEXT NOT NULL,
         price REAL NOT NULL,
+        discount REAL,
         sizes TEXT, 
         colors TEXT, 
         description TEXT,
@@ -92,6 +93,7 @@ class DatabaseHelper {
           'category': product.category,
           'image': product.image,
           'price': product.price,
+          'discount': product.discount,
           'sizes': product.sizes.join(','),
           'colors': product.colors
               .map((color) => color.value.toRadixString(16))
@@ -208,6 +210,7 @@ class DatabaseHelper {
       'category': product.category,
       'image': product.image,
       'price': product.price,
+      'discount': product.discount,
       'sizes': product.sizes.join(','), // Join sizes list into a string
       'colors': product.colors
           .map((color) => color.value.toRadixString(16))
@@ -230,6 +233,7 @@ class DatabaseHelper {
         category: maps[i]['category'] as String,
         image: maps[i]['image'] as String,
         price: maps[i]['price'] as double,
+        discount: maps[i]['discount'] as double,
         sizes: (maps[i]['sizes'] as String)
             .split(','), // Split the string into a list
         colors: (maps[i]['colors'] as String)
@@ -261,6 +265,7 @@ class DatabaseHelper {
         category: map['category'] as String,
         image: map['image'] as String,
         price: map['price'] as double,
+        discount: map['discount'] as double,
         sizes: (map['sizes'] as String).split(','),
         colors: (map['colors'] as String)
             .split(',')
@@ -315,6 +320,37 @@ class DatabaseHelper {
         category: maps[i]['category'] as String,
         image: maps[i]['image'] as String,
         price: maps[i]['price'] as double,
+        discount: maps[i]['discount'] as double,
+        sizes: (maps[i]['sizes'] as String).split(','),
+        colors: (maps[i]['colors'] as String)
+            .split(',')
+            .map((color) => Color(int.parse(color, radix: 16)))
+            .toList(),
+        description: maps[i]['description'] as String,
+        rating: maps[i]['rating'] as double,
+        isLiked: maps[i]['isLiked'] == 1,
+        isSelected: maps[i]['isSelected'] == 1,
+      );
+    });
+  }
+
+  //The 4 products with the highest discount
+  Future<List<Product>> getTopDiscountedProducts() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'Products',
+      orderBy: 'discount DESC',
+      limit: 4,
+    );
+
+    return List.generate(maps.length, (i) {
+      return Product(
+        id: maps[i]['id'] as int,
+        name: maps[i]['name'] as String,
+        category: maps[i]['category'] as String,
+        image: maps[i]['image'] as String,
+        price: maps[i]['price'] as double,
+        discount: maps[i]['discount'] as double,
         sizes: (maps[i]['sizes'] as String).split(','),
         colors: (maps[i]['colors'] as String)
             .split(',')

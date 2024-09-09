@@ -7,6 +7,7 @@ class Product {
   String category;
   String image;
   double price;
+  double discount;
   List<String> sizes;
   List<Color> colors;
   String description;
@@ -20,6 +21,7 @@ class Product {
       required this.category,
       required this.image,
       required this.price,
+      required this.discount,
       required this.sizes,
       required this.colors,
       required this.description,

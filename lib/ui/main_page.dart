@@ -26,23 +26,22 @@ class _MainBodyState extends State<MainBody> {
     return categories;
   }
 
-  final List<Deal> deals = [
-    Deal(
-      name: 'Sneakers',
-      description: 'Get 50% off on your first order!',
-      image: 'assets/show_1.png',
-    ),
-    Deal(
-      name: 'Sports Rubbers',
-      description: 'Buy 1 Get 1 Free!',
-      image: 'assets/shoe_thumb_2.png',
-    ),
-    Deal(
-      name: 'Rubbers',
-      description: 'Get 30% off on your first order!',
-      image: 'assets/shoe_tilt_2.png',
-    ),
-  ];
+  Future<List<Product>> _getDeals() async {
+    final deals = dbHelper.getTopDiscountedProducts();
+    return deals;
+  }
+
+  final List<Product> deals = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getDeals().then((value) {
+      setState(() {
+        deals.addAll(value);
+      });
+    });
+  }
 
   String selectedCategory = "";
 

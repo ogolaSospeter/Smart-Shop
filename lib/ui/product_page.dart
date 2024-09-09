@@ -102,6 +102,15 @@ class _ProductPageState extends State<ProductPage> {
         onPressed: () {
           //add the product to the cart
           dbHelper.updateProductSelection(widget.product.id, true);
+          //show a snackbar with the message that the product has been added to the cart
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Product added to cart successfully!"),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+              backgroundColor: Colors.greenAccent,
+              duration: Duration(seconds: 2),
+            ),
+          );
         },
         backgroundColor: Colors.deepPurple,
         child: const Icon(
@@ -116,7 +125,7 @@ class _ProductPageState extends State<ProductPage> {
 //create the ProductDetails widget
 // ignore: must_be_immutable
 class ProductDetails extends StatefulWidget {
-  ProductDetails({
+  const ProductDetails({
     super.key,
     required this.product,
   });
@@ -139,45 +148,29 @@ class _ProductDetailsState extends State<ProductDetails> {
         const SizedBox(
           height: 10.0,
         ),
-        Container(
-          height: 170,
-          width: 170,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: selectedColor == Colors.transparent
-                  ? selectedColor
-                  : Colors.deepPurple,
-              width: 2,
-            ),
-            backgroundBlendMode: BlendMode.modulate,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Image.network(
-            widget.product.image,
-            height: 160,
-            width: 160,
-            scale: 1.0,
-            filterQuality: FilterQuality.high,
-            color: selectedColor == Colors.transparent ? null : selectedColor,
-            colorBlendMode: BlendMode.modulate,
-            loadingBuilder: (context, child, loadingProgress) =>
-                loadingProgress == null
-                    ? child
-                    : const CircularProgressIndicator(),
-            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-              if (wasSynchronouslyLoaded) {
-                return child;
-              } else {
-                return AnimatedOpacity(
-                  child: child,
-                  opacity: frame == null ? 0 : 1,
-                  duration: const Duration(seconds: 1),
-                  curve: Curves.easeOut,
-                );
-              }
-            },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.width - (40),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: const [
+                  BoxShadow(
+                      color: Colors.grey, offset: Offset(3, 3), blurRadius: 5)
+                ],
+                image: DecorationImage(
+                  image: NetworkImage(widget.product.image),
+                  fit: BoxFit.cover,
+                  invertColors: false,
+                  colorFilter: selectedColor == Colors.transparent
+                      ? null
+                      : ColorFilter.mode(selectedColor, BlendMode.softLight),
+                )),
           ),
         ),
+
         const SizedBox(
           height: 10.0,
         ),

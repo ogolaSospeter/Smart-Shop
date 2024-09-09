@@ -185,11 +185,10 @@ class _HomeState extends State<Home> {
       ),
       body: const MainBody(),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "Home",
-            activeIcon: Icon(Icons.home_filled),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
@@ -204,6 +203,33 @@ class _HomeState extends State<Home> {
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
         showSelectedLabels: true,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return const Home();
+                },
+              ),
+            );
+          } else if (index == 1) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return ShoppingCartPage();
+                },
+              ),
+            );
+          } else if (index == 2) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return const ProfileScreen();
+                },
+              ),
+            );
+          }
+        },
       ),
     );
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/ui/signUp.dart';
@@ -20,7 +22,7 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _controllerUsername = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
 
-  bool _obscurePassword = false;
+  bool _obscurePassword = true;
   final DatabaseHelper databaseHelper = DatabaseHelper();
 
   @override
@@ -160,7 +162,7 @@ class _SignInState extends State<SignIn> {
                               ),
                             );
                             //delay the route for 2 seconds
-                            Future.delayed(const Duration(seconds: 2), () {
+                            Future.delayed(const Duration(seconds: 1), () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -178,7 +180,7 @@ class _SignInState extends State<SignIn> {
                                       Text('User not found. Please signup')),
                             );
                             //Delay and transition to the signup page
-                            Future.delayed(const Duration(seconds: 2), () {
+                            Future.delayed(const Duration(seconds: 1), () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -207,6 +209,16 @@ class _SignInState extends State<SignIn> {
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
+                          Future.delayed(const Duration(seconds: 2), () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return const Signup();
+                                },
+                              ),
+                            );
+                          });
                         }
                       }
                     },

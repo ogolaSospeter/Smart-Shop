@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/models/product.dart';
+import 'package:smartshop/payments/checkout.dart';
 import 'package:smartshop/themes/light_color.dart';
 import 'package:smartshop/themes/theme.dart';
 
 class ShoppingCartPage extends StatefulWidget {
-  // ignore: use_super_parameters
+  // ignore: y
   ShoppingCartPage({key}) : super(key: key);
   final DatabaseHelper db = DatabaseHelper();
 
@@ -20,12 +21,32 @@ class ShoppingCartPage extends StatefulWidget {
 }
 
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
+  List<Product> cartItems = [];
+  int totalItems = 0;
+  double totalPrice = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateCartDetails();
+  }
+
+  // Fetch and calculate cart details
+  void _calculateCartDetails() async {
+    List<Product> items = await widget.getCartItems();
+    setState(() {
+      cartItems = items;
+      totalItems = items.length;
+      totalPrice = items.fold(0, (sum, item) => sum + item.price);
+    });
+  }
+
   Widget _cartItems() {
-    return Column(children: [
-      FutureBuilder<List<Product>>(
-        future: widget.getCartItems(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
+    return FutureBuilder<List<Product>>(
+      future: widget.getCartItems(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return ListView.builder(
               shrinkWrap: true,
               primary: false,
@@ -35,11 +56,12 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               },
             );
           } else {
-            return const CircularProgressIndicator();
+            return const Text('No items in the cart');
           }
-        },
-      )
-    ]);
+        }
+        return const CircularProgressIndicator();
+      },
+    );
   }
 
   Widget _item(Product model) {
@@ -53,65 +75,63 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               children: [
                 Align(
                   alignment: Alignment.bottomLeft,
-                  child: SizedBox(
+                  child: Container(
                     height: 70,
                     width: 70,
-                    child: Stack(
-                      children: [
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: LightColor.lightGrey,
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                        ),
-                      ],
+                    decoration: BoxDecoration(
+                      color: LightColor.lightGrey,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-                Positioned(
-                  left: -20,
-                  bottom: -20,
-                  child: Image.network(model.image),
-                )
+                Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: Image.network(
+                    model.image,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons.broken_image);
+                    },
+                  ),
+                ),
               ],
             ),
           ),
           Expanded(
-              child: Material(
             child: ListTile(
-                title: TitleText(
-                  text: model.name,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-                subtitle: Row(
-                  children: [
-                    const TitleText(
-                      text: '\$ ',
-                      color: LightColor.red,
-                      fontSize: 12,
-                    ),
-                    TitleText(
-                      text: model.price.toString(),
-                      fontSize: 14,
-                    ),
-                  ],
-                ),
-                trailing: Container(
-                  width: 35,
-                  height: 35,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      color: LightColor.lightGrey.withAlpha(150),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: TitleText(
-                    text: 'x${model.id}',
+              title: TitleText(
+                text: model.name,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+              subtitle: Row(
+                children: [
+                  const TitleText(
+                    text: '\$ ',
+                    color: LightColor.red,
                     fontSize: 12,
                   ),
-                )),
-          ))
+                  TitleText(
+                    text: model.price.toString(),
+                    fontSize: 14,
+                  ),
+                ],
+              ),
+              trailing: Container(
+                width: 35,
+                height: 35,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: LightColor.lightGrey.withAlpha(150),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TitleText(
+                  text: 'x${model.id}',
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -122,13 +142,13 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TitleText(
-          text: '${widget.getCartItems().then((value) => value.length)} Items',
+          text: '$totalItems items',
           color: LightColor.grey,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
         TitleText(
-          text: '\$${getPrice()}',
+          text: '\$$totalPrice',
           fontSize: 18,
         ),
       ],
@@ -137,7 +157,15 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 
   Widget _submitButton(BuildContext context) {
     return TextButton(
-      onPressed: () {},
+      onPressed: () {
+        //Pass the cart items and the total price to the checkout page
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => CheckoutWidget(
+            cartItems: cartItems,
+            totalPrice: totalPrice,
+          ),
+        ));
+      },
       style: ButtonStyle(
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -149,7 +177,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         padding: const EdgeInsets.symmetric(vertical: 4),
         width: AppTheme.fullWidth(context) * .75,
         child: const TitleText(
-          text: 'Next',
+          text: 'Proceed to Checkout',
           color: LightColor.background,
           fontWeight: FontWeight.w500,
         ),
@@ -157,24 +185,13 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     );
   }
 
-  double getPrice() {
-    double price = 0;
-    //iterate through the price of each product in the cart
-    widget.getCartItems().then(
-      (value) {
-        for (var item in value) {
-          price += item.price;
-        }
-      },
-    );
-    return price;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shopping Cart'),
+        notificationPredicate: (notification) => true,
+        backgroundColor: LightColor.background,
         actions: [
           IconButton.filled(
             onPressed: () {},
