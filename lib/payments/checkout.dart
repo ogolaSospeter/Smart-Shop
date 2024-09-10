@@ -445,10 +445,15 @@ class MpesaConfirmationDialog extends StatelessWidget {
 }
 
 Future<Map<String, dynamic>> MpesaPaymentGateWay() async {
-  MpesaFlutterPlugin.setConsumerKey(
-      "xRdARio3AIzxlE9sPFVoSi48bT09MdyAGOy7l2Yl92WaWCJR");
-  MpesaFlutterPlugin.setConsumerSecret(
-      "nziM9tZ3lRxDmclIRFOENXN2IJlwgBIPHRyqbKJNO0b7TkkvjK4nXrs7sdX5NYwd");
+  final String response = await rootBundle.loadString('smartapp.json');
+  final Map<String, dynamic> data = jsonDecode(response);
+
+  String consumerKey = data['ckey'];
+  String consumerSecret = data['cst'];
+  String passKey = data['sec_cred'];
+
+  MpesaFlutterPlugin.setConsumerKey(consumerKey);
+  MpesaFlutterPlugin.setConsumerSecret(consumerSecret);
 
   try {
     // Initialize the Mpesa STK Push
@@ -460,11 +465,11 @@ Future<Map<String, dynamic>> MpesaPaymentGateWay() async {
       partyA: "254795398253",
       partyB: "174379",
       callBackURL: Uri.parse("https://sandbox.safaricom.co.ke/"),
-      accountReference: "Flutter Mpesa Tutorial",
+      accountReference: "SmartShop Payment",
       phoneNumber: "254795398253",
       transactionDesc: "Purchase",
       baseUri: Uri.parse("https://sandbox.safaricom.co.ke/"),
-      passKey: "xRdARio3AIzxlE9sPFVoSi48bT09MdyAGOy7l2Yl92WaWCJR",
+      passKey: passKey,
     );
 
     print("Transaction Result: $transactionInitialisation");

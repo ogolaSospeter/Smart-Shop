@@ -170,7 +170,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 ],
                 image: DecorationImage(
                   image: NetworkImage(widget.product.image),
-                  fit: BoxFit.cover,
+                  fit: BoxFit.scaleDown,
                   invertColors: false,
                   colorFilter: selectedColor == Colors.transparent
                       ? null

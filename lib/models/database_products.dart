@@ -70,8 +70,7 @@ Whether you're heading to the office or a night out with friends, this red shirt
     id: 3,
     name: 'Blue Shirt',
     category: 'Women',
-    image:
-        'https://www.shutterstock.com/pixelsquid/assets_v2/318/3181442159106594345/jpeg-600/G03.jpg',
+    image: 'https://img.icons8.com/?size=100&id=10183&format=png&color=228BE6',
     price: 13.00,
     discount: 4.0,
     sizes: ['S', 'M', 'L'],
@@ -102,8 +101,7 @@ This blue shirt is perfect for the modern man who values quality and style. Pair
     id: 4,
     name: 'Black Pants',
     category: 'Men',
-    image:
-        'https://www.shutterstock.com/pixelsquid/assets_v2/318/3181442159106594345/jpeg-600/G03.jpg',
+    image: 'https://img.icons8.com/?size=100&id=10179&format=png&color=1A1A1A',
     price: 15,
     discount: 0,
     sizes: ['S', 'M', 'L'],
@@ -439,9 +437,9 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     name: 'Nike Air Max 200',
     price: 240.00,
     discount: 13.3,
-    isSelected: true,
+    isSelected: false,
     isLiked: false,
-    image: 'assets/shooe_tilt_1.png',
+    image: 'https://img.icons8.com/?size=100&id=16584&format=png&color=000000',
     category: "Trending Now",
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
     colors: [
@@ -463,7 +461,8 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     discount: 10.2,
     isLiked: false,
     isSelected: false,
-    image: 'assets/shoe_tilt_2.png',
+    image:
+        'https://img.icons8.com/?size=100&id=TiQuaZcBPUoI&format=png&color=000000',
     category: "Trending Now",
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
     colors: [
@@ -480,12 +479,13 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
   ),
   Product(
     id: 20,
-    name: 'Nike Air Max 200',
+    name: 'Nike Air Max Pro 200',
     price: 240.00,
     discount: 13.8,
     isSelected: true,
     isLiked: false,
-    image: 'assets/small_tilt_shoe_1.png',
+    image:
+        'https://img.icons8.com/?size=100&id=fKv3hYrl3nJH&format=png&color=000000',
     category: "Trending Now",
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
     colors: [
@@ -503,11 +503,12 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
   Product(
     id: 21,
     name: 'Nike Air Max 97',
-    price: 390.00,
+    price: 130.00,
     discount: 7.8,
     isLiked: false,
-    isSelected: true,
-    image: 'assets/small_tilt_shoe_2.png',
+    isSelected: false,
+    image:
+        'https://img.icons8.com/?size=100&id=TKaeJLw1SSBM&format=png&color=000000',
     category: "Trending Now",
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
     colors: [
@@ -528,8 +529,9 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     price: 99.00,
     discount: 1.2,
     isLiked: false,
-    isSelected: true,
-    image: 'assets/small_tilt_shoe_3.png',
+    isSelected: false,
+    image:
+        'https://img.icons8.com/?size=100&id=TKaeJLw1SSBM&format=png&color=000000',
     category: "Trending Now",
     sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
     colors: [
@@ -543,28 +545,6 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
         'The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
     rating: 4.8,
     quantity: 13,
-  ),
-  Product(
-    id: 23,
-    name: 'Nike Air Max 200',
-    price: 156.00,
-    discount: 1,
-    isSelected: true,
-    isLiked: false,
-    image: 'assets/small_tilt_shoe_1.png',
-    category: "Trending Now",
-    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
-    colors: [
-      Colors.red,
-      Colors.blue,
-      Colors.green,
-      Colors.yellow,
-      Colors.purple,
-    ],
-    description:
-        'The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
-    rating: 4.8,
-    quantity: 21,
   ),
 ];
 
