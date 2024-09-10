@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartshop/database/database_operations.dart';
@@ -244,7 +246,7 @@ class _HomeState extends State<Home> {
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return RecentOrders(custId: user!.email!);
+                  return RecentOrders(custId: user!.email);
                 },
               ),
             );

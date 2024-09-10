@@ -182,10 +182,10 @@ class HotDealsCards extends StatelessWidget {
         );
       },
       child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.31,
-        width: 160,
+        height: MediaQuery.of(context).size.height * 0.315,
+        width: 190,
         child: Card(
-          color: Colors.white,
+          color: Colors.deepPurpleAccent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -211,7 +211,7 @@ class HotDealsCards extends StatelessWidget {
                 child: Image.network(
                   product.image,
                   height: 160,
-                  width: 160,
+                  width: 170,
                   fit: BoxFit.contain,
                   loadingBuilder: (context, child, loadingProgress) =>
                       loadingProgress == null
@@ -227,7 +227,7 @@ class HotDealsCards extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
               Expanded(
                 child: Text(
                   product.name,
@@ -235,15 +235,14 @@ class HotDealsCards extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 10),
-              //show the discount price in an elevated button and the original price in a text widget with a line through it
+              const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     '\$${product.price}',
                     style: const TextStyle(
-                      color: Colors.grey,
+                      color: Colors.red,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                       decoration: TextDecoration.lineThrough,
@@ -253,14 +252,14 @@ class HotDealsCards extends StatelessWidget {
                   Text(
                     '\$${(product.price - (product.price * product.discount / 100)).toStringAsFixed(2)}',
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 17,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
             ],
           ),
         ),

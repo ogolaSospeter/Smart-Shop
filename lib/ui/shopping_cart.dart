@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/models/orders.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/payments/checkout.dart';
 import 'package:smartshop/themes/light_color.dart';
@@ -25,6 +26,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   List<Product> cartItems = [];
   int totalItems = 0;
   double totalPrice = 0;
+  int productQuantity = 1;
 
   @override
   void initState() {
@@ -92,6 +94,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Widget _item(Product model) {
     return SizedBox(
       height: 80,
+      width: MediaQuery.of(context).size.width,
       child: Row(
         children: [
           AspectRatio(
@@ -100,7 +103,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               children: [
                 Align(
                   alignment: Alignment.bottomLeft,
-                  child: Container(
+                  child: SizedBox(
                     height: 70,
                     width: 70,
                     child: Image.network(
@@ -139,19 +142,48 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   ),
                 ],
               ),
-              trailing: Container(
-                width: 35,
-                height: 35,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: LightColor.lightGrey.withAlpha(150),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: TitleText(
-                  text: 'x${model.id}',
-                  fontSize: 12,
+              trailing: SizedBox(
+                width: 103,
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        productQuantity--;
+                      },
+                      icon: const Icon(
+                        Icons.minimize,
+                        size: 14,
+                      ),
+                    ),
+                    Text(
+                      productQuantity.toString(),
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        productQuantity++;
+                      },
+                      icon: const Icon(
+                        Icons.add,
+                        size: 14,
+                      ),
+                    )
+                  ],
                 ),
               ),
+              // trailing: Container(
+              //   width: 35,
+              //   height: 35,
+              //   alignment: Alignment.center,
+              //   decoration: BoxDecoration(
+              //     color: LightColor.lightGrey.withAlpha(150),
+              //     borderRadius: BorderRadius.circular(10),
+              //   ),
+              //   child: TitleText(
+              //     text: 'x${model.id}',
+              //     fontSize: 12,
+              //   ),
+              // ),
               onTap: () {
                 showDialog(
                   context: context,

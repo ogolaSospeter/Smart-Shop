@@ -174,8 +174,11 @@ class _SignInState extends State<SignIn> {
                             // Incorrect username or password
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content:
-                                      Text('Incorrect username or password')),
+                                content: Text('Incorrect username or password'),
+                                duration: Duration(seconds: 2),
+                                elevation: 10,
+                                behavior: SnackBarBehavior.floating,
+                              ),
                             );
                             _formKey.currentState?.reset();
                           }

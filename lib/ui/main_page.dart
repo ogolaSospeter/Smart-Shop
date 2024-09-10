@@ -166,33 +166,36 @@ class _MainBodyState extends State<MainBody> {
               ),
             ),
             const SizedBox(height: 20),
-            Wrap(
-              alignment: WrapAlignment.start,
-              children: [
-                FutureBuilder<List<Product>>(
-                  future: _getHotDeals(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      // Show loading indicator while fetching data
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      // Handle any errors
-                      return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.hasData && snapshot.data != null) {
-                      // If data is fetched successfully
-                      var products = snapshot.data!.take(6);
-                      return Wrap(
-                        children: products.map((product) {
-                          return HotDealsCards(product: product);
-                        }).toList(),
-                      );
-                    } else {
-                      // Handle the case when there's no data
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Wrap(
+                alignment: WrapAlignment.start,
+                children: [
+                  FutureBuilder<List<Product>>(
+                    future: _getHotDeals(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // Show loading indicator while fetching data
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        // Handle any errors
+                        return Text('Error: ${snapshot.error}');
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        // If data is fetched successfully
+                        var products = snapshot.data!.take(6);
+                        return Wrap(
+                          children: products.map((product) {
+                            return HotDealsCards(product: product);
+                          }).toList(),
+                        );
+                      } else {
+                        // Handle the case when there's no data
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 30),
             const Text(
