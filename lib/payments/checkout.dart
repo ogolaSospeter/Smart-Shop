@@ -126,7 +126,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.popAndPushNamed(context, '/checkout');
           },
           child: const Text("Cancel"),
         ),
@@ -174,7 +174,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.popAndPushNamed(context, '/checkout');
                         },
                         child: const Text("Cancel"),
                       ),
@@ -267,7 +267,7 @@ class MpesaConfirmationDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/checkout');
+            Navigator.popAndPushNamed(context, '/checkout');
           },
           child: const Text("Cancel"),
         ),
@@ -335,7 +335,12 @@ class MpesaConfirmationDialog extends StatelessWidget {
                     print(
                         "Adding items to the Orders table.\n The items are: $cartItems");
                     for (Order item in cartItems) {
-                      databaseHelper.insertOrder(item);
+                      try {
+                        databaseHelper.insertOrder(item);
+                        print("Item added to the Orders table: $item");
+                      } catch (e) {
+                        print("Error adding item to the Orders table: $e");
+                      }
                     }
                     return AlertDialog(
                       title: const Text("Payment Success."),

@@ -15,4 +15,9 @@ class Order {
       required this.itemId,
       required this.custId,
       required this.quantity});
+
+  @override
+  String toString() {
+    return 'Order(orderId: $orderId, orderDate: $orderDate, orderStatus: $orderStatus, orderTotal: $orderTotal, itemId: $itemId, custId: $custId, quantity: $quantity)';
+  }
 }

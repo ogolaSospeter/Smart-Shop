@@ -399,6 +399,7 @@ class DatabaseHelper {
 //Adding an order to the database
   Future<int> insertOrder(Order order) async {
     final db = await database;
+
     return await db.insert('Orders', {
       'orderDate': order.orderDate,
       'orderStatus': order.orderStatus,

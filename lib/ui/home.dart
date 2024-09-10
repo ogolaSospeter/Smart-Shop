@@ -44,10 +44,20 @@ class _HomeState extends State<Home> {
                     ),
                   ],
                 ),
-                child: Image.asset(
-                  'assets/jacket.png',
+                child: Image.network(
+                  "https://threedio-cdn.icons8.com/d9A2V6IpoSDmb_AlasKjj2lRPBSh_lwzGA5zDkToOFk/rs:fit:256:256/czM6Ly90aHJlZWRp/by1wcm9kL3ByZXZp/ZXdzLzExNy82M2Qx/NDFiNS04MjQ4LTRi/ZDQtYmQ1Mi1lNWE2/ZmI0NDBjNTMucG5n.png",
                   width: 40,
                   height: 40,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const CircularProgressIndicator();
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
                 ),
               ),
             ),
@@ -212,7 +222,7 @@ class _HomeState extends State<Home> {
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
         showSelectedLabels: true,
-        onTap: (index) {
+        onTap: (index) async {
           if (index == 0) {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -230,24 +240,11 @@ class _HomeState extends State<Home> {
               ),
             );
           } else if (index == 2) {
-            var userId = "";
+            var user = await _getUserData();
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  FutureBuilder<User?>(
-                    future: _getUserData(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        userId = snapshot.data!.email;
-                        return RecentOrders(
-                          custId: snapshot.data!.email,
-                        );
-                      } else {
-                        return const Text("Error fetching orders");
-                      }
-                    },
-                  );
-                  return RecentOrders(custId: userId);
+                  return RecentOrders(custId: user!.email!);
                 },
               ),
             );
