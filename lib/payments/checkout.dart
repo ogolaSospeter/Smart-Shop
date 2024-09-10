@@ -151,14 +151,51 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
                 );
                 orderItems.add(orderItem);
               }
-              // Navigate to the MpesaConfirmationDialog with the order items
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MpesaConfirmationDialog(
-                    cartItems: orderItems, // Pass the orderItems as List<Order>
-                  ),
-                ),
+              //get the phone number of the user from a pop up dialog then navigate to the MpesaConfirmationDialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  var phone = "";
+                  return AlertDialog(
+                    title: const Text(
+                      "Enter your phone number to proceed\nUse the format 2547XXXXXXXX",
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    content: TextField(
+                      keyboardType: TextInputType.phone,
+                      onChanged: (value) {
+                        //get the phone number from the text field
+                        phone = value;
+                      },
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MpesaConfirmationDialog(
+                                cartItems: orderItems,
+                                totalPrice: widget.totalPrice,
+                                phone: phone,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text("Confirm"),
+                      ),
+                    ],
+                  );
+                },
               );
             } else {
               // Show error if user data could not be fetched
@@ -171,81 +208,66 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
           },
           child: const Text("Confirm"),
         ),
-
-        // TextButton(
-        //   onPressed: () {
-        //     FutureBuilder<User?>(
-        //       future: widget._getUserData(),
-        //       builder: (context, snapshot) {
-        //         var orderItems = [];
-        //         if (snapshot.hasData) {
-        //           for (Product item in widget.cartItems) {
-        //             var user = snapshot.data!.email;
-        //             var current_date = DateTime.now();
-        //             var orderItem = Order(
-        //               orderId: current_date.millisecondsSinceEpoch,
-        //               orderDate: current_date.toString(),
-        //               orderStatus: "Pending",
-        //               orderTotal: widget.totalPrice,
-        //               itemId: item.id,
-        //               custId: user,
-        //               quantity: item.quantity,
-        //             );
-        //             orderItems.add(orderItem);
-        //           }
-        //           Navigator.pushReplacement(
-        //             context,
-        //             MaterialPageRoute(
-        //               builder: (context) => MpesaConfirmationDialog(
-        //                 cartItems: orderItems as List<Order>,
-        //               ),
-        //             ),
-        //           );
-        //         } else {
-        //           return const Text("Error fetching user data");
-        //         }
-        //       },
-        //     );
-        //   },
-        //   child: const Text("Confirm"),
-        // ),
       ],
     );
   }
 }
 
 class MpesaConfirmationDialog extends StatelessWidget {
-  MpesaConfirmationDialog({super.key, required this.cartItems});
+  MpesaConfirmationDialog(
+      {super.key,
+      required this.cartItems,
+      required this.totalPrice,
+      required this.phone});
   final DatabaseHelper databaseHelper = DatabaseHelper();
 
   final List<Order> cartItems;
+  final double totalPrice;
+  final String phone;
 
   @override
   Widget build(BuildContext context) {
+    var maskedPhone = maskPhoneNumber(phone);
     return AlertDialog(
       title: const Text("Mpesa Confirmation"),
-      icon: const Icon(Icons.confirmation_number),
-      iconColor: Colors.orangeAccent,
-      content: const SingleChildScrollView(
+      icon: const Icon(Icons.question_answer_rounded),
+      iconColor: Colors.deepPurple,
+      content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-                "Confirming the Payment will initiate a payment request to Mpesa number 2547**39***3"),
+            RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 13,
+                ),
+                children: [
+                  const TextSpan(
+                    text:
+                        "Confirming the Payment will initiate a payment request of ",
+                  ),
+                  TextSpan(
+                    text: " Kshs. ${(totalPrice * 129.00).toStringAsFixed(2)} ",
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: " to the number $maskedPhone",
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 2),
-            Text("Enter your Mpesa PIN on the prompt that will appear.",
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                )),
           ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacementNamed(context, '/checkout');
           },
           child: const Text("Cancel"),
         ),
@@ -273,11 +295,14 @@ class MpesaConfirmationDialog extends StatelessWidget {
                 );
               },
             );
-
             // Initiate the payment process and handle the result
-            MpesaPaymentGateWay().then((transactionInitialisation) {
+            var totalPrice = (this.totalPrice * 129.00).toStringAsFixed(0);
+            print("Total Price sent to the gateway: $totalPrice");
+            print("Phone number sent to the gateway: $phone");
+            MpesaPaymentGateWay(totalPrice, phone)
+                .then((transactionInitialisation) {
               // Close the loading dialog
-              Navigator.pop(context);
+              Navigator.popAndPushNamed(context, '/checkout');
 
               // Check if there's an error in the response
               if (transactionInitialisation.containsKey("errorCode")) {
@@ -307,13 +332,15 @@ class MpesaConfirmationDialog extends StatelessWidget {
                   context: context,
                   builder: (BuildContext context) {
                     //add the items shopped to the Orders table
+                    print(
+                        "Adding items to the Orders table.\n The items are: $cartItems");
                     for (Order item in cartItems) {
                       databaseHelper.insertOrder(item);
                     }
                     return AlertDialog(
-                      title: const Text("Payment Successful"),
+                      title: const Text("Payment Success."),
                       content: const Text(
-                          "Your payment was successful. You will receive a confirmation message shortly."),
+                          "Your payment was initiated successfully. Please wait for the payment prompt and enter M-Pesa PIN."),
                       actions: [
                         TextButton(
                           onPressed: () {
@@ -341,7 +368,8 @@ class MpesaConfirmationDialog extends StatelessWidget {
                     actions: [
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context); // Close the error dialog
+                          Navigator.popAndPushNamed(
+                              context, '/checkout'); // Close the error dialog
                         },
                         child: const Text("Close"),
                       ),
@@ -353,98 +381,12 @@ class MpesaConfirmationDialog extends StatelessWidget {
           },
           child: const Text("Confirm"),
         )
-
-        // TextButton(
-        //   onPressed: () {
-        //     // Show the loading dialog while the payment is being processed
-        //     showDialog(
-        //       context: context,
-        //       barrierDismissible:
-        //           false, // Prevents dismissing the dialog by tapping outside
-        //       builder: (BuildContext context) {
-        //         return const AlertDialog(
-        //           title: Text("Processing Payment"),
-        //           content: Padding(
-        //             padding: EdgeInsets.all(10.0),
-        //             child: CircularProgressIndicator(),
-        //           ),
-        //         );
-        //       },
-        //     );
-
-        //     // Initiate the payment process and handle the result
-        //     MpesaPaymentGateWay().then((transactionInitialisation) {
-        //       // Close the loading dialog
-        //       Navigator.pop(context);
-
-        //       // Show a success dialog if payment was successful
-        //       showDialog(
-        //         context: context,
-        //         builder: (BuildContext context) {
-        //           if (transactionInitialisation.toString() == "Success") {
-        //             return AlertDialog(
-        //               title: const Text("Payment Successful"),
-        //               content: const Text(
-        //                   "Your payment was successful. You will receive a confirmation message shortly."),
-        //               actions: [
-        //                 TextButton(
-        //                   onPressed: () {
-        //                     Navigator.pop(context); // Close the success dialog
-        //                   },
-        //                   child: const Text("Close"),
-        //                 ),
-        //               ],
-        //             );
-        //           } else {
-        //             return AlertDialog(
-        //               title: const Text("Payment Failed"),
-        //               content: const Text(
-        //                   "There was an error processing your payment. Please try again."),
-        //               actions: [
-        //                 TextButton(
-        //                   onPressed: () {
-        //                     Navigator.pop(context); // Close the error dialog
-        //                   },
-        //                   child: const Text("Close"),
-        //                 ),
-        //               ],
-        //             );
-        //           }
-        //         },
-        //       );
-        //     }).catchError((error) {
-        //       // Close the loading dialog if an error occurs
-        //       Navigator.pop(context);
-
-        //       // Show an error dialog
-        //       showDialog(
-        //         context: context,
-        //         builder: (BuildContext context) {
-        //           return AlertDialog(
-        //             title: const Text("Payment Failed"),
-        //             content: Text(
-        //                 "There was an error processing your payment: $error"),
-        //             actions: [
-        //               TextButton(
-        //                 onPressed: () {
-        //                   Navigator.pop(context); // Close the error dialog
-        //                 },
-        //                 child: const Text("Close"),
-        //               ),
-        //             ],
-        //           );
-        //         },
-        //       );
-        //     });
-        //   },
-        //   child: const Text("Confirm"),
-        // ),
       ],
     );
   }
 }
 
-Future<Map<String, dynamic>> MpesaPaymentGateWay() async {
+Future<Map<String, dynamic>> MpesaPaymentGateWay(amount, phone) async {
   final String response = await rootBundle.loadString('smartapp.json');
   final Map<String, dynamic> data = jsonDecode(response);
 
@@ -461,12 +403,12 @@ Future<Map<String, dynamic>> MpesaPaymentGateWay() async {
         await MpesaFlutterPlugin.initializeMpesaSTKPush(
       businessShortCode: "174379",
       transactionType: TransactionType.CustomerPayBillOnline,
-      amount: double.parse("1"),
-      partyA: "254795398253",
+      amount: double.parse(amount),
+      partyA: phone,
       partyB: "174379",
       callBackURL: Uri.parse("https://sandbox.safaricom.co.ke/"),
       accountReference: "SmartShop Payment",
-      phoneNumber: "254795398253",
+      phoneNumber: phone,
       transactionDesc: "Purchase",
       baseUri: Uri.parse("https://sandbox.safaricom.co.ke/"),
       passKey: passKey,
@@ -478,6 +420,21 @@ Future<Map<String, dynamic>> MpesaPaymentGateWay() async {
   } catch (e) {
     print("Exception: $e");
     return {"errorMessage": e.toString()};
+  }
+}
+
+String maskPhoneNumber(String phone) {
+  // Check if the phone number has the correct length before masking
+  if (phone.length >= 10) {
+    // Mask the phone number: show the first 6 characters, mask the next 4, and show the last 2 characters
+    var maskedPhone =
+        phone.substring(0, 6) + // first 6 characters (e.g., '254732')
+            '****' + // mask the next 4 characters
+            phone.substring(
+                phone.length - 2); // show the last 2 characters (e.g., '43')
+    return maskedPhone;
+  } else {
+    return phone; // If the phone number is too short, return it unmasked
   }
 }
 
