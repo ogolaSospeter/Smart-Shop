@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/models/category.dart';
+import 'package:smartshop/models/database_products.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/reusables/widgets.dart';
 import 'package:smartshop/ui/signIn.dart';

@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:smartshop/models/category.dart';
+import 'package:smartshop/models/database_products.dart';
 import 'package:smartshop/models/orders.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/models/user.dart';
-import 'package:smartshop/reusables/widgets.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
