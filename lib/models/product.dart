@@ -14,18 +14,21 @@ class Product {
   double rating;
   bool isLiked;
   bool isSelected;
+  int quantity;
 
-  Product(
-      {required this.id,
-      required this.name,
-      required this.category,
-      required this.image,
-      required this.price,
-      required this.discount,
-      required this.sizes,
-      required this.colors,
-      required this.description,
-      required this.rating,
-      required this.isLiked,
-      required this.isSelected});
+  Product({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.image,
+    required this.price,
+    required this.discount,
+    required this.sizes,
+    required this.colors,
+    required this.description,
+    required this.rating,
+    required this.isLiked,
+    required this.isSelected,
+    required this.quantity,
+  });
 }

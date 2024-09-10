@@ -147,9 +147,17 @@ class _HomeState extends State<Home> {
                 child: Row(
                   children: [
                     const SizedBox(width: 20.0),
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 20.0,
-                      backgroundImage: AssetImage('assets/jacket.png'),
+                      backgroundImage: Image.network(
+                        "https://threedio-cdn.icons8.com/d9A2V6IpoSDmb_AlasKjj2lRPBSh_lwzGA5zDkToOFk/rs:fit:256:256/czM6Ly90aHJlZWRp/by1wcm9kL3ByZXZp/ZXdzLzExNy82M2Qx/NDFiNS04MjQ4LTRi/ZDQtYmQ1Mi1lNWE2/ZmI0NDBjNTMucG5n.png",
+                        loadingBuilder: (context, child, loadingProgress) =>
+                            loadingProgress == null
+                                ? child
+                                : const CircularProgressIndicator(),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const SizedBox(),
+                      ).image,
                     ),
                     const SizedBox(width: 20.0),
                     FutureBuilder<User?>(
@@ -222,10 +230,24 @@ class _HomeState extends State<Home> {
               ),
             );
           } else if (index == 2) {
+            var userId = "";
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (BuildContext context) {
-                  return const RecentOrders();
+                  FutureBuilder<User?>(
+                    future: _getUserData(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        userId = snapshot.data!.email;
+                        return RecentOrders(
+                          custId: snapshot.data!.email,
+                        );
+                      } else {
+                        return const Text("Error fetching orders");
+                      }
+                    },
+                  );
+                  return RecentOrders(custId: userId);
                 },
               ),
             );

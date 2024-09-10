@@ -269,14 +269,42 @@ class _ProductDetailsState extends State<ProductDetails> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "\$ ${widget.product.price}",
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontFamily: "Poppins",
+                            if (widget.product.discount > 0)
+                              Row(
+                                children: [
+                                  Text(
+                                    "\$${widget.product.price}",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontFamily: "Poppins",
+                                      decoration: TextDecoration.lineThrough,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 5.0,
+                                  ),
+                                  Text(
+                                    "\$${(widget.product.price - (widget.product.price * widget.product.discount / 100)).toStringAsFixed(2)}",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      fontFamily: "Poppins",
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
+                            if (widget.product.discount == 0)
+                              Text(
+                                "\$${widget.product.price}",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  fontFamily: "Poppins",
+                                ),
+                              ),
                           ],
                         ),
                         const SizedBox(

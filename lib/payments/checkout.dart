@@ -8,14 +8,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mpesa_flutter_plugin/mpesa_flutter_plugin.dart';
+import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/models/orders.dart';
 import 'package:smartshop/models/product.dart';
+import 'package:smartshop/models/user.dart';
 
 class CheckoutWidget extends StatefulWidget {
-  const CheckoutWidget(
+  CheckoutWidget(
       {super.key, required this.cartItems, required this.totalPrice});
 
   final List<Product> cartItems;
   final double totalPrice;
+  final DatabaseHelper dbHelper = DatabaseHelper();
+
+  //get the user data for the logged in user
+  Future<User?> _getUserData() async {
+    return await dbHelper.getLoggedInUser();
+  }
 
   @override
   State<CheckoutWidget> createState() => _CheckoutWidgetState();
@@ -122,21 +131,94 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
           child: const Text("Cancel"),
         ),
         TextButton(
-          onPressed: () {
-            Navigator.pushReplacement(
+          onPressed: () async {
+            // Fetch the user data asynchronously
+            var snapshot = await widget._getUserData();
+            if (snapshot != null) {
+              // Create order items once user data is available
+              var orderItems = <Order>[];
+              var user = snapshot.email; // Assuming user has an email field
+              var currentDate = DateTime.now();
+              for (Product item in widget.cartItems) {
+                var orderItem = Order(
+                  orderId: currentDate.millisecondsSinceEpoch,
+                  orderDate: currentDate.toString(),
+                  orderStatus: "Pending",
+                  orderTotal: widget.totalPrice,
+                  itemId: item.id,
+                  custId: user,
+                  quantity: item.quantity,
+                );
+                orderItems.add(orderItem);
+              }
+              // Navigate to the MpesaConfirmationDialog with the order items
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const MpesaConfirmationDialog()));
+                  builder: (context) => MpesaConfirmationDialog(
+                    cartItems: orderItems, // Pass the orderItems as List<Order>
+                  ),
+                ),
+              );
+            } else {
+              // Show error if user data could not be fetched
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Error fetching user data"),
+                ),
+              );
+            }
           },
           child: const Text("Confirm"),
         ),
+
+        // TextButton(
+        //   onPressed: () {
+        //     FutureBuilder<User?>(
+        //       future: widget._getUserData(),
+        //       builder: (context, snapshot) {
+        //         var orderItems = [];
+        //         if (snapshot.hasData) {
+        //           for (Product item in widget.cartItems) {
+        //             var user = snapshot.data!.email;
+        //             var current_date = DateTime.now();
+        //             var orderItem = Order(
+        //               orderId: current_date.millisecondsSinceEpoch,
+        //               orderDate: current_date.toString(),
+        //               orderStatus: "Pending",
+        //               orderTotal: widget.totalPrice,
+        //               itemId: item.id,
+        //               custId: user,
+        //               quantity: item.quantity,
+        //             );
+        //             orderItems.add(orderItem);
+        //           }
+        //           Navigator.pushReplacement(
+        //             context,
+        //             MaterialPageRoute(
+        //               builder: (context) => MpesaConfirmationDialog(
+        //                 cartItems: orderItems as List<Order>,
+        //               ),
+        //             ),
+        //           );
+        //         } else {
+        //           return const Text("Error fetching user data");
+        //         }
+        //       },
+        //     );
+        //   },
+        //   child: const Text("Confirm"),
+        // ),
       ],
     );
   }
 }
 
 class MpesaConfirmationDialog extends StatelessWidget {
-  const MpesaConfirmationDialog({super.key});
+  MpesaConfirmationDialog({super.key, required this.cartItems});
+  final DatabaseHelper databaseHelper = DatabaseHelper();
+
+  final List<Order> cartItems;
 
   @override
   Widget build(BuildContext context) {
@@ -224,6 +306,10 @@ class MpesaConfirmationDialog extends StatelessWidget {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
+                    //add the items shopped to the Orders table
+                    for (Order item in cartItems) {
+                      databaseHelper.insertOrder(item);
+                    }
                     return AlertDialog(
                       title: const Text("Payment Successful"),
                       content: const Text(

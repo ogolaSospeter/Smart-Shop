@@ -48,6 +48,13 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                     backgroundColor: Colors.white,
                     value: 10,
                   ),
+                  loadingBuilder: (context, child, loadingProgress) =>
+                      loadingProgress == null
+                          ? child
+                          : const CircularProgressIndicator.adaptive(
+                              backgroundColor: Colors.white,
+                              value: 10,
+                            ),
                 ),
                 title: Text(widget.category.name),
               ),
@@ -118,10 +125,10 @@ class ProductCards extends StatelessWidget {
                           : const Center(
                               child: CircularProgressIndicator(),
                             ),
-                  errorBuilder: (context, error, stackTrace) => const Center(
-                    child: RefreshProgressIndicator(
-                      elevation: 5,
-                      indicatorMargin: EdgeInsetsGeometry.infinity,
+                  errorBuilder: (context, error, stackTrace) => Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: const LinearProgressIndicator(),
                     ),
                   ),
                 ),
@@ -135,6 +142,125 @@ class ProductCards extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HotDealsCards extends StatelessWidget {
+  const HotDealsCards({super.key, required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return ProductPage(product: product);
+            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              const curve = Curves.easeIn;
+              final curvedAnimation =
+                  CurvedAnimation(parent: animation, curve: curve);
+
+              return ScaleTransition(
+                scale: Tween<double>(begin: 0.0, end: 1.0)
+                    .animate(curvedAnimation),
+                child: child,
+              );
+            },
+            transitionDuration:
+                const Duration(milliseconds: 600), // Slow down the animation
+          ),
+        );
+      },
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.31,
+        width: 160,
+        child: Card(
+          color: Colors.white,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 5),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: Text(
+                    '\t\t${product.discount} % OFF',
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 5),
+              AspectRatio(
+                aspectRatio: 1.6,
+                child: Image.network(
+                  product.image,
+                  height: 160,
+                  width: 160,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) =>
+                      loadingProgress == null
+                          ? child
+                          : const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                  errorBuilder: (context, error, stackTrace) => Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: const LinearProgressIndicator(),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: Text(
+                  product.name,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 10),
+              //show the discount price in an elevated button and the original price in a text widget with a line through it
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '\$${product.price}',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    '\$${(product.price - (product.price * product.discount / 100)).toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
             ],
           ),
         ),
@@ -345,6 +471,7 @@ It's the perfect piece for the man who demands performance and sophistication. S
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 20,
   ),
   Product(
     id: 2,
@@ -375,6 +502,7 @@ Whether you're heading to the office or a night out with friends, this red shirt
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    quantity: 10,
   ),
   Product(
     id: 3,
@@ -406,6 +534,7 @@ This blue shirt is perfect for the modern man who values quality and style. Pair
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    quantity: 15,
   ),
   Product(
     id: 4,
@@ -429,6 +558,7 @@ Experience ultimate comfort and style with these versatile Black Pants, a must-h
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 5,
   ),
   Product(
     id: 5,
@@ -456,6 +586,7 @@ Embrace the essence of summer with this versatile piece that can be dressed up w
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 10,
   ),
   Product(
     id: 6,
@@ -479,6 +610,7 @@ Elevate your professional wardrobe with our stunning Blue Suit designed for wome
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 12,
   ),
   Product(
     id: 7,
@@ -502,6 +634,7 @@ Step up your style game with our versatile unisex Hoody, designed to keep you lo
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 3,
   ),
   Product(
     id: 8,
@@ -525,6 +658,7 @@ Elevate your style and comfort with our versatile unisex jumper, designed to mee
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 7,
   ),
   Product(
     id: 9,
@@ -548,6 +682,7 @@ Elevate your style game with these versatile men's shorts that seamlessly transi
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    quantity: 45,
   ),
   Product(
     id: 10,
@@ -571,6 +706,7 @@ Elevate your formal attire with these sophisticated Men's Official Loafers. Craf
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 76,
   ),
   Product(
     id: 11,
@@ -594,6 +730,7 @@ Step up your shoe game with these sleek men's official sneakers. Crafted with pr
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 34,
   ),
   Product(
     id: 12,
@@ -617,6 +754,7 @@ Step into the wild with our versatile safari boots, designed to keep you stylish
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 23,
   ),
   Product(
     id: 13,
@@ -640,6 +778,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    quantity: 56,
   ),
   Product(
     id: 14,
@@ -662,6 +801,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    quantity: 23,
   ),
   Product(
     id: 15,
@@ -684,6 +824,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    quantity: 17,
   ),
   Product(
     id: 16,
@@ -706,6 +847,162 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    quantity: 8,
+  ),
+  Product(
+    id: 17,
+    name: 'White T-Shirt',
+    category: 'Men',
+    image:
+        'https://threedio-cdn.icons8.com/9S97mbaTO_KgotvJ2L0gSY9oA_WtLZovMGk1KRzkf7U/rs:fit:256:256/czM6Ly90aHJlZWRp/by1wcm9kL3ByZXZp/ZXdzLzYwMi81YTA2/MDQwYy0xOTNlLTQ2/NDAtOWY4ZC04YTVh/YzBjNDllMmUucG5n.png',
+    price: 12.50,
+    discount: 3.5,
+    sizes: ['S', 'M', 'L'],
+    colors: [
+      const Color(0xFFFFFFFF),
+      const Color(0xffe0e0e0),
+      const Color(0xff455a64),
+      const Color(0xffd32f2f),
+      const Color(0xffc2185b),
+    ],
+    description:
+        'Stay cool and comfortable in our classic white t-shirt. Made from soft, breathable fabric, this t-shirt is perfect for everyday wear. Whether you\'re running errands or relaxing at home, this versatile piece will keep you looking and feeling great. The timeless design and flattering fit make it a must-have addition to your wardrobe. Pair it with jeans for a casual look or layer it under a blazer for a more polished ensemble. Wherever you go, this white t-shirt will keep you looking stylish and relaxed.',
+    rating: 4.0,
+    isLiked: false,
+    isSelected: false,
+    quantity: 22,
+  ),
+  Product(
+    id: 18,
+    name: 'Nike Air Max 200',
+    price: 240.00,
+    discount: 13.3,
+    isSelected: true,
+    isLiked: false,
+    image: 'assets/shooe_tilt_1.png',
+    category: "Trending Now",
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
+    colors: [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+    ],
+    description:
+        'Nike Air Max 200 is the latest model of the Air Max series. It is a versatile and timeless shoe that is perfect for any occasion. The shoe features the iconic Waffle sole, stitched overlays, and classic TPU accents that you have come to love. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 200 is a classic shoe that will never go out of style. It is the perfect shoe for any occasion, whether you are going for a run or just hanging out with friends. The shoe is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The Nike Air Max 200 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 200 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead.',
+    rating: 4.8,
+    quantity: 56,
+  ),
+  Product(
+    id: 19,
+    name: 'Nike Air Max 97',
+    price: 220.00,
+    discount: 10.2,
+    isLiked: false,
+    isSelected: false,
+    image: 'assets/shoe_tilt_2.png',
+    category: "Trending Now",
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
+    colors: [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+    ],
+    description:
+        'This Nike Air Max 97 is a classic shoe that will never go out of style. It is the perfect shoe for any occasion, whether you are going for a run or just hanging out with friends. The shoe is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The Nike Air Max 97 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 97 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead.',
+    rating: 4.8,
+    quantity: 43,
+  ),
+  Product(
+    id: 20,
+    name: 'Nike Air Max 200',
+    price: 240.00,
+    discount: 13.8,
+    isSelected: true,
+    isLiked: false,
+    image: 'assets/small_tilt_shoe_1.png',
+    category: "Trending Now",
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
+    colors: [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+    ],
+    description:
+        'Clean lines, versatile and timeless—the people shoe returns with the Nike Air Max 90. Featuring the same iconic Waffle sole, stitched overlays and classic TPU accents you come to love, it lets you walk among the pantheon of Air. ßNothing as fly, nothing as comfortable, nothing as proven. The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
+    rating: 4.8,
+    quantity: 6,
+  ),
+  Product(
+    id: 21,
+    name: 'Nike Air Max 97',
+    price: 390.00,
+    discount: 7.8,
+    isLiked: false,
+    isSelected: true,
+    image: 'assets/small_tilt_shoe_2.png',
+    category: "Trending Now",
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
+    colors: [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+    ],
+    description:
+        'Clean lines, versatile and timeless—the people shoe returns with the Nike Air Max 90. Featuring the same iconic Waffle sole, stitched overlays and classic TPU accents you come to love, it lets you walk among the pantheon of Air. ßNothing as fly, nothing as comfortable, nothing as proven. The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
+    rating: 4.8,
+    quantity: 44,
+  ),
+  Product(
+    id: 22,
+    name: 'Nike Air Max 92607',
+    price: 99.00,
+    discount: 1.2,
+    isLiked: false,
+    isSelected: true,
+    image: 'assets/small_tilt_shoe_3.png',
+    category: "Trending Now",
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
+    colors: [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+    ],
+    description:
+        'The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
+    rating: 4.8,
+    quantity: 13,
+  ),
+  Product(
+    id: 23,
+    name: 'Nike Air Max 200',
+    price: 156.00,
+    discount: 1,
+    isSelected: true,
+    isLiked: false,
+    image: 'assets/small_tilt_shoe_1.png',
+    category: "Trending Now",
+    sizes: ["US 7", "US 8", "US 9", "US 10", "US 11"],
+    colors: [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+    ],
+    description:
+        'The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
+    rating: 4.8,
+    quantity: 21,
   ),
 ];
 

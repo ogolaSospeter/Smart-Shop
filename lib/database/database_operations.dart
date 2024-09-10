@@ -17,22 +17,6 @@ class DatabaseHelper {
     return _database!;
   }
 
-  // static final DatabaseHelper _instance = DatabaseHelper._internal();
-  // static Database? _database;
-
-  // factory DatabaseHelper() {
-  //   return _instance;
-  // }
-
-  // DatabaseHelper._internal();
-
-  // Future<Database> get database async {
-  //   if (_database != null) return _database!;
-
-  //   _database = await _initDatabase();
-  //   return _database!;
-  // }
-
   Future<Database> _initDatabase() async {
     // Set the path to the database.
     String path = join(await getDatabasesPath(), 'smart_shop.db');
@@ -72,7 +56,8 @@ class DatabaseHelper {
         description TEXT,
         rating REAL NOT NULL,
         isLiked INTEGER NOT NULL,
-        isSelected INTEGER NOT NULL
+        isSelected INTEGER NOT NULL,
+        quantity INTEGER NOT NULL
       )
     ''');
 
@@ -116,8 +101,8 @@ class DatabaseHelper {
           'rating': product.rating,
           'isLiked': product.isLiked ? 1 : 0,
           'isSelected': product.isSelected ? 1 : 0,
+          'quantity': product.quantity,
         });
-        print('Product inserted successfully');
       } catch (e) {
         print('Error inserting product of name: ${product.name} due to $e');
       }
@@ -233,6 +218,7 @@ class DatabaseHelper {
       'rating': product.rating,
       'isLiked': product.isLiked ? 1 : 0,
       'isSelected': product.isSelected ? 1 : 0,
+      'quantity': product.quantity,
     });
   }
 
@@ -258,6 +244,7 @@ class DatabaseHelper {
         rating: maps[i]['rating'] as double,
         isLiked: maps[i]['isLiked'] == 1,
         isSelected: maps[i]['isSelected'] == 1,
+        quantity: maps[i]['quantity'] as int,
       );
     });
   }
@@ -289,6 +276,7 @@ class DatabaseHelper {
         rating: map['rating'] as double,
         isLiked: map['isLiked'] == 1,
         isSelected: map['isSelected'] == 1,
+        quantity: map['quantity'] as int,
       );
     }
     return null;
@@ -344,6 +332,7 @@ class DatabaseHelper {
         rating: maps[i]['rating'] as double,
         isLiked: maps[i]['isLiked'] == 1,
         isSelected: maps[i]['isSelected'] == 1,
+        quantity: maps[i]['quantity'] as int,
       );
     });
   }
@@ -374,6 +363,7 @@ class DatabaseHelper {
         rating: maps[i]['rating'] as double,
         isLiked: maps[i]['isLiked'] == 1,
         isSelected: maps[i]['isSelected'] == 1,
+        quantity: maps[i]['quantity'] as int,
       );
     });
   }

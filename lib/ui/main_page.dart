@@ -21,6 +21,11 @@ class _MainBodyState extends State<MainBody> {
     return products;
   }
 
+  Future<List<Product>> _getHotDeals() async {
+    final hotDeals = dbHelper.getTopDiscountedProducts();
+    return hotDeals;
+  }
+
   Future<Future<List<Categories>>> _getCategories() async {
     final categories = dbHelper.getCategories();
     return categories;
@@ -149,6 +154,44 @@ class _MainBodyState extends State<MainBody> {
                   },
                 ).toList(),
               ),
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              "Hot Deals🔥",
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Wrap(
+              alignment: WrapAlignment.start,
+              children: [
+                FutureBuilder<List<Product>>(
+                  future: _getHotDeals(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      // Show loading indicator while fetching data
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      // Handle any errors
+                      return Text('Error: ${snapshot.error}');
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      // If data is fetched successfully
+                      var products = snapshot.data!.take(6);
+                      return Wrap(
+                        children: products.map((product) {
+                          return HotDealsCards(product: product);
+                        }).toList(),
+                      );
+                    } else {
+                      // Handle the case when there's no data
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 30),
             const Text(

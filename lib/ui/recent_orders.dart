@@ -1,36 +1,23 @@
 //The Order history page
 import 'package:flutter/material.dart';
+import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/models/orders.dart';
 
 class RecentOrders extends StatefulWidget {
-  const RecentOrders({super.key});
+  RecentOrders({super.key, required this.custId});
+
+  final String custId;
+  final DatabaseHelper databaseHelper = DatabaseHelper();
+
+  Future<List<Order>> _getOrders() async {
+    return await databaseHelper.getOrdersByUser(custId);
+  }
 
   @override
   State<RecentOrders> createState() => _RecentOrdersState();
 }
 
 class _RecentOrdersState extends State<RecentOrders> {
-  final List<Order> orders = [
-    Order(
-      orderId: 1,
-      orderDate: "12/12/2021",
-      orderStatus: "Delivered",
-      orderTotal: 100.0,
-      itemId: 1,
-      custId: "0789123456",
-      quantity: 2,
-    ),
-    Order(
-      orderId: 2,
-      orderDate: "12/12/2021",
-      orderStatus: "Delivered",
-      orderTotal: 200.0,
-      itemId: 2,
-      custId: "0789123456",
-      quantity: 1,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,10 +39,23 @@ class _RecentOrdersState extends State<RecentOrders> {
                 ),
               ),
               const SizedBox(height: 20),
-              for (var order in orders)
-                OrderCard(
-                  order: order,
-                ),
+              FutureBuilder<List<Order>>(
+                future: widget._getOrders(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                      children: snapshot.data!.map((order) {
+                        return OrderCard(order: order);
+                      }).toList(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Text("Error fetching orders");
+                  }
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                },
+              ),
             ],
           ),
         ),
