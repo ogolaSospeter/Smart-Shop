@@ -174,7 +174,7 @@ class _MainBodyState extends State<MainBody> {
                       return Text('Error: ${snapshot.error}');
                     } else if (snapshot.hasData && snapshot.data != null) {
                       // If data is fetched successfully
-                      var products = snapshot.data!;
+                      var products = snapshot.data!.take(6);
                       return Wrap(
                         children: products.map((product) {
                           return ProductCards(product: product);

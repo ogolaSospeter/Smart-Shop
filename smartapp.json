@@ -1,6 +1,6 @@
 {
-    "ck": "xRdARio3AIzxlE9sPFVoSi48bT09MdyAGOy7l2Yl92WaWCJR",
-    "cs": "nziM9tZ3lRxDmclIRFOENXN2IJlwgBIPHRyqbKJNO0b7TkkvjK4nXrs7sdX5NYwd",
+    "ckey": "xRdARio3AIzxlE9sPFVoSi48bT09MdyAGOy7l2Yl92WaWCJR",
+    "cst": "nziM9tZ3lRxDmclIRFOENXN2IJlwgBIPHRyqbKJNO0b7TkkvjK4nXrs7sdX5NYwd",
     "sec_cred": "EbjmP9MKTCqmQw1udug950b+EL+28V3rxsOZUmuOVzSL1hzXh5RYklm/S7vHtjbMAZTKgUKd0ZQpj6UfmzzhRZgNUqAWz8FESiqHBel56CoyMpR69HwjddY5XLVa2evss+sNJ8EFMx55Mh/ArJw6FTerzVE5pEfYNeav5JFnyYXUJ+H5tWUBhbcPQWHzv5idPGZCps6DPxdwtUSzOVz0UEuogONx4XpmtX9Hm6ViL/A5mpRolTJ1hLuWaL7AuBftcc54AMc6JD0sFsJfr1bM+4WkIYu+mCL75kty69/JeKbkRAxkaEeHi1Z0dl0kiv61Vmn2F2hFvK7SJIIE4LTbvw==",
     "short_code": 174379,
     "redirect_uri": "http://mpesa-requestbin.herokuapp.com/?ref=hackernoon.com"

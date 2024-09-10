@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smartshop/database/database_operations.dart';
@@ -41,6 +42,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     });
   }
 
+  bool isdelete = false;
+
   Widget _cartItems() {
     return FutureBuilder<List<Product>>(
       future: widget.getCartItems(),
@@ -56,7 +59,29 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
               },
             );
           } else {
-            return const Text('No items in the cart');
+            return SizedBox(
+                height: MediaQuery.of(context).size.height * .6,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Image.network(
+                      "https://threedio-cdn.icons8.com/CXxmo8CW6ZgmvcmrtJzwrNvzcHrZOGj3kyIS_M2W5Oc/rs:fit:1024:1024/czM6Ly90aHJlZWRp/by1wcm9kL3ByZXZp/ZXdzLzgxNS80YTg1/YmY3MC0xNGRmLTQw/ZmQtYTE5YS0xM2Vj/ZTU4NzZjNWMucG5n.png",
+                      height: 150,
+                      loadingBuilder: (context, child, loadingProgress) =>
+                          loadingProgress == null
+                              ? child
+                              : const CircularProgressIndicator(),
+                      errorBuilder: (context, error, stackTrace) =>
+                          const RefreshProgressIndicator(),
+                    ),
+                    const Text(
+                      'No items have been added to the cart',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ));
           }
         }
         return const CircularProgressIndicator();
@@ -72,20 +97,12 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           AspectRatio(
             aspectRatio: 1.2,
             child: Stack(
-              fit: StackFit.loose,
-              clipBehavior: Clip.hardEdge,
               children: [
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: Container(
                     height: 70,
                     width: 70,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 21, 64, 151),
-                      borderRadius: BorderRadius.circular(
-                        40,
-                      ),
-                    ),
                     child: Image.network(
                       height: 70,
                       width: 70,
@@ -113,7 +130,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                 children: [
                   const TitleText(
                     text: '\$ ',
-                    color: LightColor.red,
+                    color: Colors.purple,
                     fontSize: 12,
                   ),
                   TitleText(
@@ -135,6 +152,35 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                   fontSize: 12,
                 ),
               ),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Remove Item'),
+                      content: const Text(
+                          'Are you sure you want to remove this item from the cart?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            //Remove the item from the cart
+                            widget.db.updateProductSelection(model.id, false);
+                            _calculateCartDetails();
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Remove'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -143,6 +189,9 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   Widget _price() {
+    if (totalItems == 0) {
+      return const SizedBox.shrink();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -153,7 +202,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           fontWeight: FontWeight.w500,
         ),
         TitleText(
-          text: '\$$totalPrice',
+          text: '\$${totalPrice.toStringAsFixed(2)}',
           fontSize: 18,
         ),
       ],
@@ -161,21 +210,26 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   Widget _submitButton(BuildContext context) {
+    if (totalItems == 0) {
+      return const SizedBox.shrink();
+    }
     return TextButton(
       onPressed: () {
         //Pass the cart items and the total price to the checkout page
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => CheckoutWidget(
-            cartItems: cartItems,
-            totalPrice: totalPrice,
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => CheckoutWidget(
+              cartItems: cartItems,
+              totalPrice: totalPrice,
+            ),
           ),
-        ));
+        );
       },
       style: ButtonStyle(
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         ),
-        backgroundColor: WidgetStateProperty.all<Color>(LightColor.orange),
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.deepPurple),
       ),
       child: Container(
         alignment: Alignment.center,
@@ -198,13 +252,52 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         notificationPredicate: (notification) => true,
         backgroundColor: LightColor.background,
         actions: [
-          IconButton.filled(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.delete_forever,
-              color: Colors.red,
+          if (totalItems > 0)
+            IconButton.outlined(
+              onPressed: () {
+                setState(
+                  () {
+                    isdelete = !isdelete;
+                    //set the isselect of all items to false
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Remove Items'),
+                          icon: const Icon(CupertinoIcons.delete_solid,
+                              color: Colors.redAccent),
+                          content: const Text(
+                              'Are you sure you want to remove all items from the cart?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                for (Product item in cartItems) {
+                                  widget.db
+                                      .updateProductSelection(item.id, false);
+                                }
+                                _calculateCartDetails();
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Remove'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+              icon: Icon(isdelete ? Icons.delete : Icons.delete_outline),
+              color: LightColor.iconColor,
+              iconSize: 20,
             ),
-          )
+          // const SizedBox.shrink(),
         ],
       ),
       body: Material(

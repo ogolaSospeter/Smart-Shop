@@ -122,28 +122,7 @@ class _SignInState extends State<SignIn> {
                           if (user != null &&
                               user.password == _controllerPassword.text) {
                             await databaseHelper.loginUser(user.username);
-                            AlertDialog(
-                              icon: const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                                size: 50,
-                              ),
-                              title: const Text("Login Successful"),
-                              content: const Text(
-                                  "You have successfully logged in."),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    color: Colors.green,
-                                    padding: const EdgeInsets.all(14),
-                                    child: const Text("okay"),
-                                  ),
-                                ),
-                              ],
-                            );
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text(
@@ -190,6 +169,7 @@ class _SignInState extends State<SignIn> {
                                 ),
                               );
                             });
+                            _formKey.currentState?.reset();
                           } else {
                             // Incorrect username or password
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -197,6 +177,7 @@ class _SignInState extends State<SignIn> {
                                   content:
                                       Text('Incorrect username or password')),
                             );
+                            _formKey.currentState?.reset();
                           }
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -219,6 +200,7 @@ class _SignInState extends State<SignIn> {
                               ),
                             );
                           });
+                          _formKey.currentState?.reset();
                         }
                       }
                     },
@@ -244,6 +226,13 @@ class _SignInState extends State<SignIn> {
                         child: const Text("Signup"),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 1),
+                  TextButton(
+                    onPressed: () {
+                      _formKey.currentState?.reset();
+                    },
+                    child: const Text("Forgot Password?"),
                   ),
                 ],
               ),

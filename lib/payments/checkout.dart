@@ -1,7 +1,10 @@
 //Initiate the payment process
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mpesa_flutter_plugin/mpesa_flutter_plugin.dart';
@@ -23,21 +26,92 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Confirm Checkout"),
-      icon: const Icon(Icons.confirmation_number),
+      icon: const Icon(
+        CupertinoIcons.check_mark_circled,
+        color: Colors.deepPurple,
+        size: 40,
+      ),
       iconColor: Colors.orangeAccent,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text("You are about to checkout the following items:"),
-          const SizedBox(height: 10),
-          for (var item in widget.cartItems)
-            Text(
-              "${item.name}  - \$${item.price}",
-              textAlign: TextAlign.left,
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: widget.cartItems.asMap().entries.map((entry) {
+                int index = entry.key;
+                var item = entry.value;
+
+                return Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Centers the Row content
+                  children: [
+                    // Item index
+                    Text(
+                      "${index + 1}.",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 10), // Spacing between index and name
+
+                    // Item name (takes some space but leaves room for price)
+                    Expanded(
+                      flex: 2, // Adjust to give more space to the name
+                      child: Text(
+                        item.name,
+                        textAlign: TextAlign.start, // Centers the name
+                        overflow:
+                            TextOverflow.ellipsis, // Truncate name if too long
+                      ),
+                    ),
+
+                    const SizedBox(width: 20), // Space between name and price
+
+                    // Item price (takes fixed space)
+                    Expanded(
+                      flex: 1, // Adjust to give space to the price
+                      child: Text(
+                        "\$${item.price}",
+                        textAlign:
+                            TextAlign.left, // Aligns the price to the right
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
             ),
+          ),
+
           const SizedBox(height: 10),
           //display the total price to 2 decimal places
-          Text("Total: \$${widget.totalPrice.toStringAsFixed(2)}"),
+          //display a line break
+          const Divider(
+            color: Colors.black,
+            height: 4,
+            indent: 25,
+            endIndent: 25,
+            thickness: 2,
+          ),
+          const SizedBox(height: 5),
+          Text(
+            "Total: \t\$${widget.totalPrice.toStringAsFixed(2)}",
+            style: const TextStyle(
+              color: Colors.deepPurple,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Divider(
+            color: Colors.black,
+            height: 4,
+            indent: 25,
+            endIndent: 25,
+            thickness: 2,
+          ),
         ],
       ),
       actions: [
@@ -75,7 +149,14 @@ class MpesaConfirmationDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-                "Confirming the Payment will initiate a payment request to Mpesa number 2547**39***3\nEnter your Mpesa PIN to complete the transaction"),
+                "Confirming the Payment will initiate a payment request to Mpesa number 2547**39***3"),
+            const SizedBox(height: 2),
+            Text("Enter your Mpesa PIN on the prompt that will appear.",
+                style: TextStyle(
+                  color: Colors.deepPurple,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                )),
           ],
         ),
       ),
@@ -88,12 +169,224 @@ class MpesaConfirmationDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            initiateMpesaPayment();
+            // Show the loading dialog while the payment is being processed
+            showDialog(
+              context: context,
+              barrierDismissible:
+                  false, // Prevents dismissing the dialog by tapping outside
+              builder: (BuildContext context) {
+                return const AlertDialog(
+                  title: Text("Processing Payment......"),
+                  content: Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: SizedBox(
+                      height: 10.0,
+                      child: LinearProgressIndicator(
+                        backgroundColor: Colors.grey,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                        minHeight: 10.0,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+
+            // Initiate the payment process and handle the result
+            MpesaPaymentGateWay().then((transactionInitialisation) {
+              // Close the loading dialog
+              Navigator.pop(context);
+
+              // Check if there's an error in the response
+              if (transactionInitialisation.containsKey("errorCode")) {
+                // Show a failure dialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Payment Failed"),
+                      content: Text(
+                          "There was an error processing your payment: ${transactionInitialisation["errorMessage"] ?? "Unknown error"}"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.popAndPushNamed(
+                                context, '/checkout'); // Close the error dialog
+                          },
+                          child: const Text("Close"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } else {
+                // Show a success dialog
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Payment Successful"),
+                      content: const Text(
+                          "Your payment was successful. You will receive a confirmation message shortly."),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Close the success dialog
+                          },
+                          child: const Text("Close"),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
+            }).catchError((error) {
+              // Close the loading dialog if an error occurs
+              Navigator.pop(context);
+
+              // Show an error dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Payment Failed"),
+                    content: Text(
+                        "There was an error processing your payment: $error"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close the error dialog
+                        },
+                        child: const Text("Close"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            });
           },
           child: const Text("Confirm"),
-        ),
+        )
+
+        // TextButton(
+        //   onPressed: () {
+        //     // Show the loading dialog while the payment is being processed
+        //     showDialog(
+        //       context: context,
+        //       barrierDismissible:
+        //           false, // Prevents dismissing the dialog by tapping outside
+        //       builder: (BuildContext context) {
+        //         return const AlertDialog(
+        //           title: Text("Processing Payment"),
+        //           content: Padding(
+        //             padding: EdgeInsets.all(10.0),
+        //             child: CircularProgressIndicator(),
+        //           ),
+        //         );
+        //       },
+        //     );
+
+        //     // Initiate the payment process and handle the result
+        //     MpesaPaymentGateWay().then((transactionInitialisation) {
+        //       // Close the loading dialog
+        //       Navigator.pop(context);
+
+        //       // Show a success dialog if payment was successful
+        //       showDialog(
+        //         context: context,
+        //         builder: (BuildContext context) {
+        //           if (transactionInitialisation.toString() == "Success") {
+        //             return AlertDialog(
+        //               title: const Text("Payment Successful"),
+        //               content: const Text(
+        //                   "Your payment was successful. You will receive a confirmation message shortly."),
+        //               actions: [
+        //                 TextButton(
+        //                   onPressed: () {
+        //                     Navigator.pop(context); // Close the success dialog
+        //                   },
+        //                   child: const Text("Close"),
+        //                 ),
+        //               ],
+        //             );
+        //           } else {
+        //             return AlertDialog(
+        //               title: const Text("Payment Failed"),
+        //               content: const Text(
+        //                   "There was an error processing your payment. Please try again."),
+        //               actions: [
+        //                 TextButton(
+        //                   onPressed: () {
+        //                     Navigator.pop(context); // Close the error dialog
+        //                   },
+        //                   child: const Text("Close"),
+        //                 ),
+        //               ],
+        //             );
+        //           }
+        //         },
+        //       );
+        //     }).catchError((error) {
+        //       // Close the loading dialog if an error occurs
+        //       Navigator.pop(context);
+
+        //       // Show an error dialog
+        //       showDialog(
+        //         context: context,
+        //         builder: (BuildContext context) {
+        //           return AlertDialog(
+        //             title: const Text("Payment Failed"),
+        //             content: Text(
+        //                 "There was an error processing your payment: $error"),
+        //             actions: [
+        //               TextButton(
+        //                 onPressed: () {
+        //                   Navigator.pop(context); // Close the error dialog
+        //                 },
+        //                 child: const Text("Close"),
+        //               ),
+        //             ],
+        //           );
+        //         },
+        //       );
+        //     });
+        //   },
+        //   child: const Text("Confirm"),
+        // ),
       ],
     );
+  }
+}
+
+Future<Map<String, dynamic>> MpesaPaymentGateWay() async {
+  MpesaFlutterPlugin.setConsumerKey(
+      "xRdARio3AIzxlE9sPFVoSi48bT09MdyAGOy7l2Yl92WaWCJR");
+  MpesaFlutterPlugin.setConsumerSecret(
+      "nziM9tZ3lRxDmclIRFOENXN2IJlwgBIPHRyqbKJNO0b7TkkvjK4nXrs7sdX5NYwd");
+
+  try {
+    // Initialize the Mpesa STK Push
+    var transactionInitialisation =
+        await MpesaFlutterPlugin.initializeMpesaSTKPush(
+      businessShortCode: "174379",
+      transactionType: TransactionType.CustomerPayBillOnline,
+      amount: double.parse("1"),
+      partyA: "254795398253",
+      partyB: "174379",
+      callBackURL: Uri.parse("https://sandbox.safaricom.co.ke/"),
+      accountReference: "Flutter Mpesa Tutorial",
+      phoneNumber: "254795398253",
+      transactionDesc: "Purchase",
+      baseUri: Uri.parse("https://sandbox.safaricom.co.ke/"),
+      passKey: "xRdARio3AIzxlE9sPFVoSi48bT09MdyAGOy7l2Yl92WaWCJR",
+    );
+
+    print("Transaction Result: $transactionInitialisation");
+
+    return transactionInitialisation; // Return the map of the result
+  } catch (e) {
+    print("Exception: $e");
+    return {"errorMessage": e.toString()};
   }
 }
 
@@ -102,15 +395,14 @@ Future<void> initiateMpesaPayment() async {
   final String response = await rootBundle.loadString('smartapp.json');
   final Map<String, dynamic> data = jsonDecode(response);
 
-  String consumerKey = data['ck'];
-  String consumerSecret = data['cs'];
+  String consumerKey = data['ckey'];
+  String consumerSecret = data['cst'];
   String passKey = data['sec_cred'];
   MpesaFlutterPlugin.setConsumerKey(consumerKey);
   MpesaFlutterPlugin.setConsumerSecret(consumerSecret);
 
   print("CONSUMER KEY: $consumerKey");
   print("CONSUMER SECRET: $consumerSecret");
-
   Future<void> lipaNaMpesa() async {
     dynamic transactionInitialisation;
     try {
@@ -121,7 +413,7 @@ Future<void> initiateMpesaPayment() async {
               amount: 1.0,
               partyA: "254795398253",
               partyB: "174379",
-//Lipa na Mpesa Online ShortCode
+//Lipa na Mpesa Online ShortCode`
               callBackURL: Uri(
                   scheme: "https",
                   host: "mpesa-requestbin.herokuapp.com",
@@ -131,7 +423,6 @@ Future<void> initiateMpesaPayment() async {
               baseUri: Uri(scheme: "https", host: "sandbox.safaricom.co.ke"),
               transactionDesc: "Payment for $transactionInitialisation",
               passKey: passKey);
-//This passkey has been generated from Test Credentials from Safaricom Portal
       print("TRANSACTION RESULT: " + transactionInitialisation.toString());
       //lets print the transaction results to console at this step
       return transactionInitialisation;
