@@ -99,14 +99,31 @@ class _ProductPageState extends State<ProductPage> {
       ),
       //add a floating action button with the cart icon
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async {
           //add the product to the cart
-          dbHelper.updateProductSelection(widget.product.id, true);
-          //show a snackbar with the message that the product has been added to the cart
+          final isInCart = await dbHelper.isProductInCart(widget.product.id);
+          var snackBarText = '';
+
+          var snackBarColor = Colors.green;
+          if (!isInCart) {
+            await dbHelper.updateCartProduct(widget.product.id, true);
+            snackBarText = 'Product added to cart successfully!';
+          } else {
+            snackBarText = 'Product Already in cart!';
+            snackBarColor = Colors.red;
+          }
+          //show a snackbar with a success message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Product added to cart successfully!'),
-              backgroundColor: Colors.green,
+              content: Text(
+                snackBarText,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontFamily: "Poppins",
+                ),
+              ),
+              backgroundColor: snackBarColor,
               duration: const Duration(seconds: 2),
               elevation: 7,
               behavior: SnackBarBehavior.floating,

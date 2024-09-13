@@ -5,6 +5,7 @@ import 'package:smartshop/models/database_products.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/reusables/widgets.dart';
 import 'package:smartshop/ui/signIn.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class MainBody extends StatefulWidget {
   const MainBody({super.key});
@@ -15,11 +16,23 @@ class MainBody extends StatefulWidget {
 
 class _MainBodyState extends State<MainBody> {
   final DatabaseHelper dbHelper = DatabaseHelper();
+  List<Product> allProducts = [];
+  List<Product> filteredProducts = [];
+  final TextEditingController _searchController = TextEditingController();
 
 // All products from the database
   Future<List<Product>> _getProducts() async {
     final products = dbHelper.getProducts();
     return products;
+  }
+
+  Future<void> _fetchProducts() async {
+    final products = await dbHelper.getProducts();
+    setState(() {
+      allProducts = products;
+      filteredProducts =
+          products; // Initialize filteredProducts with all products
+    });
   }
 
   Future<List<Product>> _getHotDeals() async {
@@ -46,6 +59,31 @@ class _MainBodyState extends State<MainBody> {
       setState(() {
         deals.addAll(value);
       });
+    });
+    _fetchProducts();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterProducts() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredProducts = allProducts.where((product) {
+        return product.name.toLowerCase().contains(query);
+      }).toList();
+    });
+  }
+
+  //filter products by category
+  void _filterByCategory(String category) {
+    setState(() {
+      filteredProducts = allProducts.where((product) {
+        return product.category.toLowerCase().contains(category);
+      }).toList();
     });
   }
 
@@ -85,6 +123,7 @@ class _MainBodyState extends State<MainBody> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: TextField(
+                      onChanged: (value) => _filterProducts(),
                       decoration: InputDecoration(
                         hintText: "Search for products",
                         border: InputBorder.none,
@@ -92,11 +131,8 @@ class _MainBodyState extends State<MainBody> {
                           onPressed: () {
                             GestureDetector(
                               onTap: () => {
-                                Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                    builder: (context) => const SignIn(),
-                                  ),
-                                ),
+                                //Search for product
+                                _filterProducts(),
                               },
                             );
                           },
@@ -234,7 +270,37 @@ class _MainBodyState extends State<MainBody> {
                   },
                 ),
               ],
-            )
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              "Recommended for you",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 20),
+            StaggeredGrid.count(
+              crossAxisCount: 3,
+              crossAxisSpacing: 3,
+              mainAxisSpacing: 10,
+              children: filteredProducts.map((product) {
+                return ProductCards(product: product);
+              }).toList(),
+            ),
+            // SingleChildScrollView(
+            //   scrollDirection: Axis.vertical,
+            //   child: Wrap(
+            //     alignment: WrapAlignment.start,
+            //     children: [
+            //       Wrap(
+            //         children: filteredProducts.map((product) {
+            //           return ProductCards(product: product);
+            //         }).toList(),
+            //       ),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

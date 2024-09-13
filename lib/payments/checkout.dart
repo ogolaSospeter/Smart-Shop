@@ -15,15 +15,19 @@ import 'package:smartshop/models/user.dart';
 
 class CheckoutWidget extends StatefulWidget {
   CheckoutWidget(
-      {super.key, required this.cartItems, required this.totalPrice});
+      {super.key,
+      required this.cartItems,
+      required this.totalPrice,
+      required this.itemQuantities});
 
   final List<Product> cartItems;
   final double totalPrice;
-  final DatabaseHelper dbHelper = DatabaseHelper();
+  final Map<int, int> itemQuantities;
+  final DatabaseHelper databaseHelper = DatabaseHelper();
 
   //get the user data for the logged in user
   Future<User?> _getUserData() async {
-    return await dbHelper.getLoggedInUser();
+    return await databaseHelper.getLoggedInUser();
   }
 
   @override
@@ -31,6 +35,9 @@ class CheckoutWidget extends StatefulWidget {
 }
 
 class _CheckoutWidgetState extends State<CheckoutWidget> {
+  final DatabaseHelper databaseHelper = DatabaseHelper();
+  var orderItems = <Order>[];
+  var synchronizedCartItems = <Order>[];
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -47,12 +54,14 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
           const Text("You are about to checkout the following items:"),
           const SizedBox(height: 4),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: widget.cartItems.asMap().entries.map((entry) {
                 int index = entry.key;
                 var item = entry.value;
+                var quantity = widget.itemQuantities[item.id] ?? 1;
+                print("The itemQuantities: ${widget.itemQuantities}");
 
                 return Row(
                   mainAxisAlignment:
@@ -82,10 +91,28 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
                     Expanded(
                       flex: 1, // Adjust to give space to the price
                       child: Text(
-                        "\$${item.price}",
+                        "\$${item.price * quantity}",
                         textAlign:
                             TextAlign.left, // Aligns the price to the right
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 2,
+                    ),
+                    Expanded(
+                      flex: 1, // Adjust to give space to the price
+                      child: Text(
+                        "Qty: ${quantity.toString()}",
+                        textAlign:
+                            TextAlign.right, // Aligns the price to the right
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                   ],
@@ -126,32 +153,254 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.popAndPushNamed(context, '/checkout');
+            Navigator.pop(context);
           },
           child: const Text("Cancel"),
         ),
         TextButton(
           onPressed: () async {
+            Navigator.pop(context);
             // Fetch the user data asynchronously
             var snapshot = await widget._getUserData();
             if (snapshot != null) {
               // Create order items once user data is available
-              var orderItems = <Order>[];
+              // var orderItems = <Order>[];
               var user = snapshot.email; // Assuming user has an email field
               var currentDate = DateTime.now();
-              for (Product item in widget.cartItems) {
+              //convert the current date to yyyy-mm-dd format
+              var formattedDate =
+                  "${currentDate.year}-${currentDate.month}-${currentDate.day}";
+              for (int i = 0; i < widget.cartItems.length; i++) {
+                //format the total price to 2 decimal places
+                final price =
+                    double.parse(widget.totalPrice.toStringAsFixed(2));
                 var orderItem = Order(
                   orderId: currentDate.millisecondsSinceEpoch,
-                  orderDate: currentDate.toString(),
+                  orderDate: formattedDate,
                   orderStatus: "Pending",
-                  orderTotal: widget.totalPrice,
-                  itemId: item.id,
+                  orderTotal: price,
+                  itemId: widget.cartItems[i].id,
                   custId: user,
-                  quantity: item.quantity,
+                  quantity: widget.itemQuantities[widget.cartItems[i].id]!,
                 );
                 orderItems.add(orderItem);
               }
+
+              // Show a success dialog
+              var existingOrdersList = <Order>[];
+              final Future<List<Order>> existingOrders =
+                  databaseHelper.getOrdersByUser(orderItems[0].custId);
+              existingOrders.then(
+                (value) {
+                  existingOrdersList = value;
+                },
+              ).whenComplete(() {
+                //check if the item in the cart is in the existing orders list
+                var matchedList = <Order>[];
+                for (var item in orderItems) {
+                  for (var order in existingOrdersList) {
+                    if (item.itemId == order.itemId &&
+                        item.custId == order.custId &&
+                        item.orderDate == order.orderDate) {
+                      matchedList.add(order);
+                    }
+                  }
+                  synchronizedCartItems.add(item);
+                }
+
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    //add the items shopped to the Orders table
+                    print(
+                        "\nThe existing orders in the Order table:   $existingOrdersList\n");
+                    print("\nThe existing orders are: $matchedList\n");
+
+                    print(
+                        "\nAdding Non-exixting items to the Orders table.\n The items are: $synchronizedCartItems");
+                    for (Order item in orderItems) {
+                      try {
+                        if (existingOrdersList.isEmpty) {
+                          databaseHelper
+                              .getProductQuantity(item.itemId)
+                              .then((value) {
+                            if (value > 5) {
+                              var newQuantity = value - item.quantity;
+                              databaseHelper.updateProductQuantity(
+                                  item.itemId, newQuantity);
+                              //add the item to the Orders table
+                              databaseHelper.insertOrder(item);
+                              print(
+                                  "Synchronized orders list at normal non-existing order $synchronizedCartItems");
+                              print(
+                                  "The item ${item.itemId} has been added successfully to the Orders table.");
+                              //remove the item from the cart
+                              databaseHelper.deleteProductFromCart(item.itemId);
+                            } else {
+                              //show snackbar if the item is out of stock
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      "The item ${item.itemId} is out of stock."),
+                                ),
+                              );
+                            }
+                          });
+                        }
+                      } catch (e) {
+                        print("Error adding item to the Orders table: $e");
+                      }
+                    }
+                    if (matchedList.isNotEmpty) {
+                      //Alert the user and display the items that have already been ordered. Confirm if the user wants to proceed with the making the order, then add the items to the Orders table
+                      return AlertDialog(
+                        title: const Text("Confirm Re-order of Items"),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                                "The following items have already been ordered:"),
+                            const SizedBox(height: 4),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: matchedList.asMap().entries.map(
+                                  (entry) {
+                                    int index = entry.key;
+                                    var item = entry.value;
+                                    var quantity = item.quantity;
+                                    return Row(
+                                      mainAxisAlignment: MainAxisAlignment
+                                          .center, // Centers the Row content
+                                      children: [
+                                        // Item index
+                                        Text(
+                                          "${index + 1}.",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        const SizedBox(
+                                            width:
+                                                10), // Spacing between index and name
+
+                                        // Item name (takes some space but leaves room for price)
+                                        Expanded(
+                                          flex:
+                                              2, // Adjust to give more space to the name
+                                          child: Text(
+                                            item.itemId.toString(),
+                                            textAlign: TextAlign
+                                                .start, // Centers the name
+                                            overflow: TextOverflow
+                                                .ellipsis, // Truncate name if too long
+                                          ),
+                                        ),
+
+                                        const SizedBox(
+                                            width:
+                                                20), // Space between name and price
+
+                                        // Item price (takes fixed space)
+                                        Expanded(
+                                          flex:
+                                              1, // Adjust to give space to the price
+                                          child: Text(
+                                            "\$${item.orderTotal}",
+                                            textAlign: TextAlign
+                                                .left, // Aligns the price to the right
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          width: 2,
+                                        ),
+                                        Expanded(
+                                          flex:
+                                              1, // Adjust to give space to the price
+                                          child: Text(
+                                            "Qty: ${quantity.toString()}",
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                                "Do you want to proceed with the order?"),
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context); // Close the dialog
+                            },
+                            child: const Text("Close"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              //add the items to the Orders table
+                              for (Order item in existingOrdersList) {
+                                try {
+                                  databaseHelper
+                                      .getProductQuantity(item.itemId)
+                                      .then((value) {
+                                    if (value > 5) {
+                                      var newQuantity = value - item.quantity;
+                                      databaseHelper.updateProductQuantity(
+                                          item.itemId, newQuantity);
+                                      //add the item to the Orders table
+                                      databaseHelper.insertOrder(item);
+                                      print(
+                                          "The synchronized orders list before adding the reordered item:\n $synchronizedCartItems");
+                                      synchronizedCartItems.add(item);
+                                      print(
+                                          "Synchronized list after adding reordered item: $synchronizedCartItems");
+                                      //remove the item from the cart
+                                      databaseHelper
+                                          .deleteProductFromCart(item.itemId);
+                                    } else {
+                                      //show snackbar if the item is out of stock
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              "The item ${item.itemId} is out of stock."),
+                                        ),
+                                      );
+                                    }
+                                  });
+                                } catch (e) {
+                                  print(
+                                      "Error adding re-ordered item to the Orders table: $e");
+                                }
+                              }
+                              Navigator.pop(context); // Close the dialog
+                            },
+                            child: const Text("Confirm"),
+                          ),
+                        ],
+                      );
+                    }
+                    return const SizedBox();
+                  },
+                );
+              });
+
               //get the phone number of the user from a pop up dialog then navigate to the MpesaConfirmationDialog
+              Future.delayed(const Duration(seconds: 3));
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -184,7 +433,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => MpesaConfirmationDialog(
-                                cartItems: orderItems,
+                                cartItems: synchronizedCartItems,
                                 totalPrice: widget.totalPrice,
                                 phone: phone,
                               ),
@@ -228,166 +477,141 @@ class MpesaConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var maskedPhone = maskPhoneNumber(phone);
+    print(
+        "The received Synchronized list in the MpesaConfirmationDialogue: \n$cartItems \n");
     return AlertDialog(
-      title: const Text("Mpesa Confirmation"),
-      icon: const Icon(Icons.question_answer_rounded),
-      iconColor: Colors.deepPurple,
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 13,
-                ),
-                children: [
-                  const TextSpan(
-                    text:
-                        "Confirming the Payment will initiate a payment request of ",
+        title: const Text("Mpesa Confirmation"),
+        icon: const Icon(Icons.question_answer_rounded),
+        iconColor: Colors.deepPurple,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 13,
                   ),
-                  TextSpan(
-                    text: " Kshs. ${(totalPrice * 129.00).toStringAsFixed(2)} ",
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
+                  children: [
+                    const TextSpan(
+                      text:
+                          "Confirming the Payment will initiate a payment request of ",
                     ),
-                  ),
-                  TextSpan(
-                    text: " to the number $maskedPhone",
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 2),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.popAndPushNamed(context, '/checkout');
-          },
-          child: const Text("Cancel"),
-        ),
-        TextButton(
-          onPressed: () {
-            // Show the loading dialog while the payment is being processed
-            showDialog(
-              context: context,
-              barrierDismissible:
-                  false, // Prevents dismissing the dialog by tapping outside
-              builder: (BuildContext context) {
-                return const AlertDialog(
-                  title: Text("Processing Payment......"),
-                  content: Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: SizedBox(
-                      height: 10.0,
-                      child: LinearProgressIndicator(
-                        backgroundColor: Colors.grey,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                        minHeight: 10.0,
+                    TextSpan(
+                      text:
+                          " Kshs. ${(totalPrice * 129.00).toStringAsFixed(2)} ",
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-            // Initiate the payment process and handle the result
-            var totalPrice = (this.totalPrice * 129.00).toStringAsFixed(0);
-            print("Total Price sent to the gateway: $totalPrice");
-            print("Phone number sent to the gateway: $phone");
-            MpesaPaymentGateWay(totalPrice, phone)
-                .then((transactionInitialisation) {
-              // Close the loading dialog
+                    TextSpan(
+                      text: " to the number $maskedPhone",
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 2),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
               Navigator.popAndPushNamed(context, '/checkout');
-
-              // Check if there's an error in the response
-              if (transactionInitialisation.containsKey("errorCode")) {
-                // Show a failure dialog
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text("Payment Failed"),
-                      content: Text(
-                          "There was an error processing your payment: ${transactionInitialisation["errorMessage"] ?? "Unknown error"}"),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.popAndPushNamed(
-                                context, '/checkout'); // Close the error dialog
-                          },
-                          child: const Text("Close"),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              } else {
-                // Show a success dialog
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    //add the items shopped to the Orders table
-                    print(
-                        "Adding items to the Orders table.\n The items are: $cartItems");
-                    for (Order item in cartItems) {
-                      try {
-                        databaseHelper.insertOrder(item);
-                        print("Item added to the Orders table: $item");
-                      } catch (e) {
-                        print("Error adding item to the Orders table: $e");
-                      }
-                    }
-                    return AlertDialog(
-                      title: const Text("Payment Success."),
-                      content: const Text(
-                          "Your payment was initiated successfully. Please wait for the payment prompt and enter M-Pesa PIN."),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context); // Close the success dialog
-                          },
-                          child: const Text("Close"),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }
-            }).catchError((error) {
-              // Close the loading dialog if an error occurs
-              Navigator.pop(context);
-
-              // Show an error dialog
+            },
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              // Show the loading dialog while the payment is being processed
               showDialog(
                 context: context,
+                barrierDismissible:
+                    false, // Prevents dismissing the dialog by tapping outside
                 builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("Payment Failed"),
-                    content: Text(
-                        "There was an error processing your payment: $error"),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.popAndPushNamed(
-                              context, '/checkout'); // Close the error dialog
-                        },
-                        child: const Text("Close"),
+                  return const AlertDialog(
+                    title: Text("Processing Payment......"),
+                    content: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: SizedBox(
+                        height: 10.0,
+                        child: LinearProgressIndicator(
+                          backgroundColor: Colors.grey,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.green),
+                          minHeight: 10.0,
+                        ),
                       ),
-                    ],
+                    ),
                   );
                 },
               );
-            });
-          },
-          child: const Text("Confirm"),
-        )
-      ],
-    );
+              // Initiate the payment process and handle the result
+              var totalPrice = (this.totalPrice * 129.00).toStringAsFixed(0);
+              print("Total Price sent to the gateway: $totalPrice");
+              print("Phone number sent to the gateway: $phone");
+              MpesaPaymentGateWay(totalPrice, phone)
+                  .then((transactionInitialisation) {
+                // Close the loading dialog
+                Navigator.popAndPushNamed(context, '/checkout');
+
+                // Check if there's an error in the response
+                if (transactionInitialisation.containsKey("errorCode")) {
+                  // Show a failure dialog
+                  Future.delayed(
+                    Duration(seconds: 3),
+                    () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Payment Failed"),
+                            content: Text(
+                                "There was an error processing your payment: ${transactionInitialisation["errorMessage"] ?? "Unknown error"}"),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.popAndPushNamed(context,
+                                      '/checkout'); // Close the error dialog
+                                },
+                                child: const Text("Close"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Payment Success."),
+                        content: const Text(
+                            "Your payment was initiated successfully. Please wait for the payment prompt and enter M-Pesa PIN."),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(
+                                  context); // Close the success dialog
+                              //reload the page to show the updated cart
+                              Navigator.popAndPushNamed(context, '/checkout');
+                            },
+                            child: const Text("Close"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              });
+            },
+            child: const Text("Confirm"),
+          )
+        ]);
   }
 }
 
@@ -412,7 +636,8 @@ Future<Map<String, dynamic>> MpesaPaymentGateWay(amount, phone) async {
       partyA: phone,
       partyB: "174379",
       callBackURL: Uri.parse("https://sandbox.safaricom.co.ke/"),
-      accountReference: "SmartShop Payment",
+      accountReference: "SMARTSHOP PRODUCTS JAMAGUJE",
+      // accountReference: "SmartShop Payment",
       phoneNumber: phone,
       transactionDesc: "Purchase",
       baseUri: Uri.parse("https://sandbox.safaricom.co.ke/"),
@@ -471,7 +696,7 @@ Future<void> initiateMpesaPayment() async {
                   scheme: "https",
                   host: "mpesa-requestbin.herokuapp.com",
                   path: "/1hhy6391"),
-              accountReference: "SmartShop Payment",
+              accountReference: "JUJA GREETINGS ~~The JOHNS😎😍",
               phoneNumber: "254795398253",
               baseUri: Uri(scheme: "https", host: "sandbox.safaricom.co.ke"),
               transactionDesc: "Payment for $transactionInitialisation",

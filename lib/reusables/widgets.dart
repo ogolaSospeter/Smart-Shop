@@ -105,13 +105,7 @@ class ProductCards extends StatelessWidget {
           color: Colors.white,
           child: Column(
             children: [
-              const SizedBox(height: 5),
-              const Padding(
-                padding: EdgeInsets.only(left: 75.0, top: 5.0),
-                child: Icon(Icons.favorite_outline_outlined,
-                    color: Colors.red, size: 30),
-              ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 20),
               AspectRatio(
                 aspectRatio: 1.6,
                 child: Image.network(
@@ -139,6 +133,17 @@ class ProductCards extends StatelessWidget {
                   product.name,
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 5),
+              Center(
+                child: Text(
+                  'Kshs. ${((product.price - (product.price * product.discount / 100)) * 129).toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),

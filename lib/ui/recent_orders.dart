@@ -34,6 +34,7 @@ class _RecentOrdersState extends State<RecentOrders> {
         ),
       ),
       body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -44,47 +45,80 @@ class _RecentOrdersState extends State<RecentOrders> {
               FutureBuilder<List<Order>>(
                 future: widget._getOrders(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: snapshot.data!.map((order) {
-                        return OrderCard(order: order);
-                      }).toList(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return const Text("Error fetching orders");
+                  print(
+                      "Snapshot Connection State: ${snapshot.connectionState}");
+                  print("Snapshot Error: ${snapshot.error}");
+                  print("Snapshot Data: ${snapshot.data}");
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      return Column(
+                        children: snapshot.data!.map((order) {
+                          return OrderCard(order: order);
+                        }).toList(),
+                      );
+                    } else {
+                      Image.network(
+                        "https://threedio-cdn.icons8.com/reazbICnl7OUr8WvRYsyKl6IevulHsoIyvoD-pi6oTA/rs:fit:256:256/czM6Ly90aHJlZWRp/by1wcm9kL3ByZXZp/ZXdzLzM0NC9kYjk3/NDg4NS1kNjliLTQ2/NDItYTBhMy00YTc5/Y2FiMmY4ZjEucG5n.png",
+                        width: 200,
+                        height: 200,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Icon(Icons.error);
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          } else {
+                            return const CircularProgressIndicator();
+                          }
+                        },
+                      );
+                      const Text(
+                        "No Orders",
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      );
+                      const SizedBox(height: 20);
+                    }
                   } else if (snapshot.connectionState ==
                       ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
-                  } else if (snapshot.data!.isEmpty) {
-                    Image.network(
-                      "https://ouch-cdn2.icons8.com/nFPSNor92kar56WmrwhLSu3nBL_9a83B372724enXVE/rs:fit:368:368/czM6Ly9pY29uczgu/b3VjaC1wcm9kLmFz/c2V0cy9wbmcvOTU2/L2NlNTgxZTA4LTk3/NDEtNDE3Yi1iMTFh/LTdjYTdlZjZiNDFm/ZC5wbmc.png",
-                      width: 150,
-                      height: 150,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.error);
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      },
-                    );
-                    const Text(
-                      "No Orders",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    );
-                    const SizedBox(height: 20);
+                  } else {
+                    return const Text("No Orders");
                   }
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  return Center(
+                    child: Column(
+                      children: [
+                        Image.network(
+                          "https://threedio-cdn.icons8.com/reazbICnl7OUr8WvRYsyKl6IevulHsoIyvoD-pi6oTA/rs:fit:256:256/czM6Ly90aHJlZWRp/by1wcm9kL3ByZXZp/ZXdzLzM0NC9kYjk3/NDg4NS1kNjliLTQ2/NDItYTBhMy00YTc5/Y2FiMmY4ZjEucG5n.png",
+                          width: 200,
+                          height: 200,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.error);
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return const CircularProgressIndicator();
+                            }
+                          },
+                        ),
+                        const Text(
+                          "No Orders",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -130,9 +164,10 @@ class OrderCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Date: \t\t\t${order.orderDate.substring(0, 10)}"),
+                Text("Date: \t\t\t${order.orderDate}"),
                 Text("Quantity: \t\t\t${order.quantity}"),
-                Text("Total: ${order.orderTotal * order.quantity}"),
+                Text(
+                    "Total: ${(order.orderTotal * order.quantity).toStringAsFixed(2)}"),
                 const SizedBox(
                   height: 5,
                 ),

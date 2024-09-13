@@ -62,7 +62,6 @@ class DatabaseHelper {
         isSelected INTEGER NOT NULL,
         isCart INTEGER NOT NULL,
         quantity INTEGER NOT NULL
-        
       )
     ''');
 
@@ -210,24 +209,6 @@ class DatabaseHelper {
     );
   }
 
-  //Fetch all the users
-  Future<List<User>> getUsers() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('UserData');
-
-    return List.generate(maps.length, (i) {
-      return User(
-        id: maps[i]['id'] as int,
-        username: maps[i]['username'] as String,
-        email: maps[i]['email'] as String,
-        password: maps[i]['password'] as String,
-        image: maps[i]['image'] as String,
-        isLogged: maps[i]['isLogged'] == 1,
-        isAdmin: maps[i]['isAdmin'] == 1,
-      );
-    });
-  }
-
   // CRUD operations for Products
   Future<int> insertProduct(Product product) async {
     final db = await database;
@@ -341,7 +322,7 @@ class DatabaseHelper {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'Products',
-      where: 'isCart = ?',
+      where: 'isCart= ?',
       whereArgs: [1],
     );
 
@@ -366,18 +347,6 @@ class DatabaseHelper {
         quantity: maps[i]['quantity'] as int,
       );
     });
-  }
-
-  //Check if the product is already in the shopping cart
-  Future<bool> isProductInCart(int id) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Products',
-      where: 'id = ? AND isCart = ?',
-      whereArgs: [id, 1],
-    );
-
-    return maps.isNotEmpty;
   }
 
   //The 4 products with the highest discount
@@ -413,7 +382,7 @@ class DatabaseHelper {
   }
 
   //Update the isSelected field of the product
-  Future<void> updateCartProduct(int id, bool isCart) async {
+  Future<void> updateProductSelection(int id, bool isCart) async {
     final db = await database;
     await db.update(
       'Products',
@@ -436,7 +405,7 @@ class DatabaseHelper {
 
   //Delete the product from the shopping cart by setting isSelected = 0
   Future<void> deleteProductFromCart(int id) async {
-    await updateCartProduct(id, false);
+    await updateProductSelection(id, false);
   }
 
 /////////////////////////////////////////////
@@ -461,26 +430,6 @@ class DatabaseHelper {
       'Orders',
       where: 'custId = ?',
       whereArgs: [custId],
-    );
-
-    return List.generate(maps.length, (i) {
-      return Order(
-        orderId: maps[i]['id'] as int,
-        orderDate: maps[i]['orderDate'] as String,
-        orderStatus: maps[i]['orderStatus'] as String,
-        orderTotal: maps[i]['orderTotal'] as double,
-        itemId: maps[i]['itemId'] as int,
-        custId: maps[i]['custId'] as String,
-        quantity: maps[i]['quantity'] as int,
-      );
-    });
-  }
-
-  //Fetch the orders of a particular user
-  Future<List<Order>> getOrders() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Orders',
     );
 
     return List.generate(maps.length, (i) {

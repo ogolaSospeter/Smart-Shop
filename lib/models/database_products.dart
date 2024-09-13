@@ -33,6 +33,7 @@ It's the perfect piece for the man who demands performance and sophistication. S
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 20,
   ),
   Product(
@@ -64,6 +65,7 @@ Whether you're heading to the office or a night out with friends, this red shirt
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 10,
   ),
   Product(
@@ -95,6 +97,7 @@ This blue shirt is perfect for the modern man who values quality and style. Pair
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 15,
   ),
   Product(
@@ -118,6 +121,7 @@ Experience ultimate comfort and style with these versatile Black Pants, a must-h
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 5,
   ),
   Product(
@@ -146,6 +150,7 @@ Embrace the essence of summer with this versatile piece that can be dressed up w
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 10,
   ),
   Product(
@@ -170,6 +175,7 @@ Elevate your professional wardrobe with our stunning Blue Suit designed for wome
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 12,
   ),
   Product(
@@ -194,6 +200,7 @@ Step up your style game with our versatile unisex Hoody, designed to keep you lo
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 3,
   ),
   Product(
@@ -218,6 +225,7 @@ Elevate your style and comfort with our versatile unisex jumper, designed to mee
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 7,
   ),
   Product(
@@ -242,6 +250,7 @@ Elevate your style game with these versatile men's shorts that seamlessly transi
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 45,
   ),
   Product(
@@ -266,6 +275,7 @@ Elevate your formal attire with these sophisticated Men's Official Loafers. Craf
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 76,
   ),
   Product(
@@ -290,6 +300,7 @@ Step up your shoe game with these sleek men's official sneakers. Crafted with pr
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 34,
   ),
   Product(
@@ -314,6 +325,7 @@ Step into the wild with our versatile safari boots, designed to keep you stylish
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 23,
   ),
   Product(
@@ -338,6 +350,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.5,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 56,
   ),
   Product(
@@ -361,6 +374,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 23,
   ),
   Product(
@@ -384,6 +398,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 17,
   ),
   Product(
@@ -407,6 +422,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 8,
   ),
   Product(
@@ -430,6 +446,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.0,
     isLiked: false,
     isSelected: false,
+    isCart: false,
     quantity: 22,
   ),
   Product(
@@ -452,6 +469,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     description:
         'Nike Air Max 200 is the latest model of the Air Max series. It is a versatile and timeless shoe that is perfect for any occasion. The shoe features the iconic Waffle sole, stitched overlays, and classic TPU accents that you have come to love. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 200 is a classic shoe that will never go out of style. It is the perfect shoe for any occasion, whether you are going for a run or just hanging out with friends. The shoe is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The Nike Air Max 200 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 200 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead.',
     rating: 4.8,
+    isCart: false,
     quantity: 56,
   ),
   Product(
@@ -475,6 +493,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     description:
         'This Nike Air Max 97 is a classic shoe that will never go out of style. It is the perfect shoe for any occasion, whether you are going for a run or just hanging out with friends. The shoe is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The Nike Air Max 97 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead. The shoe is available in a variety of colors and sizes, so you can find the perfect fit for you. The Nike Air Max 97 is the perfect shoe for any occasion. It is comfortable, stylish, and durable, making it the perfect choice for any sneakerhead.',
     rating: 4.8,
+    isCart: false,
     quantity: 43,
   ),
   Product(
@@ -482,7 +501,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     name: 'Nike Air Max Pro 200',
     price: 240.00,
     discount: 13.8,
-    isSelected: true,
+    isSelected: false,
     isLiked: false,
     image:
         'https://img.icons8.com/?size=100&id=fKv3hYrl3nJH&format=png&color=000000',
@@ -498,6 +517,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     description:
         'Clean lines, versatile and timeless—the people shoe returns with the Nike Air Max 90. Featuring the same iconic Waffle sole, stitched overlays and classic TPU accents you come to love, it lets you walk among the pantheon of Air. ßNothing as fly, nothing as comfortable, nothing as proven. The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
     rating: 4.8,
+    isCart: false,
     quantity: 6,
   ),
   Product(
@@ -521,6 +541,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     description:
         'Clean lines, versatile and timeless—the people shoe returns with the Nike Air Max 90. Featuring the same iconic Waffle sole, stitched overlays and classic TPU accents you come to love, it lets you walk among the pantheon of Air. ßNothing as fly, nothing as comfortable, nothing as proven. The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
     rating: 4.8,
+    isCart: false,
     quantity: 44,
   ),
   Product(
@@ -544,6 +565,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     description:
         'The Nike Air Max 90 stays true to its OG running roots with the iconic Waffle sole, stitched overlays and classic TPU details. Classic colours celebrate your fresh look while Max Air cushioning adds comfort to the journey.',
     rating: 4.8,
+    isCart: false,
     quantity: 13,
   ),
 ];

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:smartshop/admin/admin_Page.dart';
 import 'package:smartshop/database/database_operations.dart';
 import 'package:smartshop/models/user.dart';
 import 'package:smartshop/themes/theme.dart';
@@ -139,20 +140,86 @@ class _HomeState extends State<Home> {
                 leading: const Icon(Icons.color_lens),
                 title: const Text("Themes"),
               ),
+              //If the user is an admin, show the admin page
+              FutureBuilder<User?>(
+                future: _getUserData(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final user = snapshot.data;
+                    final isTrueAdmin = user!.isAdmin == true ? true : false;
+                    if (isTrueAdmin) {
+                      const Divider();
+                      return ListTile(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (BuildContext context) {
+                                return AdminPage();
+                              },
+                            ),
+                          );
+                        },
+                        leading: const Icon(Icons.admin_panel_settings),
+                        title: const Text("Admin Management"),
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  } else {
+                    return const SizedBox();
+                  }
+                },
+              ),
               Padding(
-                padding: const EdgeInsets.only(top: 270.0),
+                padding: const EdgeInsets.only(top: 150.0),
                 child: ListTile(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const SignIn(),
-                      ),
-                    );
+                  onTap: () async {
+                    // Logout the user
+                    try {
+                      // Fetch user data
+                      final user = await _getUserData();
+
+                      if (user != null) {
+                        // Call your DB helper to log out the user
+                        await dbHelper.logoutUser(user.username);
+
+                        // Show logout success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  "User ${user.username} logged out successfully")),
+                        );
+                        print("User ${user.username} logged out");
+                      } else {
+                        // Show failure message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("User log out failed")),
+                        );
+                        print("User log out failed");
+                      }
+
+                      // Navigate to the SignIn page after a delay
+                      Future.delayed(const Duration(seconds: 2), () {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const SignIn(),
+                          ),
+                        );
+                      });
+                    } catch (e) {
+                      // Handle errors
+                      print("Error during logout: $e");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("An error occurred during logout")),
+                      );
+                    }
                   },
                   leading: const Icon(Icons.logout),
                   title: const Text("Logout"),
                 ),
               ),
+
               //add a profile circle avatar and the user's name in a row
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),

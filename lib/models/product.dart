@@ -14,6 +14,7 @@ class Product {
   double rating;
   bool isLiked;
   bool isSelected;
+  bool isCart;
   int quantity;
 
   Product({
@@ -29,6 +30,7 @@ class Product {
     required this.rating,
     required this.isLiked,
     required this.isSelected,
+    required this.isCart,
     required this.quantity,
   });
 }

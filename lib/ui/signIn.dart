@@ -122,11 +122,14 @@ class _SignInState extends State<SignIn> {
                           if (user != null &&
                               user.password == _controllerPassword.text) {
                             await databaseHelper.loginUser(user.username);
+                            //asign the user status to admin or user based on the user.isAdmin value
+                            final String userStatus =
+                                user.isAdmin ? "Admin" : "User";
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text(
-                                    'Login Successful. Welcome back'),
+                                content: Text(
+                                    '\tLogin Successful. Welcome back $userStatus ${user.username}'),
                                 backgroundColor: Colors.green,
                                 duration: const Duration(seconds: 2),
                                 elevation: 10,

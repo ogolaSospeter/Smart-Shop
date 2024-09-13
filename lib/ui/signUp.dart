@@ -186,6 +186,10 @@ class _SignupState extends State<Signup> {
                         final username = _controllerUsername.text;
                         final email = _controllerEmail.text;
                         final password = _controllerPassword.text;
+                        var isAdmin = false;
+                        if (username == "Ogola" && email.startsWith("ogola")) {
+                          isAdmin = true;
+                        }
                         final user = User(
                           id: 0, // auto-incremented id
                           username: username,
@@ -193,6 +197,7 @@ class _SignupState extends State<Signup> {
                           password: password,
                           image: " ",
                           isLogged: false,
+                          isAdmin: isAdmin,
                         );
 
                         // Insert user into the database
