@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:smartshop/database/database_operations.dart';
-import 'package:smartshop/models/category.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/database_products.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/reusables/widgets.dart';
-import 'package:smartshop/ui/signIn.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class MainBody extends StatefulWidget {
@@ -15,7 +13,7 @@ class MainBody extends StatefulWidget {
 }
 
 class _MainBodyState extends State<MainBody> {
-  final DatabaseHelper dbHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper dbHelper = FirestoreDatabaseHelper();
   List<Product> allProducts = [];
   List<Product> filteredProducts = [];
   final TextEditingController _searchController = TextEditingController();
@@ -38,11 +36,6 @@ class _MainBodyState extends State<MainBody> {
   Future<List<Product>> _getHotDeals() async {
     final hotDeals = dbHelper.getTopDiscountedProducts();
     return hotDeals;
-  }
-
-  Future<Future<List<Categories>>> _getCategories() async {
-    final categories = dbHelper.getCategories();
-    return categories;
   }
 
   Future<List<Product>> _getDeals() async {
@@ -79,13 +72,6 @@ class _MainBodyState extends State<MainBody> {
   }
 
   //filter products by category
-  void _filterByCategory(String category) {
-    setState(() {
-      filteredProducts = allProducts.where((product) {
-        return product.category.toLowerCase().contains(category);
-      }).toList();
-    });
-  }
 
   String selectedCategory = "";
 

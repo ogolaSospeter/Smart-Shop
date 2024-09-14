@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/Users/ogola/FlutterApps/PLP_Final_Project/smartshop/linux/flutter"
+    "cmake.sourceDirectory": "D:/Users/ogola/FlutterApps/PLP_Final_Project/smartshop/linux/flutter",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

@@ -41,7 +41,6 @@ class DatabaseHelper {
         isLogged INTEGER NOT NULL,
         isAdmin INTEGER NOT NULL,
         UNIQUE(email)
-
       )
     ''');
 
@@ -61,7 +60,8 @@ class DatabaseHelper {
         isLiked INTEGER NOT NULL,
         isSelected INTEGER NOT NULL,
         isCart INTEGER NOT NULL,
-        quantity INTEGER NOT NULL
+        quantity INTEGER NOT NULL,
+        stocklevel INTEGER
         
       )
     ''');
@@ -79,7 +79,7 @@ class DatabaseHelper {
     //Create the Orders table
     await db.execute('''
       CREATE TABLE Orders(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY,
         orderDate TEXT NOT NULL,
         orderStatus TEXT NOT NULL,
         orderTotal REAL NOT NULL,
@@ -108,6 +108,8 @@ class DatabaseHelper {
           'isSelected': product.isSelected ? 1 : 0,
           'isCart': product.isCart ? 1 : 0,
           'quantity': product.quantity,
+          //if the stock level is not provided, set it to the quantity
+          'stocklevel': product.stocklevel,
         });
       } catch (e) {
         print('Error inserting product of name: ${product.name} due to $e');
@@ -247,6 +249,7 @@ class DatabaseHelper {
       'isSelected': product.isSelected ? 1 : 0,
       'isCart': product.isCart ? 1 : 0,
       'quantity': product.quantity,
+      'stocklevel': product.stocklevel,
     });
   }
 
@@ -274,6 +277,7 @@ class DatabaseHelper {
         isSelected: maps[i]['isSelected'] == 1,
         isCart: maps[i]['isCart'] == 1,
         quantity: maps[i]['quantity'] as int,
+        stocklevel: maps[i]['stocklevel'] as int,
       );
     });
   }
@@ -307,6 +311,7 @@ class DatabaseHelper {
         isSelected: map['isSelected'] == 1,
         isCart: map['isCart'] == 1,
         quantity: map['quantity'] as int,
+        stocklevel: map['stocklevel'] as int,
       );
     }
     return null;
@@ -364,6 +369,7 @@ class DatabaseHelper {
         isSelected: maps[i]['isSelected'] == 1,
         isCart: maps[i]['isCart'] == 1,
         quantity: maps[i]['quantity'] as int,
+        stocklevel: maps[i]['stocklevel'] as int,
       );
     });
   }
@@ -408,6 +414,7 @@ class DatabaseHelper {
         isSelected: maps[i]['isSelected'] == 1,
         isCart: maps[i]['isCart'] == 1,
         quantity: maps[i]['quantity'] as int,
+        stocklevel: maps[i]['stocklevel'] as int,
       );
     });
   }
@@ -441,10 +448,11 @@ class DatabaseHelper {
 
 /////////////////////////////////////////////
 //Adding an order to the database
-  Future<int> insertOrder(Order order) async {
+  Future<int> insertOrder(Orders order) async {
     final db = await database;
 
     return await db.insert('Orders', {
+      'id': order.orderId,
       'orderDate': order.orderDate,
       'orderStatus': order.orderStatus,
       'orderTotal': order.orderTotal,
@@ -455,7 +463,7 @@ class DatabaseHelper {
   }
 
   //Fetch the orders of a particular user
-  Future<List<Order>> getOrdersByUser(String custId) async {
+  Future<List<Orders>> getOrdersByUser(String custId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'Orders',
@@ -464,7 +472,7 @@ class DatabaseHelper {
     );
 
     return List.generate(maps.length, (i) {
-      return Order(
+      return Orders(
         orderId: maps[i]['id'] as int,
         orderDate: maps[i]['orderDate'] as String,
         orderStatus: maps[i]['orderStatus'] as String,
@@ -477,14 +485,14 @@ class DatabaseHelper {
   }
 
   //Fetch the orders of a particular user
-  Future<List<Order>> getOrders() async {
+  Future<List<Orders>> getOrders() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'Orders',
     );
 
     return List.generate(maps.length, (i) {
-      return Order(
+      return Orders(
         orderId: maps[i]['id'] as int,
         orderDate: maps[i]['orderDate'] as String,
         orderStatus: maps[i]['orderStatus'] as String,
@@ -534,14 +542,40 @@ class DatabaseHelper {
     return 0;
   }
 
+  //Get the stock level of the product
+  Future<int> getProductStockLevel(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'Products',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return maps[0]['stocklevel'] as int;
+    }
+    return 0;
+  }
+
   //Update the Product quantity
-  Future<void> updateProductQuantity(int id, int quantity) async {
+  Future<void> updateProductStockLevel(int id, int quantity) async {
     final db = await database;
     await db.update(
       'Products',
-      {'quantity': quantity},
+      {'stocklevel': quantity},
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  Future<void> cancelOrder(int orderId) async {
+    final db = await database;
+    const String cancel = 'Cancelled';
+    await db.update(
+      'Orders',
+      {'orderStatus': cancel},
+      where: 'id = ?',
+      whereArgs: [orderId],
     );
   }
 }

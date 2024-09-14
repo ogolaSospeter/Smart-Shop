@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smartshop/models/category.dart';
 import 'package:smartshop/models/product.dart';
 
+// ignore: non_constant_identifier_names
 final List<Product> database_products = [
   Product(
     id: 1,
@@ -35,6 +36,7 @@ It's the perfect piece for the man who demands performance and sophistication. S
     isSelected: false,
     isCart: false,
     quantity: 20,
+    stocklevel: 20,
   ),
   Product(
     id: 2,
@@ -67,6 +69,7 @@ Whether you're heading to the office or a night out with friends, this red shirt
     isSelected: false,
     isCart: false,
     quantity: 10,
+    stocklevel: 10,
   ),
   Product(
     id: 3,
@@ -99,6 +102,7 @@ This blue shirt is perfect for the modern man who values quality and style. Pair
     isSelected: false,
     isCart: false,
     quantity: 15,
+    stocklevel: 15,
   ),
   Product(
     id: 4,
@@ -123,6 +127,7 @@ Experience ultimate comfort and style with these versatile Black Pants, a must-h
     isSelected: false,
     isCart: false,
     quantity: 5,
+    stocklevel: 5,
   ),
   Product(
     id: 5,
@@ -152,6 +157,7 @@ Embrace the essence of summer with this versatile piece that can be dressed up w
     isSelected: false,
     isCart: false,
     quantity: 10,
+    stocklevel: 10,
   ),
   Product(
     id: 6,
@@ -177,6 +183,7 @@ Elevate your professional wardrobe with our stunning Blue Suit designed for wome
     isSelected: false,
     isCart: false,
     quantity: 12,
+    stocklevel: 12,
   ),
   Product(
     id: 7,
@@ -202,6 +209,7 @@ Step up your style game with our versatile unisex Hoody, designed to keep you lo
     isSelected: false,
     isCart: false,
     quantity: 3,
+    stocklevel: 3,
   ),
   Product(
     id: 8,
@@ -227,6 +235,7 @@ Elevate your style and comfort with our versatile unisex jumper, designed to mee
     isSelected: false,
     isCart: false,
     quantity: 7,
+    stocklevel: 7,
   ),
   Product(
     id: 9,
@@ -252,6 +261,7 @@ Elevate your style game with these versatile men's shorts that seamlessly transi
     isSelected: false,
     isCart: false,
     quantity: 45,
+    stocklevel: 45,
   ),
   Product(
     id: 10,
@@ -277,6 +287,7 @@ Elevate your formal attire with these sophisticated Men's Official Loafers. Craf
     isSelected: false,
     isCart: false,
     quantity: 76,
+    stocklevel: 76,
   ),
   Product(
     id: 11,
@@ -302,6 +313,7 @@ Step up your shoe game with these sleek men's official sneakers. Crafted with pr
     isSelected: false,
     isCart: false,
     quantity: 34,
+    stocklevel: 34,
   ),
   Product(
     id: 12,
@@ -327,6 +339,7 @@ Step into the wild with our versatile safari boots, designed to keep you stylish
     isSelected: false,
     isCart: false,
     quantity: 23,
+    stocklevel: 23,
   ),
   Product(
     id: 13,
@@ -352,6 +365,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     isSelected: false,
     isCart: false,
     quantity: 56,
+    stocklevel: 56,
   ),
   Product(
     id: 14,
@@ -376,6 +390,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     isSelected: false,
     isCart: false,
     quantity: 23,
+    stocklevel: 23,
   ),
   Product(
     id: 15,
@@ -400,6 +415,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     isSelected: false,
     isCart: false,
     quantity: 17,
+    stocklevel: 17,
   ),
   Product(
     id: 16,
@@ -424,6 +440,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     isSelected: false,
     isCart: false,
     quantity: 8,
+    stocklevel: 8,
   ),
   Product(
     id: 17,
@@ -448,6 +465,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     isSelected: false,
     isCart: false,
     quantity: 22,
+    stocklevel: 22,
   ),
   Product(
     id: 18,
@@ -471,6 +489,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.8,
     isCart: false,
     quantity: 56,
+    stocklevel: 56,
   ),
   Product(
     id: 19,
@@ -495,6 +514,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.8,
     isCart: false,
     quantity: 43,
+    stocklevel: 43,
   ),
   Product(
     id: 20,
@@ -519,6 +539,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.8,
     isCart: false,
     quantity: 6,
+    stocklevel: 6,
   ),
   Product(
     id: 21,
@@ -543,6 +564,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.8,
     isCart: false,
     quantity: 44,
+    stocklevel: 44,
   ),
   Product(
     id: 22,
@@ -567,6 +589,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     rating: 4.8,
     isCart: false,
     quantity: 13,
+    stocklevel: 13,
   ),
 ];
 

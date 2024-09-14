@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/ui/signUp.dart';
 
 import 'home.dart';
@@ -21,9 +21,10 @@ class _SignInState extends State<SignIn> {
   final FocusNode _focusNodePassword = FocusNode();
   final TextEditingController _controllerUsername = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
+  bool isAuthenticating = false;
 
   bool _obscurePassword = true;
-  final DatabaseHelper databaseHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -103,145 +104,199 @@ class _SignInState extends State<SignIn> {
                   return null;
                 },
               ),
-              const SizedBox(height: 60),
-              Column(
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
+              const SizedBox(height: 15),
+              isAuthenticating
+                  ? Card(
+                      elevation: 19,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        try {
-                          final user = await databaseHelper
-                              .getUserByUserName(_controllerUsername.text);
-
-                          if (user != null &&
-                              user.password == _controllerPassword.text) {
-                            await databaseHelper.loginUser(user.username);
-                            //asign the user status to admin or user based on the user.isAdmin value
-                            final String userStatus =
-                                user.isAdmin ? "Admin" : "User";
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    '\tLogin Successful. Welcome back $userStatus ${user.username}'),
-                                backgroundColor: Colors.green,
-                                duration: const Duration(seconds: 2),
-                                elevation: 10,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                animation: CurvedAnimation(
-                                  parent: const AlwaysStoppedAnimation(1.0),
-                                  curve: Curves.easeInOutBack,
-                                ),
+                      child: const Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 25,
+                          vertical: 15,
+                        ),
+                        child: const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Text(
+                              "Authenticating User...",
+                              style: TextStyle(
+                                color: Colors.green,
+                                fontSize: 20,
                               ),
-                            );
-                            //delay the route for 2 seconds
-                            Future.delayed(const Duration(seconds: 1), () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return const Home();
-                                  },
-                                ),
-                              );
-                            });
-                          } else if (user == null) {
-                            // User not found
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text('User not found. Please signup')),
-                            );
-                            //Delay and transition to the signup page
-                            Future.delayed(const Duration(seconds: 1), () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return const Signup();
-                                  },
-                                ),
-                              );
-                            });
-                            _formKey.currentState?.reset();
-                          } else {
-                            // Incorrect username or password
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Incorrect username or password'),
-                                duration: Duration(seconds: 2),
-                                elevation: 10,
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                            _formKey.currentState?.reset();
-                          }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  'User ${_controllerUsername.text} not registered!'),
-                              backgroundColor: Colors.red,
-                              duration: const Duration(seconds: 2),
-                              elevation: 10,
-                              behavior: SnackBarBehavior.floating,
                             ),
-                          );
-                          Future.delayed(const Duration(seconds: 2), () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return const Signup();
-                                },
-                              ),
-                            );
-                          });
-                          _formKey.currentState?.reset();
-                        }
-                      }
-                    },
-                    child: const Text("Login"),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account?"),
-                      TextButton(
-                        onPressed: () {
-                          _formKey.currentState?.reset();
+                            SizedBox(height: 10),
+                            SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: CircularProgressIndicator(
+                                  color: Colors.green,
+                                  strokeWidth: 5,
+                                )),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              setState(() {
+                                isAuthenticating = true;
+                              });
+                              try {
+                                //Display a circular progress indicator while the user is being authenticated
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return const Signup();
+                                final user =
+                                    await databaseHelper.getUserByUserName(
+                                        _controllerUsername.text);
+
+                                if (user != null &&
+                                    user.password == _controllerPassword.text) {
+                                  await databaseHelper.loginUser(user.username);
+                                  //asign the user status to admin or user based on the user.isAdmin value
+                                  final String userStatus =
+                                      user.isAdmin ? "Admin" : "User";
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          '\tLogin Successful. Welcome back $userStatus ${user.username}'),
+                                      backgroundColor: Colors.green,
+                                      duration: const Duration(seconds: 2),
+                                      elevation: 10,
+                                      behavior: SnackBarBehavior.floating,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      animation: CurvedAnimation(
+                                        parent:
+                                            const AlwaysStoppedAnimation(1.0),
+                                        curve: Curves.easeInOutBack,
+                                      ),
+                                    ),
+                                  );
+                                  //delay the route for 2 seconds
+                                  Future.delayed(const Duration(seconds: 1),
+                                      () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return const Home();
+                                        },
+                                      ),
+                                    );
+                                  });
+                                } else if (user == null) {
+                                  // User not found
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'User ${_controllerUsername.text} not registered!'),
+                                      backgroundColor: Colors.red,
+                                      duration: const Duration(seconds: 2),
+                                      elevation: 10,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  // Delay and transition to the signup page
+                                  Future.delayed(const Duration(seconds: 1),
+                                      () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) {
+                                          return const Signup();
+                                        },
+                                      ),
+                                    );
+                                  });
+                                  _formKey.currentState?.reset();
+                                } else {
+                                  // Incorrect username or password
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Incorrect username or password'),
+                                      duration: Duration(seconds: 2),
+                                      backgroundColor: Colors.redAccent,
+                                      elevation: 10,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  _formKey.currentState?.reset();
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        'User ${_controllerUsername.text} not registered!'),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 2),
+                                    elevation: 10,
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                                Future.delayed(const Duration(seconds: 2), () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return const Signup();
+                                      },
+                                    ),
+                                  );
+                                });
+                                _formKey.currentState?.reset();
+                              } finally {
+                                setState(() {
+                                  isAuthenticating = false;
+                                });
+                              }
+                            }
+                          },
+                          child: const Text("Login"),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Don't have an account?"),
+                            TextButton(
+                              onPressed: () {
+                                _formKey.currentState?.reset();
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return const Signup();
+                                    },
+                                  ),
+                                );
                               },
+                              child: const Text("Signup"),
                             ),
-                          );
-                        },
-                        child: const Text("Signup"),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 1),
-                  TextButton(
-                    onPressed: () {
-                      _formKey.currentState?.reset();
-                    },
-                    child: const Text("Forgot Password?"),
-                  ),
-                ],
-              ),
+                          ],
+                        ),
+                        const SizedBox(height: 1),
+                        TextButton(
+                          onPressed: () {
+                            _formKey.currentState?.reset();
+                          },
+                          child: const Text("Forgot Password?"),
+                        ),
+                      ],
+                    ),
             ],
           ),
         ),

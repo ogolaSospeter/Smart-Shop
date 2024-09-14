@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/user.dart';
 
 class Signup extends StatefulWidget {
@@ -20,9 +20,11 @@ class _SignupState extends State<Signup> {
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _controllerConFirmPassword =
       TextEditingController();
+  bool isAuthenticating = false;
+  String authMessage = "";
 
   bool _obscurePassword = true;
-  final DatabaseHelper databaseHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
 
   @override
   Widget build(BuildContext context) {
@@ -172,70 +174,133 @@ class _SignupState extends State<Signup> {
                 },
               ),
               const SizedBox(height: 50),
-              Column(
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
+              isAuthenticating
+                  ? Card(
+                      elevation: 19,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        final username = _controllerUsername.text;
-                        final email = _controllerEmail.text;
-                        final password = _controllerPassword.text;
-                        var isAdmin = false;
-                        if (username == "Ogola" && email.startsWith("ogola")) {
-                          isAdmin = true;
-                        }
-                        final user = User(
-                          id: 0, // auto-incremented id
-                          username: username,
-                          email: email,
-                          password: password,
-                          image: " ",
-                          isLogged: false,
-                          isAdmin: isAdmin,
-                        );
-
-                        // Insert user into the database
-                        await databaseHelper.insertUser(user);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            width: 200,
-                            backgroundColor: Colors.green,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 25,
+                          vertical: 15,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Wrap(clipBehavior: Clip.antiAlias, children: [
+                              Text(
+                                authMessage,
+                                style: const TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ]),
+                            const SizedBox(height: 10),
+                            const SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: CircularProgressIndicator(
+                                  color: Colors.green,
+                                  strokeWidth: 5,
+                                )),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(50),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                            content: const Text(
-                              "Registered Successfully",
-                              selectionColor: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                        );
+                          onPressed: () async {
+                            if (_formKey.currentState?.validate() ?? false) {
+                              setState(() {
+                                isAuthenticating = true;
+                              });
+                              try {
+                                final username = _controllerUsername.text;
+                                final email = _controllerEmail.text;
+                                final password = _controllerPassword.text;
+                                var isAdmin = false;
+                                if (username == "Ogola" &&
+                                    email.startsWith("ogola")) {
+                                  isAdmin = true;
+                                }
+                                final user = User(
+                                  id: DateTime.now()
+                                      .microsecondsSinceEpoch, // auto-incremented id
+                                  username: username,
+                                  email: email,
+                                  password: password,
+                                  image: " ",
+                                  isLogged: false,
+                                  isAdmin: isAdmin,
+                                );
+                                authMessage =
+                                    "Registering user. Please wait...";
+                                // Insert user into the database
+                                await databaseHelper.insertUser(user);
 
-                        _formKey.currentState?.reset();
+                                authMessage =
+                                    "The User has been registered successfully";
 
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text("Sign Up"),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Already have an account?"),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("Sign In"),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                                print(
+                                    "Successfully inserted user: ${user.username}");
+
+                                authMessage =
+                                    "Registration Completed Successfully";
+
+                                // ignore: use_build_context_synchronously
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    width: 200,
+                                    backgroundColor: Colors.green,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
+                                    content: const Text(
+                                      "Registered Successfully",
+                                      selectionColor: Colors.white,
+                                    ),
+                                  ),
+                                );
+
+                                _formKey.currentState?.reset();
+
+                                // ignore: use_build_context_synchronously
+                                Navigator.pop(context);
+                              } catch (e) {
+                                print(e);
+                                authMessage = "Error: $e";
+                              } finally {
+                                setState(() {
+                                  isAuthenticating = false;
+                                });
+                              }
+                            }
+                          },
+                          child: const Text("Sign Up"),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Already have an account?"),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Sign In"),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
             ],
           ),
         ),

@@ -16,6 +16,7 @@ class Product {
   bool isSelected;
   bool isCart;
   int quantity;
+  int stocklevel;
 
   Product({
     required this.id,
@@ -32,5 +33,6 @@ class Product {
     required this.isSelected,
     required this.isCart,
     required this.quantity,
+    required this.stocklevel,
   });
 }

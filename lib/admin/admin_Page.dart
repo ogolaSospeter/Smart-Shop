@@ -16,13 +16,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:smartshop/admin/actions.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/user.dart';
 
 class AdminPage extends StatefulWidget {
   AdminPage({super.key});
 
-  final DatabaseHelper databaseHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
 
   @override
   State<AdminPage> createState() => _AdminPageState();
@@ -53,7 +53,13 @@ class _AdminPageState extends State<AdminPage> {
           ProductList(products: products).showproductList(context);
         },
       },
-      {'title': 'Add Product', 'icon': Icons.add, 'action': (context) {}},
+      {
+        'title': 'Add Product',
+        'icon': Icons.add,
+        'action': (context) async {
+          addNewProduct(context);
+        }
+      },
       {'title': 'Update Product', 'icon': Icons.update, 'action': (context) {}},
       {'title': 'Delete Product', 'icon': Icons.delete, 'action': (context) {}},
       {

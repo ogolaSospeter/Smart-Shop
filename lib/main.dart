@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartshop/config/routes.dart';
 import 'package:smartshop/themes/theme.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    print('Error: $e');
+  }
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeNotifier(),

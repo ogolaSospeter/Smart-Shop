@@ -1,419 +1,292 @@
-import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:smartshop/models/category.dart';
-import 'package:smartshop/models/database_products.dart';
 import 'package:smartshop/models/orders.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/models/user.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
-class DatabaseHelper {
-  static Database? _database;
-
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-
-    _database = await _initDatabase();
-    return _database!;
-  }
-
-  Future<Database> _initDatabase() async {
-    // Set the path to the database.
-    String path = join(await getDatabasesPath(), 'smart_shop.db');
-
-    // Open the database.
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-    );
-  }
-
-  Future<void> _onCreate(Database db, int version) async {
-    // Create UserData table.
-    await db.execute('''
-      CREATE TABLE UserData(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL,
-        image TEXT,
-        isLogged INTEGER NOT NULL,
-        isAdmin INTEGER NOT NULL,
-        UNIQUE(email)
-
-      )
-    ''');
-
-    // Create Products table.
-    await db.execute('''
-      CREATE TABLE Products(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        category TEXT NOT NULL,
-        image TEXT NOT NULL,
-        price REAL NOT NULL,
-        discount REAL,
-        sizes TEXT, 
-        colors TEXT, 
-        description TEXT,
-        rating REAL NOT NULL,
-        isLiked INTEGER NOT NULL,
-        isSelected INTEGER NOT NULL,
-        isCart INTEGER NOT NULL,
-        quantity INTEGER NOT NULL
-      )
-    ''');
-
-    // Create Categories table.
-    await db.execute('''
-      CREATE TABLE Categories(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        image TEXT NOT NULL,
-        isSelected INTEGER NOT NULL
-      )
-    ''');
-
-    //Create the Orders table
-    await db.execute('''
-      CREATE TABLE Orders(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        orderDate TEXT NOT NULL,
-        orderStatus TEXT NOT NULL,
-        orderTotal REAL NOT NULL,
-        itemId INTEGER NOT NULL,
-        custId TEXT NOT NULL,
-        quantity INTEGER NOT NULL
-      )
-    ''');
-
-    //insert products to the database from the database_products list
-    for (var product in database_products) {
-      try {
-        await db.insert('Products', {
-          'name': product.name,
-          'category': product.category,
-          'image': product.image,
-          'price': product.price,
-          'discount': product.discount,
-          'sizes': product.sizes.join(','),
-          'colors': product.colors
-              .map((color) => color.value.toRadixString(16))
-              .join(','),
-          'description': product.description,
-          'rating': product.rating,
-          'isLiked': product.isLiked ? 1 : 0,
-          'isSelected': product.isSelected ? 1 : 0,
-          'isCart': product.isCart ? 1 : 0,
-          'quantity': product.quantity,
-        });
-      } catch (e) {
-        print('Error inserting product of name: ${product.name} due to $e');
-      }
-    }
-  }
+class FirestoreDatabaseHelper {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // CRUD operations for UserData
-  Future<int> insertUser(User user) async {
-    final db = await database;
-    return await db.insert('UserData', {
+  Future<void> insertUser(User user) async {
+    await _firestore.collection('users').doc(user.email).set({
+      'id': user.id,
       'username': user.username,
       'email': user.email,
       'password': user.password,
       'image': user.image,
-      'isLogged': user.isLogged ? 1 : 0,
-      'isAdmin': user.isAdmin ? 1 : 0,
+      'isLogged': user.isLogged,
+      'isAdmin': user.isAdmin,
     });
   }
 
-  //function to check if the username exists
   Future<bool> isUsernameExists(String username) async {
-    final db = await database;
-    final maps = await db.query(
-      'UserData',
-      where: 'username = ?',
-      whereArgs: [username],
-    );
-
-    return maps.isNotEmpty;
+    var querySnapshot = await _firestore
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
   }
 
   Future<User?> getUserByUserName(String username) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'UserData',
-      where: 'username = ?',
-      whereArgs: [username],
-    );
-    final map = maps[0];
-    // Check for null id and handle accordingly
-    if (map['id'] == null) {
-      return null; // or handle it differently
-    }
+    var querySnapshot = await _firestore
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
 
-    return User(
-      id: map['id'] as int, // Ensure this is not null
-      username: map['username'] as String,
-      email: map['email'] as String,
-      password: map['password'] as String,
-      image: map['image'] as String,
-      isLogged: (map['isLogged'] as int) == 1,
-      isAdmin: (map['isAdmin'] as int) == 1,
-    );
-  }
-
-  // Fetch the user data of the logged-in user.
-  Future<User?> getLoggedInUser() async {
-    final db = await database;
-    final maps = await db.query(
-      'UserData',
-      where: 'isLogged = ?',
-      whereArgs: [1],
-    );
-
-    if (maps.isNotEmpty) {
-      final map = maps[0];
+    if (querySnapshot.docs.isNotEmpty) {
+      var data = querySnapshot.docs.first.data();
       return User(
-        id: map['id'] as int,
-        username: map['username'] as String,
-        email: map['email'] as String,
-        password: map['password'] as String,
-        image: map['image'] as String,
-        isLogged: map['isLogged'] == 1, // Convert INTEGER to bool
-        isAdmin: map['isAdmin'] == 1, // Convert INTEGER to bool
+        id: 0,
+        username: data['username'],
+        email: data['email'],
+        password: data['password'],
+        image: data['image'],
+        isLogged: data['isLogged'],
+        isAdmin: data['isAdmin'],
       );
     }
     return null;
   }
 
-//Login a user
-  Future<void> loginUser(String username) async {
-    final db = await database;
-    await db.update(
-      'UserData',
-      {'isLogged': 1},
-      where: 'username = ?',
-      whereArgs: [username],
-    );
+  Future<User?> getLoggedInUser() async {
+    var querySnapshot = await _firestore
+        .collection('users')
+        .where('isLogged', isEqualTo: true)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      var data = querySnapshot.docs.first.data();
+      return User(
+        id: data['id'],
+        username: data['username'],
+        email: data['email'],
+        password: data['password'],
+        image: data['image'],
+        isLogged: data['isLogged'],
+        isAdmin: data['isAdmin'],
+      );
+    }
+    return null;
   }
 
-  //Logout a user
+  Future<void> loginUser(String username) async {
+    var querySnapshot = await _firestore
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('users')
+          .doc(docId)
+          .update({'isLogged': true});
+    }
+  }
+
   Future<void> logoutUser(String username) async {
-    final db = await database;
-    await db.update(
-      'UserData',
-      {'isLogged': 0},
-      where: 'username = ?',
-      whereArgs: [username],
-    );
+    var querySnapshot = await _firestore
+        .collection('users')
+        .where('username', isEqualTo: username)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('users')
+          .doc(docId)
+          .update({'isLogged': false});
+    }
+  }
+
+  Future<List<User>> getUsers() async {
+    var querySnapshot = await _firestore.collection('users').get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      return User(
+        id: data['id'],
+        username: data['username'],
+        email: data['email'],
+        password: data['password'],
+        image: data['image'],
+        isLogged: data['isLogged'],
+        isAdmin: data['isAdmin'],
+      );
+    }).toList();
   }
 
   // CRUD operations for Products
-  Future<int> insertProduct(Product product) async {
-    final db = await database;
-    return await db.insert('Products', {
+  Future<void> insertProduct(Product product) async {
+    await _firestore.collection('products').add({
+      'id': DateTime.now().microsecondsSinceEpoch,
       'name': product.name,
       'category': product.category,
       'image': product.image,
       'price': product.price,
       'discount': product.discount,
-      'sizes': product.sizes.join(','), // Join sizes list into a string
+      'sizes': product.sizes, // This will store as an array
       'colors': product.colors
           .map((color) => color.value.toRadixString(16))
-          .join(','), // Convert colors to hex
+          .toList(), // Convert colors to hex and store as array
       'description': product.description,
       'rating': product.rating,
-      'isLiked': product.isLiked ? 1 : 0,
-      'isSelected': product.isSelected ? 1 : 0,
-      'isCart': product.isCart ? 1 : 0,
+      'isLiked': product.isLiked,
+      'isSelected': product.isSelected,
+      'isCart': product.isCart,
       'quantity': product.quantity,
+      'stocklevel': product.stocklevel,
     });
   }
 
   Future<List<Product>> getProducts() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('Products');
-
-    return List.generate(maps.length, (i) {
+    var querySnapshot = await _firestore.collection('products').get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
       return Product(
-        id: maps[i]['id'] as int,
-        name: maps[i]['name'] as String,
-        category: maps[i]['category'] as String,
-        image: maps[i]['image'] as String,
-        price: maps[i]['price'] as double,
-        discount: maps[i]['discount'] as double,
-        sizes: (maps[i]['sizes'] as String)
-            .split(','), // Split the string into a list
-        colors: (maps[i]['colors'] as String)
-            .split(',')
-            .map((color) => Color(int.parse(color, radix: 16)))
-            .toList(), // Convert hex back to Color
-        description: maps[i]['description'] as String,
-        rating: maps[i]['rating'] as double,
-        isLiked: maps[i]['isLiked'] == 1,
-        isSelected: maps[i]['isSelected'] == 1,
-        isCart: maps[i]['isCart'] == 1,
-        quantity: maps[i]['quantity'] as int,
-      );
-    });
-  }
-
-  //Get the product by id
-  Future<Product?> getProductById(int id) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Products',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
-    if (maps.isNotEmpty) {
-      final map = maps[0];
-      return Product(
-        id: map['id'] as int,
-        name: map['name'] as String,
-        category: map['category'] as String,
-        image: map['image'] as String,
-        price: map['price'] as double,
-        discount: map['discount'] as double,
-        sizes: (map['sizes'] as String).split(','),
-        colors: (map['colors'] as String)
-            .split(',')
+        //return the document id as the product id
+        id: data['id'],
+        name: data['name'],
+        category: data['category'],
+        image: data['image'],
+        price: data['price'],
+        discount: data['discount'],
+        sizes: List<String>.from(data['sizes']),
+        colors: List<String>.from(data['colors'])
             .map((color) => Color(int.parse(color, radix: 16)))
             .toList(),
-        description: map['description'] as String,
-        rating: map['rating'] as double,
-        isLiked: map['isLiked'] == 1,
-        isSelected: map['isSelected'] == 1,
-        isCart: map['isCart'] == 1,
-        quantity: map['quantity'] as int,
+        description: data['description'],
+        rating: data['rating'],
+        isLiked: data['isLiked'],
+        isSelected: data['isSelected'],
+        isCart: data['isCart'],
+        quantity: data['quantity'],
+        stocklevel: data['stocklevel'],
       );
-    }
-    return null;
+    }).toList();
   }
 
   // CRUD operations for Categories
-  Future<int> insertCategory(Categories category) async {
-    final db = await database;
-    return await db.insert('Categories', {
+  Future<void> insertCategory(Categories category) async {
+    await _firestore.collection('categories').add({
       'name': category.name,
       'image': category.image,
-      'isSelected': category.isSelected ? 1 : 0,
+      'isSelected': category.isSelected,
     });
   }
 
   Future<List<Categories>> getCategories() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('Categories');
-
-    return List.generate(maps.length, (i) {
+    var querySnapshot = await _firestore.collection('categories').get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
       return Categories(
-        id: maps[i]['id'] as int,
-        name: maps[i]['name'] as String,
-        image: maps[i]['image'] as String,
-        isSelected: maps[i]['isSelected'] == 1,
+        id: 0,
+        name: data['name'],
+        image: data['image'],
+        isSelected: data['isSelected'],
       );
-    });
+    }).toList();
   }
 
-  //Shopping cart items fetch for all the products with isSelected = 1
+  // Shopping cart items fetch
   Future<List<Product>> getShoppingCartItems() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Products',
-      where: 'isCart= ?',
-      whereArgs: [1],
-    );
-
-    return List.generate(maps.length, (i) {
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('isCart', isEqualTo: true)
+        .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
       return Product(
-        id: maps[i]['id'] as int,
-        name: maps[i]['name'] as String,
-        category: maps[i]['category'] as String,
-        image: maps[i]['image'] as String,
-        price: maps[i]['price'] as double,
-        discount: maps[i]['discount'] as double,
-        sizes: (maps[i]['sizes'] as String).split(','),
-        colors: (maps[i]['colors'] as String)
-            .split(',')
+        id: data['id'],
+        name: data['name'],
+        category: data['category'],
+        image: data['image'],
+        price: data['price'],
+        discount: data['discount'],
+        sizes: List<String>.from(data['sizes']),
+        colors: List<String>.from(data['colors'])
             .map((color) => Color(int.parse(color, radix: 16)))
             .toList(),
-        description: maps[i]['description'] as String,
-        rating: maps[i]['rating'] as double,
-        isLiked: maps[i]['isLiked'] == 1,
-        isSelected: maps[i]['isSelected'] == 1,
-        isCart: maps[i]['isCart'] == 1,
-        quantity: maps[i]['quantity'] as int,
+        description: data['description'],
+        rating: data['rating'],
+        isLiked: data['isLiked'],
+        isSelected: data['isSelected'],
+        isCart: data['isCart'],
+        quantity: data['quantity'],
+        stocklevel: data['stocklevel'],
       );
-    });
+    }).toList();
   }
 
-  //The 4 products with the highest discount
+  // The 4 products with the highest discount
   Future<List<Product>> getTopDiscountedProducts() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Products',
-      orderBy: 'discount DESC',
-      limit: 4,
-    );
-
-    return List.generate(maps.length, (i) {
+    var querySnapshot = await _firestore
+        .collection('products')
+        .orderBy('discount', descending: true)
+        .limit(5)
+        .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
       return Product(
-        id: maps[i]['id'] as int,
-        name: maps[i]['name'] as String,
-        category: maps[i]['category'] as String,
-        image: maps[i]['image'] as String,
-        price: maps[i]['price'] as double,
-        discount: maps[i]['discount'] as double,
-        sizes: (maps[i]['sizes'] as String).split(','),
-        colors: (maps[i]['colors'] as String)
-            .split(',')
+        id: data['id'],
+        name: data['name'],
+        category: data['category'],
+        image: data['image'],
+        price: data['price'],
+        discount: data['discount'],
+        sizes: List<String>.from(data['sizes']),
+        colors: List<String>.from(data['colors'])
             .map((color) => Color(int.parse(color, radix: 16)))
             .toList(),
-        description: maps[i]['description'] as String,
-        rating: maps[i]['rating'] as double,
-        isLiked: maps[i]['isLiked'] == 1,
-        isSelected: maps[i]['isSelected'] == 1,
-        isCart: maps[i]['isCart'] == 1,
-        quantity: maps[i]['quantity'] as int,
+        description: data['description'],
+        rating: data['rating'],
+        isLiked: data['isLiked'],
+        isSelected: data['isSelected'],
+        isCart: data['isCart'],
+        quantity: data['quantity'],
+        stocklevel: data['stocklevel'],
       );
-    });
+    }).toList();
   }
 
-  //Update the isSelected field of the product
+  // Update the isSelected field of the product
   Future<void> updateProductSelection(int id, bool isCart) async {
-    final db = await database;
-    await db.update(
-      'Products',
-      {'isCart': isCart ? 1 : 0},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('products')
+          .doc(docId)
+          .update({'isCart': isCart});
+    }
   }
 
-  //Update the isLiked field of the product
+  // Update the isLiked field of the product
   Future<void> updateProductLike(int id, bool isLiked) async {
-    final db = await database;
-    await db.update(
-      'Products',
-      {'isLiked': isLiked ? 1 : 0},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('products')
+          .doc(docId)
+          .update({'isLiked': isLiked});
+    }
   }
 
-  //Delete the product from the shopping cart by setting isSelected = 0
+  // Delete the product from the shopping cart by setting isSelected = 0
   Future<void> deleteProductFromCart(int id) async {
     await updateProductSelection(id, false);
   }
 
-/////////////////////////////////////////////
-//Adding an order to the database
-  Future<int> insertOrder(Order order) async {
-    final db = await database;
-
-    return await db.insert('Orders', {
+  // Adding an order to the database
+  Future<void> insertOrder(Orders order) async {
+    await _firestore.collection('orders').add({
+      'orderId': DateTime.now().microsecondsSinceEpoch,
       'orderDate': order.orderDate,
       'orderStatus': order.orderStatus,
       'orderTotal': order.orderTotal,
@@ -423,74 +296,274 @@ class DatabaseHelper {
     });
   }
 
-  //Fetch the orders of a particular user
-  Future<List<Order>> getOrdersByUser(String custId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Orders',
-      where: 'custId = ?',
-      whereArgs: [custId],
-    );
-
-    return List.generate(maps.length, (i) {
-      return Order(
-        orderId: maps[i]['id'] as int,
-        orderDate: maps[i]['orderDate'] as String,
-        orderStatus: maps[i]['orderStatus'] as String,
-        orderTotal: maps[i]['orderTotal'] as double,
-        itemId: maps[i]['itemId'] as int,
-        custId: maps[i]['custId'] as String,
-        quantity: maps[i]['quantity'] as int,
+  // Fetch the orders of a particular user
+  Future<List<Orders>> getOrdersByUser(String custId) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('custId', isEqualTo: custId)
+        .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      return Orders(
+        orderId: data['orderId'],
+        orderDate: data['orderDate'],
+        orderStatus: data['orderStatus'],
+        orderTotal: data['orderTotal'],
+        itemId: data['itemId'],
+        custId: data['custId'],
+        quantity: data['quantity'],
       );
-    });
+    }).toList();
   }
 
-//Check if the order already exists for the same user and on the same date. The date is in currentDate.millisecondsSinceEpoch,. Only compare the date part of the orderDate
+  // Check if the order already exists for the same user and on the same date
   Future<bool> isOrderExists(
       String custId, int itemId, String orderDate) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Orders',
-      where: 'custId = ? AND itemId = ? AND orderDate = ?',
-      whereArgs: [custId, itemId, orderDate],
-    );
-    return maps.isNotEmpty;
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('custId', isEqualTo: custId)
+        .where('itemId', isEqualTo: itemId)
+        .where('orderDate', isEqualTo: orderDate)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
   }
 
-  //Update the order status
+  // Update the order status
+
   Future<void> updateOrderStatus(int orderId, String orderStatus) async {
-    final db = await database;
-    await db.update(
-      'Orders',
-      {'orderStatus': orderStatus},
-      where: 'id = ?',
-      whereArgs: [orderId],
-    );
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('orderId', isEqualTo: orderId)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('orders')
+          .doc(docId)
+          .update({'orderStatus': orderStatus});
+    }
   }
 
-  //get Product quantity
+  // Get Product quantity
   Future<int> getProductQuantity(int id) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'Products',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
-    if (maps.isNotEmpty) {
-      return maps[0]['quantity'] as int;
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var data = querySnapshot.docs.first.data();
+      return data['quantity'];
     }
     return 0;
   }
 
-  //Update the Product quantity
+  // Update the Product quantity
   Future<void> updateProductQuantity(int id, int quantity) async {
-    final db = await database;
-    await db.update(
-      'Products',
-      {'quantity': quantity},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('products')
+          .doc(docId)
+          .update({'quantity': quantity});
+    }
+  }
+
+  // Update the stock level of the product
+  Future<void> updateProductStockLevel(int id, int stocklevel) async {
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('products')
+          .doc(docId)
+          .update({'stocklevel': stocklevel});
+    }
+  }
+
+  // Get the product by id
+  Future<Product?> getProductById(String docId) async {
+    var docSnapshot = await _firestore.collection('products').doc(docId).get();
+    if (docSnapshot.exists) {
+      var data = docSnapshot.data() as Map<String, dynamic>;
+      return Product(
+        id: data['id'],
+        name: data['name'],
+        category: data['category'],
+        image: data['image'],
+        price: data['price'],
+        discount: data['discount'],
+        sizes: List<String>.from(data['sizes']),
+        colors: List<String>.from(data['colors'])
+            .map((color) => Color(int.parse(color, radix: 16)))
+            .toList(),
+        description: data['description'],
+        rating: data['rating'],
+        isLiked: data['isLiked'],
+        isSelected: data['isSelected'],
+        isCart: data['isCart'],
+        quantity: data['quantity'],
+        stocklevel: data['stocklevel'],
+      );
+    }
+    return null;
+  }
+
+  // Fetch the orders
+  Future<List<Orders>> getOrders() async {
+    var querySnapshot = await _firestore.collection('orders').get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      return Orders(
+        orderId: data['orderId'],
+        orderDate: data['orderDate'],
+        orderStatus: data['orderStatus'],
+        orderTotal: data['orderTotal'],
+        itemId: data['itemId'],
+        custId: data['custId'],
+        quantity: data['quantity'],
+      );
+    }).toList();
+  }
+
+  //isProductinCart
+  Future<bool> isProductInCart(int id) async {
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .where('isCart', isEqualTo: true)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
+  }
+
+  //updateCartProduct
+  Future<void> updateCartProduct(int id, bool isCart) async {
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('products')
+          .doc(docId)
+          .update({'isCart': isCart});
+    }
+  }
+
+  // Fetch the order details
+  Future<Orders?> getOrderById(int orderId) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('orderId', isEqualTo: orderId)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var data = querySnapshot.docs.first.data();
+      return Orders(
+        orderId: 0,
+        orderDate: data['orderDate'],
+        orderStatus: data['orderStatus'],
+        orderTotal: data['orderTotal'],
+        itemId: data['itemId'],
+        custId: data['custId'],
+        quantity: data['quantity'],
+      );
+    }
+    return null;
+  }
+
+  // Delete the order
+  Future<void> deleteOrder(int orderId) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('orderId', isEqualTo: orderId)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore.collection('orders').doc(docId).delete();
+    }
+  }
+
+  // Fetch the orders by status
+  Future<List<Orders>> getOrdersByStatus(String orderStatus) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('orderStatus', isEqualTo: orderStatus)
+        .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      return Orders(
+        orderId: data['orderId'],
+        orderDate: data['orderDate'],
+        orderStatus: data['orderStatus'],
+        orderTotal: data['orderTotal'],
+        itemId: data['itemId'],
+        custId: data['custId'],
+        quantity: data['quantity'],
+      );
+    }).toList();
+  }
+
+  // Fetch the orders by date
+  Future<List<Orders>> getOrdersByDate(String orderDate) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('orderDate', isEqualTo: orderDate)
+        .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      return Orders(
+        orderId: data['orderId'],
+        orderDate: data['orderDate'],
+        orderStatus: data['orderStatus'],
+        orderTotal: data['orderTotal'],
+        itemId: data['itemId'],
+        custId: data['custId'],
+        quantity: data['quantity'],
+      );
+    }).toList();
+  }
+
+  // Fetch the orders by user and status
+  Future<List<Orders>> getOrdersByUserAndStatus(
+      String custId, String orderStatus) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('custId', isEqualTo: custId)
+        .where('orderStatus', isEqualTo: orderStatus)
+        .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      return Orders(
+        orderId: data['orderId'],
+        orderDate: data['orderDate'],
+        orderStatus: data['orderStatus'],
+        orderTotal: data['orderTotal'],
+        itemId: data['itemId'],
+        custId: data['custId'],
+        quantity: data['quantity'],
+      );
+    }).toList();
+  }
+
+  //cancelOrder
+  Future<void> cancelOrder(int orderId) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('orderId', isEqualTo: orderId)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('orders')
+          .doc(docId)
+          .update({'orderStatus': 'Cancelled'});
+    }
   }
 }

@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartshop/admin/admin_Page.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/user.dart';
 import 'package:smartshop/themes/theme.dart';
 import 'package:smartshop/ui/main_page.dart';
@@ -21,7 +21,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   //fetch the user name from the database
-  final DatabaseHelper dbHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper dbHelper = FirestoreDatabaseHelper();
 
   //fetch the user data for the logged in user
   Future<User?> _getUserData() async {

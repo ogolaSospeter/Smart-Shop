@@ -1,4 +1,4 @@
-class Order {
+class Orders {
   final int orderId;
   final String orderDate;
   String orderStatus;
@@ -7,7 +7,7 @@ class Order {
   final String custId;
   final int quantity;
 
-  Order(
+  Orders(
       {required this.orderId,
       required this.orderDate,
       required this.orderStatus,

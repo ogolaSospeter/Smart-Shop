@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/payments/checkout.dart';
 import 'package:smartshop/themes/light_color.dart';
@@ -96,8 +96,8 @@ import 'package:smartshop/themes/theme.dart';
 //   }
 
 class ShoppingCartPage extends StatefulWidget {
-  ShoppingCartPage({Key? key}) : super(key: key);
-  final DatabaseHelper db = DatabaseHelper();
+  ShoppingCartPage({super.key});
+  final FirestoreDatabaseHelper db = FirestoreDatabaseHelper();
 
   Future<List<Product>> getCartItems() async {
     return await db.getShoppingCartItems();
@@ -299,8 +299,12 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
                         ),
                         TextButton(
                           onPressed: () {
+                            print(
+                                "Removing item ${model.id} from cart with cartItems: $cartItems");
                             widget.db.deleteProductFromCart(model.id);
                             _calculateCartDetails();
+                            print(
+                                "Removed item ${model.id} from cart with cartItems: $cartItems");
                             Navigator.of(context).pop();
                           },
                           child: const Text('Remove'),
@@ -351,6 +355,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
             itemQuantities[item.id] = 1;
           }
         } else {
+          print("Items passed for checkout: ${cartItems.cast()}\n\n");
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) =>
@@ -365,10 +370,10 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
         }
       },
       style: ButtonStyle(
-        shape: MaterialStateProperty.all(
+        shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         ),
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepPurple),
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.deepPurple),
       ),
       child: Container(
         alignment: Alignment.center,
@@ -473,15 +478,16 @@ class CartItem extends StatefulWidget {
   final Function(int, int) onQuantityChanged;
   final Function(int) onRemove;
 
-  CartItem({
-    Key? key,
+  const CartItem({
+    super.key,
     required this.product,
     required this.quantity,
     required this.onQuantityChanged,
     required this.onRemove,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _CartItemState createState() => _CartItemState();
 }
 

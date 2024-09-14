@@ -1,5 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/product.dart';
 import 'package:smartshop/ui/home.dart';
 
@@ -17,11 +19,11 @@ class ProductPage extends StatefulWidget {
 
 class _ProductPageState extends State<ProductPage> {
   bool isFavorite = false;
-  final DatabaseHelper dbHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper dbHelper = FirestoreDatabaseHelper();
 
   //Get the product data from the database
   Future<Product?> _getProductData() async {
-    return await dbHelper.getProductById(widget.product.id);
+    return await dbHelper.getProductById(widget.product.id.toString());
   }
 
   @override
@@ -57,10 +59,9 @@ class _ProductPageState extends State<ProductPage> {
         actions: [
           //add the favorite icon
           IconButton(
-            onPressed: () {
-              setState(() {
-                isFavorite = !isFavorite;
-              });
+            onPressed: () async {
+              isFavorite = !isFavorite;
+              await dbHelper.updateProductLike(widget.product.id, isFavorite);
             },
             icon: isFavorite
                 ? const Icon(

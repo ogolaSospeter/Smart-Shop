@@ -1,7 +1,9 @@
-//The Order history page
+//The Orders history page
+// ignore_for_file: unused_element, prefer_typing_uninitialized_variables, must_be_immutable
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/orders.dart';
 import 'package:smartshop/models/user.dart';
 
@@ -9,14 +11,14 @@ class RecentOrders extends StatefulWidget {
   RecentOrders({super.key, required this.custId});
 
   final String custId;
-  final DatabaseHelper databaseHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
 
   //get the user data for the logged in user
   Future<User?> _getUserData() async {
     return await databaseHelper.getLoggedInUser();
   }
 
-  Future<List<Order>> _getOrders() async {
+  Future<List<Orders>> _getOrders() async {
     return await databaseHelper.getOrdersByUser(custId);
   }
 
@@ -30,7 +32,7 @@ class _RecentOrdersState extends State<RecentOrders> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Order History",
+          "Orders History",
         ),
       ),
       body: SingleChildScrollView(
@@ -42,7 +44,7 @@ class _RecentOrdersState extends State<RecentOrders> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              FutureBuilder<List<Order>>(
+              FutureBuilder<List<Orders>>(
                 future: widget._getOrders(),
                 builder: (context, snapshot) {
                   print(
@@ -130,75 +132,81 @@ class _RecentOrdersState extends State<RecentOrders> {
   }
 }
 
-//The Order card
+//The Orders card
 class OrderCard extends StatelessWidget {
-  final Order order;
-
-  const OrderCard({super.key, required this.order});
+  final Orders order;
+  var orderStatuses = [
+    'Ordered',
+    'Approved',
+    'Dispatched',
+    'Delivered',
+    'Cancelled',
+    'Refund Initiated',
+    'Refund Completed',
+  ];
+  OrderCard({super.key, required this.order});
+  var orderStatusColor;
+  var isShowCheckmark = false;
+  var orderStatusIcon;
 
   @override
   Widget build(BuildContext context) {
+    for (var i = 0; i < orderStatuses.length; i++) {
+      if (order.orderStatus == orderStatuses[i]) {
+        orderStatusColor = i == 0
+            ? Colors.blue
+            : i == 1
+                ? Colors.orange
+                : i == 2
+                    ? Colors.purple
+                    : i == 3
+                        ? Colors.green
+                        : i == 4
+                            ? Colors.red
+                            : i == 5
+                                ? Colors.red
+                                : i == 6
+                                    ? Colors.green
+                                    : Colors.grey;
+      }
+    }
+    isShowCheckmark = orderStatusColor == Colors.green ? true : false;
+    orderStatusIcon = orderStatusColor == Colors.green
+        ? Icons.check_circle
+        : orderStatusColor == Colors.red
+            ? Icons.cancel
+            : Icons.info;
     return Card(
-      child: ListTile(
-        minTileHeight: MediaQuery.of(context).size.height * 0.22,
-        leading: Image.network(
-          "httpss://ouch-cdn2.icons8.com/nFPSNor92kar56WmrwhLSu3nBL_9a83B372724enXVE/rs:fit:368:368/czM6Ly9pY29uczgu/b3VjaC1wcm9kLmFz/c2V0cy9wbmcvOTU2/L2NlNTgxZTA4LTk3/NDEtNDE3Yi1iMTFh/LTdjYTdlZjZiNDFm/ZC5wbmc.png",
-          width: 50,
-          height: 50,
-          errorBuilder: (context, error, stackTrace) {
-            return const CircularProgressIndicator(
-              color: Colors.grey,
-            );
-          },
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) {
-              return child;
-            } else {
-              return const CircularProgressIndicator();
-            }
-          },
-        ),
-        subtitle: Row(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Date: \t\t\t${order.orderDate}"),
-                Text("Quantity: \t\t\t${order.quantity}"),
-                Text(
-                    "Total: ${(order.orderTotal * order.quantity).toStringAsFixed(2)}"),
-                const SizedBox(
-                  height: 5,
-                ),
-                const Text(
-                  "Delivery Status",
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-                ChoiceChip.elevated(
-                  label: Text(order.orderStatus),
-                  selected: true,
-                  showCheckmark: false,
-                  avatar: const Icon(CupertinoIcons.app),
-                ),
-              ],
-            ),
-          ],
-        ),
-        trailing: const ChoiceChip.elevated(
-          label: Text(
-            "Paid",
-            selectionColor: Colors.white,
+      child: Center(
+        heightFactor: 1.5,
+        child: ListTile(
+          leading: Icon(
+            orderStatusIcon,
+            color: orderStatusColor,
           ),
-          selected: true,
-          backgroundColor: Colors.green,
-          selectedColor: Colors.green,
-          showCheckmark: true,
-          avatar: Icon(
-            Icons.check_circle,
-            color: Colors.white,
+          subtitle: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Date: \t\t\t${order.orderDate}"),
+              Text("Quantity: \t\t\t${order.quantity}"),
+              Text(
+                  "Total: ${(order.orderTotal * order.quantity).toStringAsFixed(2)}"),
+              const SizedBox(
+                height: 5,
+              ),
+            ],
+          ),
+          trailing: Flexible(
+            flex: 2,
+            fit: FlexFit.loose,
+            child: ChoiceChip.elevated(
+              label: Text(order.orderStatus),
+              selected: true,
+              showCheckmark: isShowCheckmark,
+              selectedColor: orderStatusColor,
+              avatar: const Icon(CupertinoIcons.app),
+            ),
           ),
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smartshop/database/database_operations.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/user.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,7 +12,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   //get the email, username  from the hive box
-  final DatabaseHelper databaseHelper = DatabaseHelper();
+  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
 
   //fetch the user data for the logged in user
   Future<User?> _getUserData() async {

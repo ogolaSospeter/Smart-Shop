@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:smartshop/models/category.dart';
@@ -10,7 +12,6 @@ class CategoryWidget extends StatefulWidget {
   const CategoryWidget({super.key, required this.category});
 
   @override
-  // ignore: library_private_types_in_public_api
   _CategoryWidgetState createState() => _CategoryWidgetState();
 }
 
@@ -79,6 +80,7 @@ class ProductCards extends StatelessWidget {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) {
+              print("Checking out to the product page for product $product");
               return ProductPage(product: product);
             },
             transitionsBuilder:
@@ -190,7 +192,7 @@ class HotDealsCards extends StatelessWidget {
         height: MediaQuery.of(context).size.height * 0.315,
         width: 190,
         child: Card(
-          color: Colors.deepPurpleAccent,
+          color: Colors.white60,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

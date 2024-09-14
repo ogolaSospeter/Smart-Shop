@@ -1,0 +1,25 @@
+{
+    "project_info": {
+        "project_number": "279011276775",
+        "project_id": "smartshop-f17e0",
+        "storage_bucket": "smartshop-f17e0.appspot.com"
+    },
+    "client": [{
+        "client_info": {
+            "mobilesdk_app_id": "1:279011276775:android:3a4149107e3c75ff0eef42",
+            "android_client_info": {
+                "package_name": "dev.flutter.smartshop"
+            }
+        },
+        "oauth_client": [],
+        "api_key": [{
+            "current_key": "AIzaSyDSS8vi28MnP6vA6B121XJBa-G5hQPdINE"
+        }],
+        "services": {
+            "appinvite_service": {
+                "other_platform_oauth_client": []
+            }
+        }
+    }],
+    "configuration_version": "1"
+}
