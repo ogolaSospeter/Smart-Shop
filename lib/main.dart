@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartshop/config/routes.dart';
+import 'package:smartshop/models/database_products.dart';
+import 'package:smartshop/reusables/database_init.dart';
 import 'package:smartshop/themes/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -8,6 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
+    // initializeDatabase(database_products);
   } catch (e) {
     print('Error: $e');
   }
