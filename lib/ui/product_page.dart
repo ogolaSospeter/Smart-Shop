@@ -24,18 +24,13 @@ class _ProductPageState extends State<ProductPage> {
   //Get the product data from the database
   Future<Product?> _getProductData() async {
     print("The product id is ${widget.product.id}");
-    return await dbHelper.getProductById(widget.product.id);
+    final product = await dbHelper.getProductById(widget.product.id);
+    return product;
   }
 
   @override
   Widget build(BuildContext context) {
-    //Print the product fetched from the database
-    print("The product is ${widget.product}");
-    //Have a try-catch block to catch any errors that occur from the _getProductData() method
     try {
-      _getProductData();
-      print("Product data fetched successfully");
-
       return Scaffold(
         appBar: AppBar(
           leading: GestureDetector(

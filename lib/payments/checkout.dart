@@ -492,6 +492,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
   final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
   var orderItems = <Orders>[];
   var synchronizedCartItems = <Orders>[]; // Final cart items after checks
+  final TextEditingController _controllerPhone = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -557,7 +558,6 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
 
   // Handle the checkout flow
   Future<void> _handleCheckout() async {
-    Navigator.pop(context);
     var snapshot = await widget._getUserData();
     if (snapshot != null) {
       var user = snapshot.email;
@@ -570,6 +570,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
         orderItems.add(Orders(
           orderId: DateTime.now().millisecondsSinceEpoch,
           orderDate: formattedDate,
+          orderPhone: '',
           orderTotal: double.parse(price.toStringAsFixed(2)),
           orderStatus: "Ordered",
           itemId: item.id,
@@ -586,6 +587,8 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
         // Alert for re-order confirmation
         _showReOrderDialog(matchedList);
       } else {
+        synchronizedCartItems.addAll(orderItems);
+        Navigator.pop(context);
         // Proceed with payment initiation (No previous orders matched)
         _initiatePayment();
       }
@@ -649,7 +652,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
       builder: (context) {
         return AlertDialog(
           title: const Text(
-            "Enter your phone number to proceed\nUse the format 2547XXXXXXXX",
+            "Enter your phone number to proceed.\nUse format 2547XXXXXXXX",
             style: TextStyle(
               fontSize: 15,
             ),
@@ -659,7 +662,6 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
             keyboardType: TextInputType.phone,
             textAlign: TextAlign.center,
             onChanged: (value) {
-              //get the phone number from the text field
               phone = value;
             },
           ),
@@ -672,39 +674,61 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
             ),
             TextButton(
               onPressed: () {
-                _launchMpesaCheckout(phone);
+                var message = '';
+                if (phone.substring(0, 3) != "254" ||
+                    phone.length < 12 ||
+                    phone.length > 12) {
+                  if (phone.substring(0, 3) != "254") {
+                    message = "Use the Correct format of 2547XXXXXXXX";
+                  }
+                  if (phone.length < 12 || phone.length > 12) {
+                    message =
+                        "The Phone Number must be 12 characters in length Only!";
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        message,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  );
+                  print(phone.length);
+                  _initiatePayment();
+                } else {
+                  _launchMpesaCheckout(phone, context);
+                }
               },
               child: const Text("Confirm"),
             ),
           ],
         );
-        // return AlertDialog(
-        //   title: const Text("Enter Phone Number"),
-        //   content: TextField(
-        //     keyboardType: TextInputType.phone,
-        //     decoration: const InputDecoration(
-        //         hintText: "Enter phone number in format 2547XXXXXXXX"),
-        //     onSubmitted: (phoneNumber) {
-        //       // Proceed with Mpesa payment using phone number
-        //       Navigator.pop(context);
-        //       _launchMpesaCheckout(phoneNumber);
-        //     },
-        //   ),
-        // );
       },
     );
   }
 
   // Mockup method for launching Mpesa Checkout
-  void _launchMpesaCheckout(String phoneNumber) {
+  void _launchMpesaCheckout(String phoneNumber, BuildContext context) {
     // Trigger Mpesa payment with synchronizedCartItems
     print(
         "Mpesa payment initiated for $phoneNumber with items: $synchronizedCartItems");
     final totalPrice = widget.totalPrice;
-    MpesaConfirmationDialog(
-        cartItems: synchronizedCartItems,
-        totalPrice: totalPrice,
-        phone: phoneNumber);
+    // Ensure you are calling this function at the right point
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return MpesaConfirmationDialog(
+          cartItems: synchronizedCartItems, // Pass the updated cart items
+          totalPrice: totalPrice, // Pass the total price
+          phone: phoneNumber, // Pass the phone number
+        );
+      },
+    );
+
+    //   MpesaConfirmationDialog(
+    //       cartItems: synchronizedCartItems,
+    //       totalPrice: totalPrice,
+    //       phone: phoneNumber);
   }
 }
 
@@ -843,6 +867,7 @@ class MpesaConfirmationDialog extends StatelessWidget {
                             onPressed: () {
                               //delete the items from the cart
                               for (Orders item in cartItems) {
+                                item.orderPhone = phone;
                                 databaseHelper.insertOrder(item);
                                 databaseHelper.deleteProductFromCart(
                                     item.itemId.toString());

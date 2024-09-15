@@ -190,8 +190,7 @@ class OrderCard extends StatelessWidget {
             children: [
               Text("Date: \t\t\t${order.orderDate}"),
               Text("Quantity: \t\t\t${order.quantity}"),
-              Text(
-                  "Total: ${(order.orderTotal * order.quantity).toStringAsFixed(2)}"),
+              Text("Total: \$${(order.orderTotal).toStringAsFixed(2)}"),
               const SizedBox(
                 height: 5,
               ),

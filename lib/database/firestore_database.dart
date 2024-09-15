@@ -288,6 +288,7 @@ class FirestoreDatabaseHelper {
     await _firestore.collection('orders').add({
       'orderId': DateTime.now().microsecondsSinceEpoch,
       'orderDate': order.orderDate,
+      'orderPhone': order.orderPhone,
       'orderStatus': order.orderStatus,
       'orderTotal': order.orderTotal,
       'itemId': order.itemId,
@@ -307,6 +308,7 @@ class FirestoreDatabaseHelper {
       return Orders(
         orderId: data['orderId'],
         orderDate: data['orderDate'],
+        orderPhone: data['orderPhone'],
         orderStatus: data['orderStatus'],
         orderTotal: data['orderTotal'],
         itemId: data['itemId'],
@@ -394,7 +396,7 @@ class FirestoreDatabaseHelper {
         .where('id', isEqualTo: id)
         .get();
     if (docSnapshot.docs.isNotEmpty) {
-      var data = docSnapshot.docs.first as Map<String, dynamic>;
+      var data = docSnapshot.docs.first.data();
       return Product(
         id: data['id'],
         name: data['name'],
@@ -426,6 +428,7 @@ class FirestoreDatabaseHelper {
       return Orders(
         orderId: data['orderId'],
         orderDate: data['orderDate'],
+        orderPhone: data['orderPhone'],
         orderStatus: data['orderStatus'],
         orderTotal: data['orderTotal'],
         itemId: data['itemId'],
@@ -471,6 +474,7 @@ class FirestoreDatabaseHelper {
       return Orders(
         orderId: 0,
         orderDate: data['orderDate'],
+        orderPhone: data['orderPhone'],
         orderStatus: data['orderStatus'],
         orderTotal: data['orderTotal'],
         itemId: data['itemId'],
@@ -504,6 +508,7 @@ class FirestoreDatabaseHelper {
       return Orders(
         orderId: data['orderId'],
         orderDate: data['orderDate'],
+        orderPhone: data['orderPhone'],
         orderStatus: data['orderStatus'],
         orderTotal: data['orderTotal'],
         itemId: data['itemId'],
@@ -524,6 +529,7 @@ class FirestoreDatabaseHelper {
       return Orders(
         orderId: data['orderId'],
         orderDate: data['orderDate'],
+        orderPhone: data['orderPhone'],
         orderStatus: data['orderStatus'],
         orderTotal: data['orderTotal'],
         itemId: data['itemId'],
@@ -546,6 +552,7 @@ class FirestoreDatabaseHelper {
       return Orders(
         orderId: data['orderId'],
         orderDate: data['orderDate'],
+        orderPhone: data['orderPhone'],
         orderStatus: data['orderStatus'],
         orderTotal: data['orderTotal'],
         itemId: data['itemId'],

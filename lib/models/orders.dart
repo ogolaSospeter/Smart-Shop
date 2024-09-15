@@ -1,6 +1,7 @@
 class Orders {
   final int orderId;
   final String orderDate;
+  String orderPhone;
   String orderStatus;
   final double orderTotal;
   final String itemId;
@@ -10,6 +11,7 @@ class Orders {
   Orders(
       {required this.orderId,
       required this.orderDate,
+      required this.orderPhone,
       required this.orderStatus,
       required this.orderTotal,
       required this.itemId,

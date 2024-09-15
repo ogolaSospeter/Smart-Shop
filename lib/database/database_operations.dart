@@ -475,6 +475,7 @@ class DatabaseHelper {
       return Orders(
         orderId: maps[i]['id'] as int,
         orderDate: maps[i]['orderDate'] as String,
+        orderPhone: maps[i]['orderPhone'] as String,
         orderStatus: maps[i]['orderStatus'] as String,
         orderTotal: maps[i]['orderTotal'] as double,
         itemId: maps[i]['itemId'],
@@ -495,6 +496,7 @@ class DatabaseHelper {
       return Orders(
         orderId: maps[i]['id'] as int,
         orderDate: maps[i]['orderDate'] as String,
+        orderPhone: maps[i]['orderPhone'] as String,
         orderStatus: maps[i]['orderStatus'] as String,
         orderTotal: maps[i]['orderTotal'] as double,
         itemId: maps[i]['itemId'],
