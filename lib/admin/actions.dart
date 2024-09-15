@@ -545,7 +545,7 @@ void addNewProduct(BuildContext context) {
           TextButton(
             onPressed: () async {
               var product = Product(
-                id: 00,
+                id: DateTime.now().microsecondsSinceEpoch.toString(),
                 name: productName,
                 category: productCategory,
                 image: productImage,

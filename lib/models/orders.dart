@@ -3,7 +3,7 @@ class Orders {
   final String orderDate;
   String orderStatus;
   final double orderTotal;
-  final int itemId;
+  final String itemId;
   final String custId;
   final int quantity;
 

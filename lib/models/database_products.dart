@@ -5,7 +5,7 @@ import 'package:smartshop/models/product.dart';
 // ignore: non_constant_identifier_names
 final List<Product> database_products = [
   Product(
-    id: 1,
+    id: "1",
     name: 'Jacket',
     category: 'Men',
     image:
@@ -39,7 +39,7 @@ It's the perfect piece for the man who demands performance and sophistication. S
     stocklevel: 20,
   ),
   Product(
-    id: 2,
+    id: "2",
     name: 'White Shirt',
     category: 'Men',
     image:
@@ -72,7 +72,7 @@ Whether you're heading to the office or a night out with friends, this red shirt
     stocklevel: 10,
   ),
   Product(
-    id: 3,
+    id: '3',
     name: 'Blue Shirt',
     category: 'Women',
     image: 'https://img.icons8.com/?size=100&id=10183&format=png&color=228BE6',
@@ -105,7 +105,7 @@ This blue shirt is perfect for the modern man who values quality and style. Pair
     stocklevel: 15,
   ),
   Product(
-    id: 4,
+    id: '4',
     name: 'Black Pants',
     category: 'Men',
     image: 'https://img.icons8.com/?size=100&id=10179&format=png&color=1A1A1A',
@@ -130,7 +130,7 @@ Experience ultimate comfort and style with these versatile Black Pants, a must-h
     stocklevel: 5,
   ),
   Product(
-    id: 5,
+    id: '5',
     name: 'Red summer dress',
     category: 'Women',
     image:
@@ -160,7 +160,7 @@ Embrace the essence of summer with this versatile piece that can be dressed up w
     stocklevel: 10,
   ),
   Product(
-    id: 6,
+    id: '6',
     name: 'Blue Suit',
     category: 'Women',
     image:
@@ -186,7 +186,7 @@ Elevate your professional wardrobe with our stunning Blue Suit designed for wome
     stocklevel: 12,
   ),
   Product(
-    id: 7,
+    id: '7',
     name: 'Hoody',
     category: 'Unisex',
     image:
@@ -212,7 +212,7 @@ Step up your style game with our versatile unisex Hoody, designed to keep you lo
     stocklevel: 3,
   ),
   Product(
-    id: 8,
+    id: '8',
     name: 'Jumper',
     category: 'Unisex',
     image:
@@ -238,7 +238,7 @@ Elevate your style and comfort with our versatile unisex jumper, designed to mee
     stocklevel: 7,
   ),
   Product(
-    id: 9,
+    id: '9',
     name: 'Shorts',
     category: 'Men',
     image:
@@ -264,7 +264,7 @@ Elevate your style game with these versatile men's shorts that seamlessly transi
     stocklevel: 45,
   ),
   Product(
-    id: 10,
+    id: '10',
     name: 'Loafers',
     category: 'Shoes',
     image:
@@ -290,7 +290,7 @@ Elevate your formal attire with these sophisticated Men's Official Loafers. Craf
     stocklevel: 76,
   ),
   Product(
-    id: 11,
+    id: '11',
     name: 'Sneakers',
     category: 'Shoes',
     image:
@@ -316,7 +316,7 @@ Step up your shoe game with these sleek men's official sneakers. Crafted with pr
     stocklevel: 34,
   ),
   Product(
-    id: 12,
+    id: '12',
     name: 'Safari Boots',
     category: 'Shoes',
     image:
@@ -342,7 +342,7 @@ Step into the wild with our versatile safari boots, designed to keep you stylish
     stocklevel: 23,
   ),
   Product(
-    id: 13,
+    id: '13',
     name: 'Vest InnerWear',
     category: 'Men',
     image:
@@ -368,7 +368,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 56,
   ),
   Product(
-    id: 14,
+    id: '14',
     name: 'White Shirt',
     category: 'Men',
     image:
@@ -393,7 +393,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 23,
   ),
   Product(
-    id: 15,
+    id: '15',
     name: 'Skirt',
     category: 'Women',
     image:
@@ -418,7 +418,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 17,
   ),
   Product(
-    id: 16,
+    id: '16',
     name: 'Black & Red Checked Dress',
     category: 'Women',
     image:
@@ -443,7 +443,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 8,
   ),
   Product(
-    id: 17,
+    id: '17',
     name: 'White T-Shirt',
     category: 'Men',
     image:
@@ -468,7 +468,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 22,
   ),
   Product(
-    id: 18,
+    id: '18',
     name: 'Nike Air Max 200',
     price: 240.00,
     discount: 13.3,
@@ -492,7 +492,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 56,
   ),
   Product(
-    id: 19,
+    id: '19',
     name: 'Nike Air Max 97',
     price: 220.00,
     discount: 10.2,
@@ -517,7 +517,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 43,
   ),
   Product(
-    id: 20,
+    id: '20',
     name: 'Nike Air Max Pro 200',
     price: 240.00,
     discount: 13.8,
@@ -542,7 +542,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 6,
   ),
   Product(
-    id: 21,
+    id: '21',
     name: 'Nike Air Max 97',
     price: 130.00,
     discount: 7.8,
@@ -567,7 +567,7 @@ Enhance your everyday comfort with the Vest InnerWear for men. Crafted with prem
     stocklevel: 44,
   ),
   Product(
-    id: 22,
+    id: '22',
     name: 'Nike Air Max 92607',
     price: 99.00,
     discount: 1.2,

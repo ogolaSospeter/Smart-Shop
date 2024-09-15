@@ -109,7 +109,7 @@ class ShoppingCartPage extends StatefulWidget {
 
 class _ShoppingCartPageState extends State<ShoppingCartPage> {
   List<Product> cartItems = [];
-  Map<int, int> itemQuantities = {};
+  Map<String, int> itemQuantities = {};
   int totalItems = 0;
   double totalPrice = 0;
 
@@ -140,14 +140,14 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
     });
   }
 
-  void _updateItemQuantity(int productId, int newQuantity) {
+  void _updateItemQuantity(String productId, int newQuantity) {
     setState(() {
       itemQuantities[productId] = newQuantity;
       _updateTotal();
     });
   }
 
-  void _removeItem(int productId) {
+  void _removeItem(String productId) {
     setState(() {
       cartItems.removeWhere((item) => item.id == productId);
       itemQuantities.remove(productId);
@@ -475,8 +475,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 class CartItem extends StatefulWidget {
   final Product product;
   final int quantity;
-  final Function(int, int) onQuantityChanged;
-  final Function(int) onRemove;
+  final Function(String, int) onQuantityChanged;
+  final Function(String) onRemove;
 
   const CartItem({
     super.key,

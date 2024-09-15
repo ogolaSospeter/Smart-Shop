@@ -259,7 +259,7 @@ class DatabaseHelper {
 
     return List.generate(maps.length, (i) {
       return Product(
-        id: maps[i]['id'] as int,
+        id: maps[i]['id'],
         name: maps[i]['name'] as String,
         category: maps[i]['category'] as String,
         image: maps[i]['image'] as String,
@@ -294,7 +294,7 @@ class DatabaseHelper {
     if (maps.isNotEmpty) {
       final map = maps[0];
       return Product(
-        id: map['id'] as int,
+        id: map['id'],
         name: map['name'] as String,
         category: map['category'] as String,
         image: map['image'] as String,
@@ -352,7 +352,7 @@ class DatabaseHelper {
 
     return List.generate(maps.length, (i) {
       return Product(
-        id: maps[i]['id'] as int,
+        id: maps[i]['id'],
         name: maps[i]['name'] as String,
         category: maps[i]['category'] as String,
         image: maps[i]['image'] as String,
@@ -397,7 +397,7 @@ class DatabaseHelper {
 
     return List.generate(maps.length, (i) {
       return Product(
-        id: maps[i]['id'] as int,
+        id: maps[i]['id'],
         name: maps[i]['name'] as String,
         category: maps[i]['category'] as String,
         image: maps[i]['image'] as String,
@@ -477,7 +477,7 @@ class DatabaseHelper {
         orderDate: maps[i]['orderDate'] as String,
         orderStatus: maps[i]['orderStatus'] as String,
         orderTotal: maps[i]['orderTotal'] as double,
-        itemId: maps[i]['itemId'] as int,
+        itemId: maps[i]['itemId'],
         custId: maps[i]['custId'] as String,
         quantity: maps[i]['quantity'] as int,
       );
@@ -497,7 +497,7 @@ class DatabaseHelper {
         orderDate: maps[i]['orderDate'] as String,
         orderStatus: maps[i]['orderStatus'] as String,
         orderTotal: maps[i]['orderTotal'] as double,
-        itemId: maps[i]['itemId'] as int,
+        itemId: maps[i]['itemId'],
         custId: maps[i]['custId'] as String,
         quantity: maps[i]['quantity'] as int,
       );

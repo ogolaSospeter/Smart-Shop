@@ -23,128 +23,169 @@ class _ProductPageState extends State<ProductPage> {
 
   //Get the product data from the database
   Future<Product?> _getProductData() async {
-    return await dbHelper.getProductById(widget.product.id.toString());
+    print("The product id is ${widget.product.id}");
+    return await dbHelper.getProductById(widget.product.id);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () {
-            // Transition back to the home page with a scale-out effect
-            Navigator.of(context).pop(
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) {
-                  return const Home();
+    //Print the product fetched from the database
+    print("The product is ${widget.product}");
+    //Have a try-catch block to catch any errors that occur from the _getProductData() method
+    try {
+      _getProductData();
+      print("Product data fetched successfully");
+
+      return Scaffold(
+        appBar: AppBar(
+          leading: GestureDetector(
+            onTap: () {
+              // Transition back to the home page with a scale-out effect
+              Navigator.of(context).pop(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) {
+                    return const Home();
+                  },
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    final curvedAnimation = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOut,
+                    );
+                    return ScaleTransition(
+                      scale: Tween<double>(begin: 1.0, end: 0.0)
+                          .animate(curvedAnimation),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(seconds: 3),
+                ),
+              );
+            },
+            child: const Icon(Icons.arrow_back),
+          ),
+          actions: [
+            //add the favorite icon
+            IconButton(
+              onPressed: () async {
+                isFavorite = !isFavorite;
+                await dbHelper.updateProductLike(widget.product.id, isFavorite);
+              },
+              icon: isFavorite
+                  ? const Icon(
+                      Icons.favorite,
+                      color: Colors.red,
+                      size: 30,
+                    )
+                  : const Icon(
+                      Icons.favorite_border,
+                      color: Colors.deepPurple,
+                      size: 30,
+                    ),
+            ),
+          ],
+          scrolledUnderElevation: 1.2,
+          backgroundColor: Colors.white,
+        ),
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
+            child: Center(
+              child: FutureBuilder(
+                future: _getProductData(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else {
+                    final product = snapshot.data as Product;
+                    return ProductDetails(product: product);
+                  }
                 },
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  final curvedAnimation = CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOut,
-                  );
-                  return ScaleTransition(
-                    scale: Tween<double>(begin: 1.0, end: 0.0)
-                        .animate(curvedAnimation),
-                    child: child,
-                  );
-                },
-                transitionDuration: const Duration(seconds: 3),
+              ),
+            ),
+          ),
+        ),
+        //add a floating action button with the cart icon
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            //add the product to the cart
+            final isInCart = await dbHelper.isProductInCart(widget.product.id);
+            var snackBarText = '';
+
+            var snackBarColor = Colors.green;
+            if (!isInCart) {
+              await dbHelper.updateCartProduct(widget.product.id, true);
+              snackBarText = 'Product added to cart successfully!';
+            } else {
+              snackBarText = 'Product Already in cart!';
+              snackBarColor = Colors.red;
+            }
+            //show a snackbar with a success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  snackBarText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontFamily: "Poppins",
+                  ),
+                ),
+                backgroundColor: snackBarColor,
+                duration: const Duration(seconds: 2),
+                elevation: 7,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                animation: CurvedAnimation(
+                  parent: const AlwaysStoppedAnimation(1.0),
+                  curve: Curves.easeInOutBack,
+                ),
               ),
             );
           },
-          child: const Icon(Icons.arrow_back),
-        ),
-        actions: [
-          //add the favorite icon
-          IconButton(
-            onPressed: () async {
-              isFavorite = !isFavorite;
-              await dbHelper.updateProductLike(widget.product.id, isFavorite);
-            },
-            icon: isFavorite
-                ? const Icon(
-                    Icons.favorite,
-                    color: Colors.red,
-                    size: 30,
-                  )
-                : const Icon(
-                    Icons.favorite_border,
-                    color: Colors.deepPurple,
-                    size: 30,
-                  ),
-          ),
-        ],
-        scrolledUnderElevation: 1.2,
-        backgroundColor: Colors.white,
-      ),
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
-          child: Center(
-            child: FutureBuilder(
-              future: _getProductData(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else {
-                  final product = snapshot.data as Product;
-                  return ProductDetails(product: product);
-                }
-              },
-            ),
+          backgroundColor: Colors.deepPurple,
+          child: const Icon(
+            Icons.shopping_cart,
+            color: Colors.white,
           ),
         ),
-      ),
-      //add a floating action button with the cart icon
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          //add the product to the cart
-          final isInCart = await dbHelper.isProductInCart(widget.product.id);
-          var snackBarText = '';
-
-          var snackBarColor = Colors.green;
-          if (!isInCart) {
-            await dbHelper.updateCartProduct(widget.product.id, true);
-            snackBarText = 'Product added to cart successfully!';
-          } else {
-            snackBarText = 'Product Already in cart!';
-            snackBarColor = Colors.red;
-          }
-          //show a snackbar with a success message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                snackBarText,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
+      );
+    } catch (e) {
+      print("Error fetching product data: $e");
+      return const Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              SizedBox(
+                height: 15,
+              ),
+              Icon(
+                Icons.error,
+                color: Colors.red,
+                size: 50,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "Error fetching product data",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 20,
                   fontFamily: "Poppins",
                 ),
               ),
-              backgroundColor: snackBarColor,
-              duration: const Duration(seconds: 2),
-              elevation: 7,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              animation: CurvedAnimation(
-                parent: const AlwaysStoppedAnimation(1.0),
-                curve: Curves.easeInOutBack,
-              ),
-            ),
-          );
-        },
-        backgroundColor: Colors.deepPurple,
-        child: const Icon(
-          Icons.shopping_cart,
-          color: Colors.white,
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
 

@@ -112,11 +112,11 @@ class _SignInState extends State<SignIn> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Padding(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 25,
                           vertical: 15,
                         ),
-                        child: const Column(
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           mainAxisSize: MainAxisSize.max,
                           children: [

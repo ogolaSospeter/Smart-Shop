@@ -2,37 +2,6 @@
 
 // ignore_for_file: use_build_context_synchronously, non_constant_identifier_names
 
-import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:mpesa_flutter_plugin/mpesa_flutter_plugin.dart';
-import 'package:smartshop/database/firestore_database.dart';
-import 'package:smartshop/models/orders.dart';
-import 'package:smartshop/models/product.dart';
-import 'package:smartshop/models/user.dart';
-
-class CheckoutWidget extends StatefulWidget {
-  CheckoutWidget(
-      {super.key,
-      required this.cartItems,
-      required this.totalPrice,
-      required this.itemQuantities});
-
-  final List<Product> cartItems;
-  final double totalPrice;
-  final Map<int, int> itemQuantities;
-  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
-
-  //get the user data for the logged in user
-  Future<User?> _getUserData() async {
-    return await databaseHelper.getLoggedInUser();
-  }
-
-  @override
-  State<CheckoutWidget> createState() => _CheckoutWidgetState();
-}
-
 // class _CheckoutWidgetState extends State<CheckoutWidget> {
 //   final DatabaseHelper databaseHelper = DatabaseHelper();
 //   var orderItems = <Orders>[];
@@ -488,6 +457,36 @@ class CheckoutWidget extends StatefulWidget {
 //     );
 //   }
 // }
+import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mpesa_flutter_plugin/mpesa_flutter_plugin.dart';
+import 'package:smartshop/database/firestore_database.dart';
+import 'package:smartshop/models/orders.dart';
+import 'package:smartshop/models/product.dart';
+import 'package:smartshop/models/user.dart';
+
+class CheckoutWidget extends StatefulWidget {
+  CheckoutWidget(
+      {super.key,
+      required this.cartItems,
+      required this.totalPrice,
+      required this.itemQuantities});
+
+  final List<Product> cartItems;
+  final double totalPrice;
+  final Map<String, int> itemQuantities;
+  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
+
+  //get the user data for the logged in user
+  Future<User?> _getUserData() async {
+    return await databaseHelper.getLoggedInUser();
+  }
+
+  @override
+  State<CheckoutWidget> createState() => _CheckoutWidgetState();
+}
 
 class _CheckoutWidgetState extends State<CheckoutWidget> {
   final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
@@ -845,8 +844,8 @@ class MpesaConfirmationDialog extends StatelessWidget {
                               //delete the items from the cart
                               for (Orders item in cartItems) {
                                 databaseHelper.insertOrder(item);
-                                databaseHelper
-                                    .deleteProductFromCart(item.itemId);
+                                databaseHelper.deleteProductFromCart(
+                                    item.itemId.toString());
                               }
                               Navigator.pop(
                                   context); // Close the success dialog

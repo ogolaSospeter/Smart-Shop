@@ -10,7 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
-    // initializeDatabase(database_products);
+    initializeDatabase(database_products);
   } catch (e) {
     print('Error: $e');
   }

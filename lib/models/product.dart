@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class Product {
-  int id;
+  String id;
   String name;
   String category;
   String image;

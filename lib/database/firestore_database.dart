@@ -118,7 +118,7 @@ class FirestoreDatabaseHelper {
   // CRUD operations for Products
   Future<void> insertProduct(Product product) async {
     await _firestore.collection('products').add({
-      'id': DateTime.now().microsecondsSinceEpoch,
+      'id': DateTime.now().microsecondsSinceEpoch.toString(),
       'name': product.name,
       'category': product.category,
       'image': product.image,
@@ -249,7 +249,7 @@ class FirestoreDatabaseHelper {
   }
 
   // Update the isSelected field of the product
-  Future<void> updateProductSelection(int id, bool isCart) async {
+  Future<void> updateProductSelection(String id, bool isCart) async {
     var querySnapshot = await _firestore
         .collection('products')
         .where('id', isEqualTo: id)
@@ -264,7 +264,7 @@ class FirestoreDatabaseHelper {
   }
 
   // Update the isLiked field of the product
-  Future<void> updateProductLike(int id, bool isLiked) async {
+  Future<void> updateProductLike(String id, bool isLiked) async {
     var querySnapshot = await _firestore
         .collection('products')
         .where('id', isEqualTo: id)
@@ -279,7 +279,7 @@ class FirestoreDatabaseHelper {
   }
 
   // Delete the product from the shopping cart by setting isSelected = 0
-  Future<void> deleteProductFromCart(int id) async {
+  Future<void> deleteProductFromCart(String id) async {
     await updateProductSelection(id, false);
   }
 
@@ -358,7 +358,7 @@ class FirestoreDatabaseHelper {
   }
 
   // Update the Product quantity
-  Future<void> updateProductQuantity(int id, int quantity) async {
+  Future<void> updateProductQuantity(String id, int quantity) async {
     var querySnapshot = await _firestore
         .collection('products')
         .where('id', isEqualTo: id)
@@ -373,7 +373,7 @@ class FirestoreDatabaseHelper {
   }
 
   // Update the stock level of the product
-  Future<void> updateProductStockLevel(int id, int stocklevel) async {
+  Future<void> updateProductStockLevel(String id, int stocklevel) async {
     var querySnapshot = await _firestore
         .collection('products')
         .where('id', isEqualTo: id)
@@ -388,10 +388,13 @@ class FirestoreDatabaseHelper {
   }
 
   // Get the product by id
-  Future<Product?> getProductById(String docId) async {
-    var docSnapshot = await _firestore.collection('products').doc(docId).get();
-    if (docSnapshot.exists) {
-      var data = docSnapshot.data() as Map<String, dynamic>;
+  Future<Product?> getProductById(String id) async {
+    var docSnapshot = await _firestore
+        .collection('products')
+        .where('id', isEqualTo: id)
+        .get();
+    if (docSnapshot.docs.isNotEmpty) {
+      var data = docSnapshot.docs.first as Map<String, dynamic>;
       return Product(
         id: data['id'],
         name: data['name'],
@@ -433,7 +436,7 @@ class FirestoreDatabaseHelper {
   }
 
   //isProductinCart
-  Future<bool> isProductInCart(int id) async {
+  Future<bool> isProductInCart(String id) async {
     var querySnapshot = await _firestore
         .collection('products')
         .where('id', isEqualTo: id)
@@ -443,7 +446,7 @@ class FirestoreDatabaseHelper {
   }
 
   //updateCartProduct
-  Future<void> updateCartProduct(int id, bool isCart) async {
+  Future<void> updateCartProduct(String id, bool isCart) async {
     var querySnapshot = await _firestore
         .collection('products')
         .where('id', isEqualTo: id)
