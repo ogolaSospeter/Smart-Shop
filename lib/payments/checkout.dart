@@ -584,6 +584,12 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
       var matchedList = _getMatchedOrders(existingOrdersList);
 
       if (matchedList.isNotEmpty) {
+        //add the unmatched items to the synchronizedCartItems
+        for (var item in orderItems) {
+          if (!matchedList.contains(item)) {
+            synchronizedCartItems.add(item);
+          }
+        }
         // Alert for re-order confirmation
         _showReOrderDialog(matchedList);
       } else {
@@ -609,7 +615,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Confirm Re-order of Items"),
+          title: const Text("Re-order Confirmation"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -617,11 +623,12 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
               ...matchedList.map((order) {
                 var index = matchedList.indexOf(order) + 1;
                 return ListTile(
+                  title: const Expanded(
+                      child: Text("Index\t\t ItemId \t\t Total")),
                   subtitle: Text(
-                      "$index  Order_ID: ${order.orderId} ||  Qty: ${order.quantity} || Total: \$${order.orderTotal.toStringAsFixed(2)}"),
+                      "$index. \t\t${order.itemId} \t\t\$${order.orderTotal}"),
                 );
               }),
-              const Text("Do you want to proceed with the re-order?"),
             ],
           ),
           actions: [
@@ -868,7 +875,48 @@ class MpesaConfirmationDialog extends StatelessWidget {
                               //delete the items from the cart
                               for (Orders item in cartItems) {
                                 item.orderPhone = phone;
+                                try {
+                                  databaseHelper
+                                      .getProductStockLevel(item.itemId)
+                                      .then((stockLevel) {
+                                    if (stockLevel > 5 &&
+                                        item.quantity <= (stockLevel)) {
+                                      var newQuantity =
+                                          stockLevel - item.quantity;
+                                      databaseHelper.updateProductStockLevel(
+                                          item.itemId, newQuantity);
+                                    } else {
+                                      databaseHelper.updateOrderStatus(
+                                          item.orderId, "Out of Stock");
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              "The item ${item.itemId} is currently out of stock. We will notify you once it is stocked."),
+                                          duration: const Duration(seconds: 2),
+                                          elevation: 9,
+                                          behavior: SnackBarBehavior.floating,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          animation: CurvedAnimation(
+                                            parent:
+                                                const AlwaysStoppedAnimation(
+                                                    1.0),
+                                            curve: Curves.easeInOutBack,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  });
+                                } catch (e) {
+                                  print(
+                                      "Error adding re-ordered item to the Orders table: $e");
+                                }
                                 databaseHelper.insertOrder(item);
+                                //update the stock level
+
                                 databaseHelper.deleteProductFromCart(
                                     item.itemId.toString());
                               }

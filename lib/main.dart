@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:smartshop/config/network.dart';
 import 'package:smartshop/config/routes.dart';
 import 'package:smartshop/models/database_products.dart';
 import 'package:smartshop/reusables/database_init.dart';
@@ -10,14 +11,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     await Firebase.initializeApp();
-    initializeDatabase(database_products);
   } catch (e) {
     print('Error: $e');
   }
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeNotifier(),
-      child: const MyApp(),
+      child:
+          await isNetworkAvailable() ? const MyApp() : const ConnectionError(),
     ),
   );
 }
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       routes: Routes.getRoute(),
-      initialRoute: "/",
+      initialRoute: '/',
       debugShowCheckedModeBanner: false,
     );
   }

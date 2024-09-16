@@ -346,32 +346,17 @@ class FirestoreDatabaseHelper {
     }
   }
 
-  // Get Product quantity
-  Future<int> getProductQuantity(int id) async {
+//get Product Stock Level
+  Future<int> getProductStockLevel(String id) async {
     var querySnapshot = await _firestore
         .collection('products')
         .where('id', isEqualTo: id)
         .get();
     if (querySnapshot.docs.isNotEmpty) {
       var data = querySnapshot.docs.first.data();
-      return data['quantity'];
+      return data['stocklevel'];
     }
     return 0;
-  }
-
-  // Update the Product quantity
-  Future<void> updateProductQuantity(String id, int quantity) async {
-    var querySnapshot = await _firestore
-        .collection('products')
-        .where('id', isEqualTo: id)
-        .get();
-    if (querySnapshot.docs.isNotEmpty) {
-      var docId = querySnapshot.docs.first.id;
-      await _firestore
-          .collection('products')
-          .doc(docId)
-          .update({'quantity': quantity});
-    }
   }
 
   // Update the stock level of the product

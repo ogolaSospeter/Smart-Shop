@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:smartshop/admin/actions.dart';
 import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/user.dart';
+import 'package:smartshop/ui/addProduct.dart';
 
 class AdminPage extends StatefulWidget {
   AdminPage({super.key});
@@ -56,8 +57,13 @@ class _AdminPageState extends State<AdminPage> {
       {
         'title': 'Add Product',
         'icon': Icons.add,
-        'action': (context) async {
-          addNewProduct(context);
+        'action': (context) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NewProduct(),
+            ),
+          );
         }
       },
       {'title': 'Update Product', 'icon': Icons.update, 'action': (context) {}},
@@ -83,7 +89,14 @@ class _AdminPageState extends State<AdminPage> {
         'icon': Icons.update,
         'action': (context) {}
       },
-      {'title': 'Cancel Order', 'icon': Icons.cancel, 'action': (context) {}},
+      {
+        'title': 'Cancel Order',
+        'icon': Icons.cancel,
+        'action': (context) async {
+          final orders = await widget.databaseHelper.getOrders();
+          cancelOrder(context, orders);
+        }
+      },
       {'title': 'Refund Order', 'icon': Icons.money, 'action': (context) {}},
     ];
   }

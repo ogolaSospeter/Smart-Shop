@@ -112,14 +112,17 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   Map<String, int> itemQuantities = {};
   int totalItems = 0;
   double totalPrice = 0;
+  var isFetching = false;
 
   @override
   void initState() {
     super.initState();
+
     _calculateCartDetails();
   }
 
   void _calculateCartDetails() async {
+    isFetching = true;
     List<Product> items = await widget.getCartItems();
     setState(() {
       cartItems = items;
@@ -128,6 +131,7 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
       }; // Initialize quantities
       _updateTotal();
     });
+    isFetching = false;
   }
 
   void _updateTotal() {
@@ -149,8 +153,9 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
 
   void _removeItem(String productId) {
     setState(() {
-      cartItems.removeWhere((item) => item.id == productId);
+      widget.db.deleteProductFromCart(productId);
       itemQuantities.remove(productId);
+      _calculateCartDetails();
       _updateTotal();
     });
   }
@@ -451,23 +456,36 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
           // const SizedBox.shrink(),
         ],
       ),
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-          height: AppTheme.fullHeight(context),
-          child: SingleChildScrollView(
-            child: Column(
+      body: isFetching
+          ? const Center(
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _cartItems(),
-                const SizedBox(height: 20),
-                _price(),
-                const SizedBox(height: 30),
-                _submitButton(context),
+                CircularProgressIndicator(
+                  color: Colors.green,
+                ),
+                SizedBox(height: 20),
+                Text("Fetching cart items..."),
               ],
+            ))
+          : SafeArea(
+              child: Container(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                height: AppTheme.fullHeight(context),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _cartItems(),
+                      const SizedBox(height: 20),
+                      _price(),
+                      const SizedBox(height: 30),
+                      _submitButton(context),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

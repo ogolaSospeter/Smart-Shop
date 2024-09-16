@@ -23,14 +23,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Colors.blueAccent,
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 50.0,
-                backgroundImage: AssetImage('assets/jacket.png'),
+                backgroundImage: Image.network(
+                  "https://threedio-cdn.icons8.com/d9A2V6IpoSDmb_AlasKjj2lRPBSh_lwzGA5zDkToOFk/rs:fit:256:256/czM6Ly90aHJlZWRp/by1wcm9kL3ByZXZp/ZXdzLzExNy82M2Qx/NDFiNS04MjQ4LTRi/ZDQtYmQ1Mi1lNWE2/ZmI0NDBjNTMucG5n.png",
+                ).image,
               ),
               FutureBuilder<User?>(
                 future: _getUserData(),

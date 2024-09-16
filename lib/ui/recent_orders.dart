@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/orders.dart';
+import 'package:smartshop/models/product.dart';
 import 'package:smartshop/models/user.dart';
 
 class RecentOrders extends StatefulWidget {
@@ -134,6 +135,15 @@ class _RecentOrdersState extends State<RecentOrders> {
 
 //The Orders card
 class OrderCard extends StatelessWidget {
+  final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
+
+  //Get the product name from the product id
+  Future<String> _getProductName(String productId) async {
+    var product = await databaseHelper.getProductById(productId);
+    var productName = product!.name;
+    return productName;
+  }
+
   final Orders order;
   var orderStatuses = [
     'Ordered',
@@ -143,14 +153,18 @@ class OrderCard extends StatelessWidget {
     'Cancelled',
     'Refund Initiated',
     'Refund Completed',
+    'Out of Stock'
   ];
   OrderCard({super.key, required this.order});
   var orderStatusColor;
   var isShowCheckmark = false;
   var orderStatusIcon;
+  var productName;
 
   @override
   Widget build(BuildContext context) {
+    //get the product name from the future builder
+
     for (var i = 0; i < orderStatuses.length; i++) {
       if (order.orderStatus == orderStatuses[i]) {
         orderStatusColor = i == 0
@@ -167,7 +181,9 @@ class OrderCard extends StatelessWidget {
                                 ? Colors.red
                                 : i == 6
                                     ? Colors.green
-                                    : Colors.grey;
+                                    : i == 7
+                                        ? Colors.yellow
+                                        : Colors.grey;
       }
     }
     isShowCheckmark = orderStatusColor == Colors.green ? true : false;
@@ -188,6 +204,24 @@ class OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              FutureBuilder<String>(
+                future: _getProductName(order.itemId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasData) {
+                      productName = snapshot.data;
+                      return Text("Product: \t$productName");
+                    } else {
+                      return const Text("");
+                    }
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const LinearProgressIndicator();
+                  } else {
+                    return const Text("");
+                  }
+                },
+              ),
               Text("Date: \t\t\t${order.orderDate}"),
               Text("Quantity: \t\t\t${order.quantity}"),
               Text("Total: \$${(order.orderTotal).toStringAsFixed(2)}"),
@@ -200,10 +234,17 @@ class OrderCard extends StatelessWidget {
             flex: 2,
             fit: FlexFit.loose,
             child: ChoiceChip.elevated(
-              label: Text(order.orderStatus),
-              selected: true,
+              label: Text(order.orderStatus,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    decoration: order.orderStatus == orderStatuses[7]
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                  )),
+              selected: false,
               showCheckmark: isShowCheckmark,
-              selectedColor: orderStatusColor,
+              disabledColor: orderStatusColor,
               avatar: const Icon(CupertinoIcons.app),
             ),
           ),
