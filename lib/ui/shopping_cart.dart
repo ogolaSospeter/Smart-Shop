@@ -152,8 +152,8 @@ class _ShoppingCartPageState extends State<ShoppingCartPage> {
   }
 
   void _removeItem(String productId) {
-    setState(() {
-      widget.db.deleteProductFromCart(productId);
+    setState(() async {
+      await widget.db.deleteProductFromCart(productId);
       itemQuantities.remove(productId);
       _calculateCartDetails();
       _updateTotal();

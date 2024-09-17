@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:smartshop/config/network.dart';
 import 'package:smartshop/config/routes.dart';
-import 'package:smartshop/models/database_products.dart';
-import 'package:smartshop/reusables/database_init.dart';
 import 'package:smartshop/themes/theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -17,8 +14,7 @@ void main() async {
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeNotifier(),
-      child:
-          await isNetworkAvailable() ? const MyApp() : const ConnectionError(),
+      child: const MyApp(),
     ),
   );
 }

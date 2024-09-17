@@ -133,9 +133,32 @@ class _HomeState extends State<Home> {
               ),
               ListTile(
                 onTap: () {
+                  //Display a dropdown menu to select either light or dark theme
+                  DropdownButton<String>(
+                    items: const [
+                      DropdownMenuItem(
+                        value: "Light Theme",
+                        child: Text("Light Theme"),
+                      ),
+                      DropdownMenuItem(
+                        value: "Dark Theme",
+                        child: Text("Dark Theme"),
+                      ),
+                    ],
+                    onChanged: (String? value) {
+                      if (value == "Light Theme") {
+                        Provider.of<ThemeNotifier>(context, listen: false)
+                            .setLightMode(true);
+                      } else if (value == "Dark Theme") {
+                        Provider.of<ThemeNotifier>(context, listen: false)
+                            .setDarkMode(true);
+                      }
+                    },
+                  );
+
                   //Toggling the light and dark theme
-                  Provider.of<ThemeNotifier>(context, listen: false)
-                      .toggleTheme();
+                  // Provider.of<ThemeNotifier>(context, listen: false)
+                  //     .toggleTheme();
                 },
                 leading: const Icon(Icons.color_lens),
                 title: const Text("Themes"),

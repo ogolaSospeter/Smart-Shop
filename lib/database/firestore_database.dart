@@ -181,8 +181,39 @@ class FirestoreDatabaseHelper {
       return Categories(
         id: 0,
         name: data['name'],
+        value: data['value'],
         image: data['image'],
         isSelected: data['isSelected'],
+      );
+    }).toList();
+  }
+
+  //get category products
+  Future<List<Product>> getCategoryProducts(String category) async {
+    var querySnapshot = await _firestore
+        .collection('products')
+        .where('category', isEqualTo: category)
+        .get();
+    return querySnapshot.docs.map((doc) {
+      var data = doc.data();
+      return Product(
+        id: data['id'],
+        name: data['name'],
+        category: data['category'],
+        image: data['image'],
+        price: data['price'],
+        discount: data['discount'],
+        sizes: List<String>.from(data['sizes']),
+        colors: List<String>.from(data['colors'])
+            .map((color) => Color(int.parse(color, radix: 16)))
+            .toList(),
+        description: data['description'],
+        rating: data['rating'],
+        isLiked: data['isLiked'],
+        isSelected: data['isSelected'],
+        isCart: data['isCart'],
+        quantity: data['quantity'],
+        stocklevel: data['stocklevel'],
       );
     }).toList();
   }

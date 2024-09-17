@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:smartshop/config/network.dart';
 import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/ui/signUp.dart';
 
@@ -65,12 +67,15 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
                 onEditingComplete: () => _focusNodePassword.requestFocus(),
+                autofocus: false,
                 validator: (String? value) {
                   if (value == null || value.isEmpty) {
                     return "Please enter username.";
                   }
                   return null;
                 },
+                //Only show the keyboard once the user taps the textfield
+                textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 10),
               TextFormField(
@@ -78,6 +83,8 @@ class _SignInState extends State<SignIn> {
                 focusNode: _focusNodePassword,
                 obscureText: _obscurePassword,
                 keyboardType: TextInputType.visiblePassword,
+                //hide the keyboard when the user taps the done button
+                textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   labelText: "Password",
                   prefixIcon: const Icon(Icons.password_outlined),
@@ -106,38 +113,15 @@ class _SignInState extends State<SignIn> {
               ),
               const SizedBox(height: 15),
               isAuthenticating
-                  ? Card(
-                      elevation: 19,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  ? const ListTile(
+                      leading: CircularProgressIndicator(
+                        color: Colors.green,
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 25,
-                          vertical: 15,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Text(
-                              "Authenticating User...",
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontSize: 20,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            SizedBox(
-                                height: 40,
-                                width: 40,
-                                child: CircularProgressIndicator(
-                                  color: Colors.green,
-                                  strokeWidth: 5,
-                                )),
-                          ],
-                        ),
-                      ),
+                      title: Text("Authenticating..."),
+                      selected: true,
+                      selectedColor: Colors.grey,
+                      textColor: Colors.green,
+                      contentPadding: EdgeInsets.all(10),
                     )
                   : Column(
                       children: [
@@ -149,56 +133,112 @@ class _SignInState extends State<SignIn> {
                             ),
                           ),
                           onPressed: () async {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              setState(() {
-                                isAuthenticating = true;
-                              });
-                              try {
-                                //Display a circular progress indicator while the user is being authenticated
+                            var connectivityResult =
+                                await (Connectivity().checkConnectivity());
+                            print(
+                                "The connectivity status:   ${connectivityResult[0]}");
+                            if (connectivityResult[0] ==
+                                ConnectivityResult.none) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return const ConnectionError();
+                                  },
+                                ),
+                              );
+                            } else {
+                              if (_formKey.currentState?.validate() ?? false) {
+                                setState(() {
+                                  isAuthenticating = true;
+                                });
+                                try {
+                                  //Display a circular progress indicator while the user is being authenticated
 
-                                final user =
-                                    await databaseHelper.getUserByUserName(
-                                        _controllerUsername.text);
+                                  final user =
+                                      await databaseHelper.getUserByUserName(
+                                          _controllerUsername.text);
 
-                                if (user != null &&
-                                    user.password == _controllerPassword.text) {
-                                  await databaseHelper.loginUser(user.username);
-                                  //asign the user status to admin or user based on the user.isAdmin value
-                                  final String userStatus =
-                                      user.isAdmin ? "Admin" : "User";
+                                  if (user != null &&
+                                      user.password ==
+                                          _controllerPassword.text) {
+                                    await databaseHelper
+                                        .loginUser(user.username);
+                                    //asign the user status to admin or user based on the user.isAdmin value
+                                    final String userStatus =
+                                        user.isAdmin ? "Admin" : "User";
 
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          '\tLogin Successful. Welcome back $userStatus ${user.username}'),
-                                      backgroundColor: Colors.green,
-                                      duration: const Duration(seconds: 2),
-                                      elevation: 10,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      animation: CurvedAnimation(
-                                        parent:
-                                            const AlwaysStoppedAnimation(1.0),
-                                        curve: Curves.easeInOutBack,
-                                      ),
-                                    ),
-                                  );
-                                  //delay the route for 2 seconds
-                                  Future.delayed(const Duration(seconds: 1),
-                                      () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return const Home();
-                                        },
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            '\tLogin Successful. Welcome back $userStatus ${user.username}'),
+                                        backgroundColor: Colors.green,
+                                        duration: const Duration(seconds: 2),
+                                        elevation: 10,
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        animation: CurvedAnimation(
+                                          parent:
+                                              const AlwaysStoppedAnimation(1.0),
+                                          curve: Curves.easeInOutBack,
+                                        ),
                                       ),
                                     );
-                                  });
-                                } else if (user == null) {
-                                  // User not found
+                                    //delay the route for 2 seconds
+                                    Future.delayed(const Duration(seconds: 1),
+                                        () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return const Home();
+                                          },
+                                        ),
+                                      );
+                                    });
+                                  } else if (user == null) {
+                                    // User not found
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            'User ${_controllerUsername.text} not registered!'),
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 2),
+                                        elevation: 10,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    // Delay and transition to the signup page
+                                    Future.delayed(const Duration(seconds: 1),
+                                        () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) {
+                                            return const Signup();
+                                          },
+                                        ),
+                                      );
+                                    });
+                                    _formKey.currentState?.reset();
+                                  } else {
+                                    // Incorrect username or password
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'Incorrect username or password'),
+                                        duration: Duration(seconds: 2),
+                                        backgroundColor: Colors.redAccent,
+                                        elevation: 10,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    _formKey.currentState?.reset();
+                                  }
+                                } catch (e) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
@@ -209,8 +249,7 @@ class _SignInState extends State<SignIn> {
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
-                                  // Delay and transition to the signup page
-                                  Future.delayed(const Duration(seconds: 1),
+                                  Future.delayed(const Duration(seconds: 2),
                                       () {
                                     Navigator.push(
                                       context,
@@ -222,46 +261,11 @@ class _SignInState extends State<SignIn> {
                                     );
                                   });
                                   _formKey.currentState?.reset();
-                                } else {
-                                  // Incorrect username or password
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Incorrect username or password'),
-                                      duration: Duration(seconds: 2),
-                                      backgroundColor: Colors.redAccent,
-                                      elevation: 10,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                  _formKey.currentState?.reset();
+                                } finally {
+                                  setState(() {
+                                    isAuthenticating = false;
+                                  });
                                 }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'User ${_controllerUsername.text} not registered!'),
-                                    backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 2),
-                                    elevation: 10,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                                Future.delayed(const Duration(seconds: 2), () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) {
-                                        return const Signup();
-                                      },
-                                    ),
-                                  );
-                                });
-                                _formKey.currentState?.reset();
-                              } finally {
-                                setState(() {
-                                  isAuthenticating = false;
-                                });
                               }
                             }
                           },

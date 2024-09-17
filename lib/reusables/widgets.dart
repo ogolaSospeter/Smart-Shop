@@ -1,9 +1,12 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/category.dart';
 import 'package:smartshop/models/product.dart';
+import 'package:smartshop/ui/categoriesPage.dart';
 import 'package:smartshop/ui/product_page.dart';
 
 class CategoryWidget extends StatefulWidget {
@@ -17,7 +20,7 @@ class CategoryWidget extends StatefulWidget {
 
 class _CategoryWidgetState extends State<CategoryWidget> {
   bool isSelected = false;
-
+  var selectedCategoryIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -26,37 +29,37 @@ class _CategoryWidgetState extends State<CategoryWidget> {
           child: GestureDetector(
             onTap: () {
               setState(() {
+                selectedCategoryIndex = widget.category.id;
                 isSelected = !isSelected;
+                //pass the category to the CategoriesPage
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return CategoriesPage(
+                        category: widget.category.value,
+                      );
+                    },
+                  ),
+                );
               });
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isSelected && selectedCategoryIndex == widget.category.id
+                    ? Colors.deepPurple
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: isSelected ? Colors.blue : Colors.grey[200]!,
+                  color:
+                      isSelected && selectedCategoryIndex == widget.category.id
+                          ? Colors.deepPurple
+                          : Colors.grey,
                   width: 2,
                 ),
                 shape: BoxShape.rectangle,
               ),
               child: ListTile(
-                leading: Image.network(
-                  widget.category.image,
-                  height: 25,
-                  width: 25,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const CircularProgressIndicator.adaptive(
-                    backgroundColor: Colors.white,
-                    value: 10,
-                  ),
-                  loadingBuilder: (context, child, loadingProgress) =>
-                      loadingProgress == null
-                          ? child
-                          : const CircularProgressIndicator.adaptive(
-                              backgroundColor: Colors.white,
-                              value: 10,
-                            ),
-                ),
+                leading: widget.category.image,
                 title: Text(widget.category.name),
               ),
             ),

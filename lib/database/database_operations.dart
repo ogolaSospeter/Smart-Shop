@@ -335,6 +335,7 @@ class DatabaseHelper {
       return Categories(
         id: maps[i]['id'] as int,
         name: maps[i]['name'] as String,
+        value: maps[i]['value'] as String,
         image: maps[i]['image'] as String,
         isSelected: maps[i]['isSelected'] == 1,
       );

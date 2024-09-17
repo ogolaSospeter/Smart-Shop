@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/orders.dart';
-import 'package:smartshop/models/product.dart';
 import 'package:smartshop/models/user.dart';
 
 class RecentOrders extends StatefulWidget {

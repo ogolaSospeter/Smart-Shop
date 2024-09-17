@@ -17,30 +17,38 @@ class _MainBodyState extends State<MainBody> {
   List<Product> allProducts = [];
   List<Product> filteredProducts = [];
   final TextEditingController _searchController = TextEditingController();
+  var isFetching = false;
 
 // All products from the database
   Future<List<Product>> _getProducts() async {
+    isFetching = true;
     final products = dbHelper.getProducts();
+    isFetching = false;
     return products;
   }
 
   Future<void> _fetchProducts() async {
+    setState(() {
+      isFetching = true;
+    });
     final products = await dbHelper.getProducts();
     setState(() {
       allProducts = products;
       filteredProducts =
           products; // Initialize filteredProducts with all products
+      isFetching = false;
     });
   }
 
   Future<List<Product>> _getHotDeals() async {
+    setState(() {
+      isFetching = true;
+    });
     final hotDeals = dbHelper.getTopDiscountedProducts();
+    setState(() {
+      isFetching = false;
+    });
     return hotDeals;
-  }
-
-  Future<List<Product>> _getDeals() async {
-    final deals = dbHelper.getTopDiscountedProducts();
-    return deals;
   }
 
   final List<Product> deals = [];
@@ -48,7 +56,7 @@ class _MainBodyState extends State<MainBody> {
   @override
   void initState() {
     super.initState();
-    _getDeals().then((value) {
+    _getHotDeals().then((value) {
       setState(() {
         deals.addAll(value);
       });
@@ -77,6 +85,12 @@ class _MainBodyState extends State<MainBody> {
 
   @override
   Widget build(BuildContext context) {
+    isFetching = false;
+    if (isFetching) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
@@ -161,8 +175,6 @@ class _MainBodyState extends State<MainBody> {
               ),
             ),
             const SizedBox(height: 20),
-            //the categories include Shirts, Trousers, Shoes, Hats, Sneakers, Suits, Dresses, Skirts, and Accessories
-            //use a scrollable row to display the categories
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               reverse: true,

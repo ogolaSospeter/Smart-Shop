@@ -598,36 +598,36 @@ final List<Categories> categories = [
   Categories(
     id: 1,
     name: 'Men Wear',
-    image:
-        'https://www.shutterstock.com/pixelsquid/assets_v2/307/3074989205164660312/jpeg-600/G03.jpg',
+    value: 'Men',
+    image: const Icon(Icons.man),
     isSelected: false,
   ),
   Categories(
     id: 1,
     name: 'Women Wear',
-    image:
-        'https://www.shutterstock.com/pixelsquid/assets_v2/307/3074989205164660312/jpeg-600/G03.jpg',
+    value: 'Women',
+    image: const Icon(Icons.woman),
     isSelected: false,
   ),
   Categories(
     id: 1,
     name: 'FootWear',
-    image:
-        'https://www.shutterstock.com/pixelsquid/assets_v2/307/3074989205164660312/jpeg-600/G03.jpg',
+    value: 'Shoes',
+    image: const Icon(Icons.nordic_walking),
     isSelected: false,
   ),
   Categories(
     id: 1,
     name: 'Belts',
-    image:
-        'https://www.shutterstock.com/pixelsquid/assets_v2/307/3074989205164660312/jpeg-600/G03.jpg',
+    value: 'Belts',
+    image: const Icon(Icons.pattern),
     isSelected: false,
   ),
   Categories(
     id: 1,
-    name: 'Head Wear',
-    image:
-        'https://www.shutterstock.com/pixelsquid/assets_v2/307/3074989205164660312/jpeg-600/G03.jpg',
+    name: 'Unisex',
+    value: 'Unisex',
+    image: const Icon(Icons.group),
     isSelected: false,
   ),
 ];

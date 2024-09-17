@@ -59,4 +59,14 @@ class ThemeNotifier with ChangeNotifier {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
+
+  void setDarkMode(bool value) {
+    _isDarkMode = value;
+    notifyListeners();
+  }
+
+  void setLightMode(bool value) {
+    _isDarkMode = !value;
+    notifyListeners();
+  }
 }
