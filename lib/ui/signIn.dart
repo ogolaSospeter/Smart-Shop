@@ -119,7 +119,7 @@ class _SignInState extends State<SignIn> {
                       ),
                       title: Text("Authenticating..."),
                       selected: true,
-                      selectedColor: Colors.grey,
+                      selectedColor: Colors.green,
                       textColor: Colors.green,
                       contentPadding: EdgeInsets.all(10),
                     )
@@ -135,8 +135,7 @@ class _SignInState extends State<SignIn> {
                           onPressed: () async {
                             var connectivityResult =
                                 await (Connectivity().checkConnectivity());
-                            print(
-                                "The connectivity status:   ${connectivityResult[0]}");
+
                             if (connectivityResult[0] ==
                                 ConnectivityResult.none) {
                               Navigator.push(

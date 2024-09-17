@@ -20,10 +20,10 @@ class ProductPage extends StatefulWidget {
 class _ProductPageState extends State<ProductPage> {
   bool isFavorite = false;
   final FirestoreDatabaseHelper dbHelper = FirestoreDatabaseHelper();
+  var isAddingToCart = false;
 
   //Get the product data from the database
   Future<Product?> _getProductData() async {
-    print("The product id is ${widget.product.id}");
     final product = await dbHelper.getProductById(widget.product.id);
     return product;
   }
@@ -105,6 +105,9 @@ class _ProductPageState extends State<ProductPage> {
         //add a floating action button with the cart icon
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
+            setState(() {
+              isAddingToCart = true;
+            });
             //add the product to the cart
             final isInCart = await dbHelper.isProductInCart(widget.product.id);
             var snackBarText = '';
@@ -112,35 +115,57 @@ class _ProductPageState extends State<ProductPage> {
             var snackBarColor = Colors.green;
             if (!isInCart) {
               await dbHelper.updateCartProduct(widget.product.id, true);
+              isAddingToCart = false;
               snackBarText = 'Product added to cart successfully!';
             } else {
               snackBarText = 'Product Already in cart!';
               snackBarColor = Colors.red;
             }
-            //show a snackbar with a success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  snackBarText,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontFamily: "Poppins",
-                  ),
-                ),
-                backgroundColor: snackBarColor,
-                duration: const Duration(seconds: 2),
-                elevation: 7,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                animation: CurvedAnimation(
-                  parent: const AlwaysStoppedAnimation(1.0),
-                  curve: Curves.easeInOutBack,
-                ),
-              ),
-            );
+            setState(() {
+              isAddingToCart = false;
+            });
+            isAddingToCart
+                ? const Column(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Adding to cart...",
+                        style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontSize: 16,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                    ],
+                  )
+                :
+                //show a snackbar with a success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        snackBarText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: "Poppins",
+                        ),
+                      ),
+                      backgroundColor: snackBarColor,
+                      duration: const Duration(seconds: 2),
+                      elevation: 7,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      animation: CurvedAnimation(
+                        parent: const AlwaysStoppedAnimation(1.0),
+                        curve: Curves.easeInOutBack,
+                      ),
+                    ),
+                  );
           },
           backgroundColor: Colors.deepPurple,
           child: const Icon(
@@ -150,7 +175,6 @@ class _ProductPageState extends State<ProductPage> {
         ),
       );
     } catch (e) {
-      print("Error fetching product data: $e");
       return const Scaffold(
         body: Center(
           child: Column(

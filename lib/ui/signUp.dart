@@ -251,9 +251,6 @@ class _SignupState extends State<Signup> {
                                 authMessage =
                                     "The User has been registered successfully";
 
-                                print(
-                                    "Successfully inserted user: ${user.username}");
-
                                 authMessage =
                                     "Registration Completed Successfully";
 
@@ -278,7 +275,6 @@ class _SignupState extends State<Signup> {
                                 // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                               } catch (e) {
-                                print(e);
                                 authMessage = "Error: $e";
                               } finally {
                                 setState(() {

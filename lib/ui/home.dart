@@ -133,7 +133,6 @@ class _HomeState extends State<Home> {
               ),
               ListTile(
                 onTap: () {
-                  //Display a dropdown menu to select either light or dark theme
                   DropdownButton<String>(
                     items: const [
                       DropdownMenuItem(
@@ -212,13 +211,11 @@ class _HomeState extends State<Home> {
                               content: Text(
                                   "User ${user.username} logged out successfully")),
                         );
-                        print("User ${user.username} logged out");
                       } else {
                         // Show failure message
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("User log out failed")),
                         );
-                        print("User log out failed");
                       }
 
                       // Navigate to the SignIn page after a delay
@@ -231,7 +228,6 @@ class _HomeState extends State<Home> {
                       });
                     } catch (e) {
                       // Handle errors
-                      print("Error during logout: $e");
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content: Text("An error occurred during logout")),

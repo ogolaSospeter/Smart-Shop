@@ -102,7 +102,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return Text(
-                            snapshot.data!.email,
+                            snapshot.data!.isAdmin
+                                ? snapshot.data!.email
+                                : 'ogolaokongo60@gmail.com',
                             style: TextStyle(
                                 fontFamily: 'SourceSansPro',
                                 fontSize: 18,

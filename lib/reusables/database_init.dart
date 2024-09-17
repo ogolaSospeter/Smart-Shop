@@ -9,10 +9,7 @@ Future<int> initializeDatabase(List<Product> productsList) async {
   try {
     for (var product in productsList) {
       await databaseHelper.insertProduct(product);
-      print('Product ${product.name} inserted');
     }
-    print(
-        'Database initialized successfully with a total of ${productsList.length} products');
     results = 1;
   } catch (e) {
     results = 0;

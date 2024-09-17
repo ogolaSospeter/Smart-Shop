@@ -47,10 +47,6 @@ class _RecentOrdersState extends State<RecentOrders> {
               FutureBuilder<List<Orders>>(
                 future: widget._getOrders(),
                 builder: (context, snapshot) {
-                  print(
-                      "Snapshot Connection State: ${snapshot.connectionState}");
-                  print("Snapshot Error: ${snapshot.error}");
-                  print("Snapshot Data: ${snapshot.data}");
                   if (snapshot.connectionState == ConnectionState.done) {
                     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                       return Column(

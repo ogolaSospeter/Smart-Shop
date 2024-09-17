@@ -30,7 +30,11 @@ class _CategoryWidgetState extends State<CategoryWidget> {
             onTap: () {
               setState(() {
                 selectedCategoryIndex = widget.category.id;
-                isSelected = !isSelected;
+                if (selectedCategoryIndex == widget.category.id) {
+                  isSelected = true;
+                } else {
+                  isSelected = false;
+                }
                 //pass the category to the CategoriesPage
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -42,6 +46,7 @@ class _CategoryWidgetState extends State<CategoryWidget> {
                   ),
                 );
               });
+              selectedCategoryIndex = -1;
             },
             child: Container(
               decoration: BoxDecoration(
@@ -83,7 +88,6 @@ class ProductCards extends StatelessWidget {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) {
-              print("Checking out to the product page for product $product");
               return ProductPage(product: product);
             },
             transitionsBuilder:
