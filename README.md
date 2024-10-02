@@ -40,18 +40,25 @@ Contributions are welcome! If you have any suggestions or find issues, feel free
 
 ## Product Screens
 
+<p style="text-align: center; width: 200;">Login Screen</p>
+![Login Screen](assets/images/login.png)
 
-## Product Screens
-## Product Screens
+<p style="text-align: center; width: 200;">Admin Screen</p>
+![Admin Screen](assets/images/admin.png)
 
+
+<p style="text-align: center; width: 200;">Home Screen</p>
 ![Home Screen](assets/images/home.png)
-<p style="text-align: center;">Home Screen</p>
 
+<p style="text-align: center; width: 200;">Product Details</p>
 ![Product Details](assets/images/product.png)
-<p style="text-align: center;">Product Details</p>
 
+<p style="text-align: center; width: 200;">Cart Screen</p>
 ![Cart Screen](assets/images/shop.png)
-<p style="text-align: center;">Cart Screen</p>
+
+<p style="text-align: center; width: 200;">Payment Screen</p>
+![Payment Screen](assets/images/payment.png)
+
 
 <!-- ![Login Screen](<img src="/assets/images/login.png" width="200">) ![Admin Screen](<img src="/assets/images/admin.png" width="200">) ![Payment Screen](<img src="/assets/images/payment.png" width="200">) -->
 <!-- ![Home Screen](<img src="/assets/images/home.png" width="200">) ![Product Details](<img src="/assets/images/product.png" width="200">) ![Cart Screen](<img src="/assets/images/shop.png" width="200">) -->
