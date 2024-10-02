@@ -39,5 +39,5 @@ Contributions are welcome! If you have any suggestions or find issues, feel free
 - Open a pull request
 
 ## Product Screens
-![Login Screen](/assets/images/login.png, width="200") ![Admin Screen](<img src="/assets/images/admin.png" width="200">) ![Payment Screen](/assets/images/payment.png, width="200")
-![Home Screen](/assets/images/home.png, width="200") ![Product Details](/assets/images/product.png, width="200") ![Cart Screen](/assets/images/shop.png, width="200")
+![Login Screen](<img src="/assets/images/login.png" width="200">) ![Admin Screen](<img src="/assets/images/admin.png" width="200">) ![Payment Screen](<img src="/assets/images/payment.png" width="200">)
+![Home Screen](<img src="/assets/images/home.png" width="200">) ![Product Details](<img src="/assets/images/product.png" width="200">) ![Cart Screen](<img src="/assets/images/shop.png" width="200">)
