@@ -39,5 +39,36 @@ Contributions are welcome! If you have any suggestions or find issues, feel free
 - Open a pull request
 
 ## Product Screens
-![Login Screen](<img src="/assets/images/login.png" width="200">) ![Admin Screen](<img src="/assets/images/admin.png" width="200">) ![Payment Screen](<img src="/assets/images/payment.png" width="200">)
-![Home Screen](<img src="/assets/images/home.png" width="200">) ![Product Details](<img src="/assets/images/product.png" width="200">) ![Cart Screen](<img src="/assets/images/shop.png" width="200">)
+
+
+## Product Screens
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+  <div style="text-align: center; margin: 10px;">
+    <img src="/assets/images/login.png" alt="Login Screen" width="200">
+    <p>Login Screen</p>
+  </div>
+  <div style="text-align: center; margin: 10px;">
+    <img src="/assets/images/admin.png" alt="Admin Screen" width="200">
+    <p>Admin Screen</p>
+  </div>
+  <div style="text-align: center; margin: 10px;">
+    <img src="/assets/images/payment.png" alt="Payment Screen" width="200">
+    <p>Payment Screen</p>
+  </div>
+  <div style="text-align: center; margin: 10px;">
+    <img src="/assets/images/home.png" alt="Home Screen" width="200">
+    <p>Home Screen</p>
+  </div>
+  <div style="text-align: center; margin: 10px;">
+    <img src="/assets/images/product.png" alt="Product Details" width="200">
+    <p>Product Details</p>
+  </div>
+  <div style="text-align: center; margin: 10px;">
+    <img src="/assets/images/shop.png" alt="Cart Screen" width="200">
+    <p>Cart Screen</p>
+  </div>
+</div>
+
+<!-- ![Login Screen](<img src="/assets/images/login.png" width="200">) ![Admin Screen](<img src="/assets/images/admin.png" width="200">) ![Payment Screen](<img src="/assets/images/payment.png" width="200">) -->
+<!-- ![Home Screen](<img src="/assets/images/home.png" width="200">) ![Product Details](<img src="/assets/images/product.png" width="200">) ![Cart Screen](<img src="/assets/images/shop.png" width="200">) -->
