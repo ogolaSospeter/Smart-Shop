@@ -5,17 +5,16 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
-var status = false;
 Future<bool> isNetworkAvailable() async {
   var connectivityResult = await (Connectivity().checkConnectivity());
-  if (connectivityResult == ConnectivityResult.mobile) {
-    status = true;
-  } else if (connectivityResult == ConnectivityResult.wifi) {
-    status = true;
-  } else if (connectivityResult == ConnectivityResult.none) {
-    status = false;
+  if (connectivityResult[0] == ConnectivityResult.mobile ||
+      connectivityResult[0] == ConnectivityResult.wifi) {
+    print(connectivityResult[0]);
+    return true;
+  } else {
+    print(connectivityResult[0]);
+    return false;
   }
-  return status;
 }
 
 //An connection errror page to display when there is no network connection
@@ -54,16 +53,11 @@ class ConnectionError extends StatelessWidget {
                     const SnackBar(
                       elevation: 10.0,
                       padding: EdgeInsets.all(15.0),
-                      margin: EdgeInsets.all(5),
                       content: Text('Retrying to connect to the internet'),
                     ),
                   );
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ConnectionError(),
-                    ),
-                  );
+                  //Retry the connection
+                  Navigator.pop(context);
                 },
                 child: const Text('Retry'),
               )

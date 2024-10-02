@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:smartshop/database/firestore_database.dart';
 import 'package:smartshop/models/database_products.dart';
@@ -52,10 +55,29 @@ class _MainBodyState extends State<MainBody> {
   }
 
   final List<Product> deals = [];
+  StreamSubscription<List<ConnectivityResult>>? connectivitySubscription;
+  bool networkStatus = true;
 
   @override
   void initState() {
     super.initState();
+    connectivitySubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) {
+      if (results.isNotEmpty &&
+          (results.first == ConnectivityResult.mobile ||
+              results.first == ConnectivityResult.wifi)) {
+        setState(() {
+          networkStatus = true;
+        });
+        print("Connected to the internet");
+      } else {
+        setState(() {
+          networkStatus = false;
+        });
+        print("No internet connection");
+      }
+    });
     _getHotDeals().then((value) {
       setState(() {
         deals.addAll(value);
@@ -85,128 +107,184 @@ class _MainBodyState extends State<MainBody> {
 
   @override
   Widget build(BuildContext context) {
-    isFetching = false;
-    if (isFetching) {
-      return const Center(
-        child: CircularProgressIndicator(),
+    print("Network status: $networkStatus");
+    if (networkStatus == false) {
+      return const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Center(
+          child: Text(
+            'You are not connected to the internet. Please check your connection and try again',
+            style: TextStyle(
+              fontSize: 13.0,
+              fontWeight: FontWeight.w400,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
       );
-    }
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            const Text(
-              "Our",
-              style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w500,
+    } else {
+      isFetching = false;
+      if (isFetching) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              const Text(
+                "Our",
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-            const Text(
-              "Products",
-              style: TextStyle(
-                fontSize: 43,
-                fontWeight: FontWeight.bold,
+              const Text(
+                "Products",
+                style: TextStyle(
+                  fontSize: 43,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: TextField(
-                      onChanged: (value) => _filterProducts(),
-                      decoration: InputDecoration(
-                        hintText: "Search for products",
-                        border: InputBorder.none,
-                        icon: IconButton(
-                          onPressed: () {
-                            GestureDetector(
-                              onTap: () => {
-                                //Search for product
-                                _filterProducts(),
-                              },
-                            );
-                          },
-                          icon: const Icon(Icons.search),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: TextField(
+                        onChanged: (value) => _filterProducts(),
+                        decoration: InputDecoration(
+                          hintText: "Search for products",
+                          border: InputBorder.none,
+                          icon: IconButton(
+                            onPressed: () {
+                              GestureDetector(
+                                onTap: () => {
+                                  //Search for product
+                                  _filterProducts(),
+                                },
+                              );
+                            },
+                            icon: const Icon(Icons.search),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(20),
+                  const SizedBox(width: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.filter_alt_outlined),
+                      onPressed: () {},
+                    ),
                   ),
-                  child: IconButton(
-                    icon: const Icon(Icons.filter_alt_outlined),
-                    onPressed: () {},
-                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Daily Deals",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Daily Deals",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
               ),
-            ),
-            const SizedBox(height: 20),
-            DailyDeals(deals: deals),
-            const Text(
-              "Categories",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              DailyDeals(deals: deals),
+              const Text(
+                "Categories",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              reverse: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: categories.map(
-                  (category) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 5),
-                      child: CategoryWidget(category: category),
-                    );
-                  },
-                ).toList(),
+              const SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                reverse: true,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: categories.map(
+                    (category) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: CategoryWidget(category: category),
+                      );
+                    },
+                  ).toList(),
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              "Hot Deals🔥",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 30),
+              const Text(
+                "Hot Deals🔥",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Wrap(
+              const SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Wrap(
+                  alignment: WrapAlignment.start,
+                  children: [
+                    FutureBuilder<List<Product>>(
+                      future: _getHotDeals(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          // Show loading indicator while fetching data
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          // Handle any errors
+                          return Text('Error: ${snapshot.error}');
+                        } else if (snapshot.hasData && snapshot.data != null) {
+                          // If data is fetched successfully
+                          var products = snapshot.data!.take(6);
+                          return Wrap(
+                            children: products.map((product) {
+                              return HotDealsCards(product: product);
+                            }).toList(),
+                          );
+                        } else {
+                          // Handle the case when there's no data
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                "Featured ",
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Wrap(
                 alignment: WrapAlignment.start,
                 children: [
                   FutureBuilder<List<Product>>(
-                    future: _getHotDeals(),
+                    future: _getProducts(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         // Show loading indicator while fetching data
@@ -219,89 +297,51 @@ class _MainBodyState extends State<MainBody> {
                         var products = snapshot.data!.take(6);
                         return Wrap(
                           children: products.map((product) {
-                            return HotDealsCards(product: product);
+                            return ProductCards(product: product);
                           }).toList(),
                         );
                       } else {
                         // Handle the case when there's no data
-                        return const SizedBox.shrink();
+                        return const Text('No products found.');
                       }
                     },
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              "Featured ",
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Wrap(
-              alignment: WrapAlignment.start,
-              children: [
-                FutureBuilder<List<Product>>(
-                  future: _getProducts(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      // Show loading indicator while fetching data
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      // Handle any errors
-                      return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.hasData && snapshot.data != null) {
-                      // If data is fetched successfully
-                      var products = snapshot.data!.take(6);
-                      return Wrap(
-                        children: products.map((product) {
-                          return ProductCards(product: product);
-                        }).toList(),
-                      );
-                    } else {
-                      // Handle the case when there's no data
-                      return const Text('No products found.');
-                    }
-                  },
+              const SizedBox(height: 30),
+              const Text(
+                "Recommended for you",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              "Recommended for you",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
               ),
-            ),
-            const SizedBox(height: 20),
-            StaggeredGrid.count(
-              crossAxisCount: 3,
-              crossAxisSpacing: 3,
-              mainAxisSpacing: 10,
-              children: filteredProducts.map((product) {
-                return ProductCards(product: product);
-              }).toList(),
-            ),
-            // SingleChildScrollView(
-            //   scrollDirection: Axis.vertical,
-            //   child: Wrap(
-            //     alignment: WrapAlignment.start,
-            //     children: [
-            //       Wrap(
-            //         children: filteredProducts.map((product) {
-            //           return ProductCards(product: product);
-            //         }).toList(),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-          ],
+              const SizedBox(height: 20),
+              StaggeredGrid.count(
+                crossAxisCount: 3,
+                crossAxisSpacing: 3,
+                mainAxisSpacing: 10,
+                children: filteredProducts.map((product) {
+                  return ProductCards(product: product);
+                }).toList(),
+              ),
+              // SingleChildScrollView(
+              //   scrollDirection: Axis.vertical,
+              //   child: Wrap(
+              //     alignment: WrapAlignment.start,
+              //     children: [
+              //       Wrap(
+              //         children: filteredProducts.map((product) {
+              //           return ProductCards(product: product);
+              //         }).toList(),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 }

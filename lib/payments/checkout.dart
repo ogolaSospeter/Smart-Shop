@@ -117,6 +117,7 @@ class _CheckoutWidgetState extends State<CheckoutWidget> {
           itemId: item.id,
           custId: user,
           quantity: widget.itemQuantities[item.id]!,
+          paymentStatus: "Pending",
         ));
       }
 
@@ -483,6 +484,7 @@ Future<Map<String, dynamic>> MpesaPaymentGateWay(amount, phone) async {
   String consumerKey = data['ckey'];
   String consumerSecret = data['cst'];
   String passKey = data['sec_cred'];
+  String callbackUrl = data['base_uri'];
 
   MpesaFlutterPlugin.setConsumerKey(consumerKey);
   MpesaFlutterPlugin.setConsumerSecret(consumerSecret);
@@ -496,12 +498,12 @@ Future<Map<String, dynamic>> MpesaPaymentGateWay(amount, phone) async {
       amount: double.parse(amount),
       partyA: phone,
       partyB: "174379",
-      callBackURL: Uri.parse("https://sandbox.safaricom.co.ke/"),
+      callBackURL: Uri.parse(callbackUrl),
       accountReference: "SMARTSHOP PRODUCTS JAMAGUJE",
       // accountReference: "SmartShop Payment",
       phoneNumber: phone,
       transactionDesc: "Purchase",
-      baseUri: Uri.parse("https://sandbox.safaricom.co.ke/"),
+      baseUri: Uri.parse(callbackUrl),
       passKey: passKey,
     );
 

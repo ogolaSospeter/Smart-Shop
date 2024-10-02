@@ -336,7 +336,7 @@ class DatabaseHelper {
         id: maps[i]['id'] as int,
         name: maps[i]['name'] as String,
         value: maps[i]['value'] as String,
-        image: maps[i]['image'] as String,
+        image: maps[i]['image'],
         isSelected: maps[i]['isSelected'] == 1,
       );
     });
@@ -482,6 +482,7 @@ class DatabaseHelper {
         itemId: maps[i]['itemId'],
         custId: maps[i]['custId'] as String,
         quantity: maps[i]['quantity'] as int,
+        paymentStatus: maps[i]['paymentStatus'] as String,
       );
     });
   }
@@ -503,6 +504,7 @@ class DatabaseHelper {
         itemId: maps[i]['itemId'],
         custId: maps[i]['custId'] as String,
         quantity: maps[i]['quantity'] as int,
+        paymentStatus: maps[i]['paymentStatus'] as String,
       );
     });
   }

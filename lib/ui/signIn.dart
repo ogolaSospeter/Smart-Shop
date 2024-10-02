@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:smartshop/config/network.dart';
@@ -27,6 +29,27 @@ class _SignInState extends State<SignIn> {
 
   bool _obscurePassword = true;
   final FirestoreDatabaseHelper databaseHelper = FirestoreDatabaseHelper();
+  var networkStatus;
+  StreamSubscription<List<ConnectivityResult>>? connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    connectivitySubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((List<ConnectivityResult> results) {
+      if (results.isNotEmpty &&
+          (results.first == ConnectivityResult.mobile ||
+              results.first == ConnectivityResult.wifi)) {
+        networkStatus = true;
+        print("Connected to the internet");
+      } else {
+        networkStatus = false;
+        print("No internet connection");
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,11 +156,9 @@ class _SignInState extends State<SignIn> {
                             ),
                           ),
                           onPressed: () async {
-                            var connectivityResult =
-                                await (Connectivity().checkConnectivity());
-
-                            if (connectivityResult[0] ==
-                                ConnectivityResult.none) {
+                            var connectivityResult = await isNetworkAvailable();
+                            print("Connectivity result: $connectivityResult");
+                            if (connectivityResult == false) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -313,5 +334,6 @@ class _SignInState extends State<SignIn> {
     _focusNodePassword.dispose();
     _controllerUsername.dispose();
     _controllerPassword.dispose();
+    connectivitySubscription?.cancel();
   }
 }

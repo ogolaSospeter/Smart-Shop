@@ -125,22 +125,8 @@ class _ProductPageState extends State<ProductPage> {
               isAddingToCart = false;
             });
             isAddingToCart
-                ? const Column(
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Adding to cart...",
-                        style: TextStyle(
-                          color: Colors.deepPurple,
-                          fontSize: 16,
-                          fontFamily: "Poppins",
-                        ),
-                      ),
-                    ],
-                  )
+                ? const ScaffoldMessenger(
+                    child: SnackBar(content: Text('Adding product to cart...')))
                 :
                 //show a snackbar with a success message
                 ScaffoldMessenger.of(context).showSnackBar(

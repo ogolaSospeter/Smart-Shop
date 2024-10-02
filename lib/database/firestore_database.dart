@@ -325,6 +325,7 @@ class FirestoreDatabaseHelper {
       'itemId': order.itemId,
       'custId': order.custId,
       'quantity': order.quantity,
+      'paymentStatus': order.paymentStatus,
     });
   }
 
@@ -345,6 +346,7 @@ class FirestoreDatabaseHelper {
         itemId: data['itemId'],
         custId: data['custId'],
         quantity: data['quantity'],
+        paymentStatus: data['paymentStatus'],
       );
     }).toList();
   }
@@ -450,6 +452,7 @@ class FirestoreDatabaseHelper {
         itemId: data['itemId'],
         custId: data['custId'],
         quantity: data['quantity'],
+        paymentStatus: data['paymentStatus'],
       );
     }).toList();
   }
@@ -496,6 +499,7 @@ class FirestoreDatabaseHelper {
         itemId: data['itemId'],
         custId: data['custId'],
         quantity: data['quantity'],
+        paymentStatus: data['paymentStatus'],
       );
     }
     return null;
@@ -530,6 +534,7 @@ class FirestoreDatabaseHelper {
         itemId: data['itemId'],
         custId: data['custId'],
         quantity: data['quantity'],
+        paymentStatus: data['paymentStatus'],
       );
     }).toList();
   }
@@ -551,6 +556,7 @@ class FirestoreDatabaseHelper {
         itemId: data['itemId'],
         custId: data['custId'],
         quantity: data['quantity'],
+        paymentStatus: data['paymentStatus'],
       );
     }).toList();
   }
@@ -574,6 +580,7 @@ class FirestoreDatabaseHelper {
         itemId: data['itemId'],
         custId: data['custId'],
         quantity: data['quantity'],
+        paymentStatus: data['paymentStatus'],
       );
     }).toList();
   }
@@ -590,6 +597,22 @@ class FirestoreDatabaseHelper {
           .collection('orders')
           .doc(docId)
           .update({'orderStatus': 'Cancelled'});
+    }
+  }
+
+  //update the order payment status
+  Future<void> updateOrderPaymentStatus(
+      int orderId, String paymentStatus) async {
+    var querySnapshot = await _firestore
+        .collection('orders')
+        .where('orderId', isEqualTo: orderId)
+        .get();
+    if (querySnapshot.docs.isNotEmpty) {
+      var docId = querySnapshot.docs.first.id;
+      await _firestore
+          .collection('orders')
+          .doc(docId)
+          .update({'paymentStatus': paymentStatus});
     }
   }
 }

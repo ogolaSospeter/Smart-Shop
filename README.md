@@ -39,4 +39,6 @@ Contributions are welcome! If you have any suggestions or find issues, feel free
 - Open a pull request
 
 ## Product Screens
- * Coming Soon
+//add 3 images in a row
+![Login Screen](/assets/images/login.png) ![Admin Screen](/assets/images/admin.png) ![Payment Screen](/assets/images/payment.png)
+![Home Screen](/assets/images/home.png) ![Product Details](/assets/images/product.png) ![Cart Screen](/assets/images/shop.png)
