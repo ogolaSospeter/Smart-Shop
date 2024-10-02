@@ -41,20 +41,20 @@ Contributions are welcome! If you have any suggestions or find issues, feel free
 ## Product Screens
 
 <p style="text-align: center; ">Login Screen</p>
-![Login Screen](assets/images/login.png)
+![Login Screen](/assets/images/login.png)
 
 <p style="text-align: center; ">Admin Screen</p>
-![Admin Screen](assets/images/admin.png)
+![Admin Screen](/assets/images/admin.png)
 
 
 <p style="text-align: center; ">Home Screen</p>
-![Home Screen](assets/images/home.png)
+![Home Screen](/assets/images/home.png)
 
 <p style="text-align: center; ">Product Details</p>
-![Product Details](assets/images/product.png)
+![Product Details](/assets/images/product.png)
 
 <p style="text-align: center; ">Cart Screen</p>
-![Cart Screen](assets/images/shop.png)
+![Cart Screen](/assets/images/shop.png)
 
 <p style="text-align: center; ">Payment Screen</p>
 
