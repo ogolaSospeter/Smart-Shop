@@ -40,24 +40,24 @@ Contributions are welcome! If you have any suggestions or find issues, feel free
 
 ## Product Screens
 
-<p style="text-align: center; width: 200;">Login Screen</p>
+<p style="text-align: center; ">Login Screen</p>
 ![Login Screen](assets/images/login.png)
 
-<p style="text-align: center; width: 200;">Admin Screen</p>
+<p style="text-align: center; ">Admin Screen</p>
 ![Admin Screen](assets/images/admin.png)
 
 
-<p style="text-align: center; width: 200;">Home Screen</p>
+<p style="text-align: center; ">Home Screen</p>
 ![Home Screen](assets/images/home.png)
 
-<p style="text-align: center; width: 200;">Product Details</p>
+<p style="text-align: center; ">Product Details</p>
 ![Product Details](assets/images/product.png)
 
-<p style="text-align: center; width: 200;">Cart Screen</p>
+<p style="text-align: center; ">Cart Screen</p>
 ![Cart Screen](assets/images/shop.png)
 
-<p style="text-align: center; width: 200;">Payment Screen</p>
-![Payment Screen](assets/images/payment.png)
+<p style="text-align: center; ">Payment Screen</p>
+
 
 
 <!-- ![Login Screen](<img src="/assets/images/login.png" width="200">) ![Admin Screen](<img src="/assets/images/admin.png" width="200">) ![Payment Screen](<img src="/assets/images/payment.png" width="200">) -->
