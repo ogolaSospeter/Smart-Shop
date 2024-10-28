@@ -249,7 +249,7 @@ class _SignupState extends State<Signup> {
                                 await databaseHelper.insertUser(user);
 
                                 authMessage =
-                                    "The User has been registered successfully";
+                                    "User $username has been registered successfully";
 
                                 authMessage =
                                     "Registration Completed Successfully";
